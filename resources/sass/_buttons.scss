@@ -1,0 +1,14 @@
+// Botón principal
+.btn-cafe {
+  @include boton($color-primary, white);
+}
+
+// Botón secundario
+.btn-dorado {
+  @include boton($color-secondary, $color-dark);
+}
+
+// Botón claro
+.btn-beige {
+  @include boton($color-accent, $color-dark);
+}

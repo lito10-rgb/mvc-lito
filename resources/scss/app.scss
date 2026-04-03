@@ -1,0 +1,112 @@
+// Bootstrap
+// @import "bootstrap/scss/bootstrap";
+
+// FontAwesome
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+// Tus variables y mixins
+@import "variables";
+@import "bootstrap/scss/bootstrap";
+@import "mixins";
+//lito
+// @import "base/variables";
+@import "base/spacing";
+@import "cart/cart";
+@import 'componentes/buttons';
+// Estilos de layout
+@import "header";
+@import "footer";
+@import "breadcrumb";
+@import "megamenu"; //
+@include tab-style($active-color);
+@include related-products-style();
+@include related-style($active-color: #c5a200);
+/* clase para la imagen principal para que tenga transición suave */
+.product-main-image img,
+#product-main-img,
+.main-image img,
+.product-gallery-main img {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+  cursor: zoom-in;
+}
+
+/* clase que aplica el efecto cuando quieres agrandar (JS puede añadir/remove) */
+.product-main-image img.enlarged,
+#product-main-img.enlarged,
+.main-image img.enlarged {
+  transform: scale(1.06);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+.product-main-image img:hover,
+#product-main-img:hover {
+  transform: scale(1.06);
+}
+/* transición y overflow para zoom */
+.zoom-wrapper {
+  overflow: hidden;
+  position: relative;
+  display: block;
+}
+.zoom-wrapper img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 220ms ease, transform-origin 0.2s ease;
+  will-change: transform;
+}
+
+/* clase activa que aplica el zoom */
+.zoom-wrapper.activo img {
+  /* el transform se aplica dinámicamente en JS (scale) */
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+/////miniaturas
+/* miniaturas estilo iconos */
+.mySwiper {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+.mySwiper .swiper-slide {
+  width: auto !important;
+  padding: 0.15rem;
+  box-sizing: content-box;
+}
+.mySwiper .swiper-slide img {
+  width: 56px;           /* tamaño del icono */
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: block;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.mySwiper .swiper-slide img:hover {
+  transform: scale(1.02);
+}
+.mySwiper .swiper-slide img.thumb-active {
+  border-color: #ffc107; /* color que indica activo (amarillo) */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+// *****
+/* ajustes estéticos para el buscador */
+.select-dorado {
+  border-color: #c5a200;
+}
+section.bg-light .form-control,
+section.bg-light .form-select {
+  background: #fff;
+}
+@media (min-width: 768px) {
+  .select-dorado { min-height: 44px; }
+}
+// lito
+.form-check-input:checked {
+  background-color: #198754; /* Verde */
+  border-color: #198754;
+}
+
+.form-check-label {
+  color: #333;
+  font-weight: 500;
+}

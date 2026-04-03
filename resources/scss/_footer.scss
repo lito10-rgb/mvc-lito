@@ -1,0 +1,133 @@
+.footer-main {
+  background: darken($color-cafe, 10%);
+  padding: 2rem 0;
+  text-align: center;
+  // border-top: 2px solid $color-dorado; // opcional, si quieres borde
+
+  span,
+  a {
+    color: $color-dorado; // texto en dorado
+  }
+
+  a:hover {
+    color: lighten($color-dorado, 15%); // un dorado más claro al pasar el mouse
+  }
+}
+// lito<style lang="scss">
+$footer-bg: #1a1a1a;
+$footer-color: #f0f0f0;
+$footer-accent: #ffcc00;
+
+.footer {
+  background-color: $footer-bg;
+  color: $footer-color;
+  font-family: Arial, sans-serif;
+
+  .footer-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 40px 20px;
+    border-bottom: 1px solid darken($footer-bg, 10%);
+  }
+
+  .footer-section {
+    flex: 1 1 200px;
+    margin: 10px;
+
+    h4 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: $footer-accent;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin-bottom: 10px;
+
+        a {
+          color: $footer-color;
+          text-decoration: none;
+          transition: color 0.3s;
+
+          &:hover {
+            color: $footer-accent;
+          }
+        }
+      }
+    }
+  }
+
+  .newsletter-form {
+    display: flex;
+    input {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 3px 0 0 3px;
+    }
+    button {
+      padding: 8px 12px;
+      border: none;
+      background-color: $footer-accent;
+      color: $footer-bg;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 0 3px 3px 0;
+      transition: background 0.3s;
+
+      &:hover {
+        background-color: darken($footer-accent, 10%);
+      }
+    }
+  }
+
+  .social-icons {
+    a {
+      display: inline-block;
+      margin-right: 10px;
+      font-size: 20px;
+      color: $footer-color;
+      transition: color 0.3s, transform 0.3s;
+
+      &:hover {
+        color: $footer-accent;
+        transform: scale(1.2);
+      }
+    }
+  }
+
+  .footer-bottom {
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+  }
+}
+.contactenos {
+  h4 {
+    color: $footer-accent; // tu color principal
+    margin-bottom: 15px;
+  }
+
+  .contact-list {
+    list-style: none;
+    padding: 0;
+
+    li {
+      margin-bottom: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+
+      i {
+        margin-right: 8px;
+        color: $footer-accent;
+        min-width: 20px;
+        text-align: center;
+      }
+    }
+  }
+}

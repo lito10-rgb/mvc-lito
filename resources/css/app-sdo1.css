@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Mostrar el megamenú al hacer hover en escritorio */
+@media (min-width: 992px) {
+  .mega-dropdown {
+    position: relative;
+    z-index: 1000;
+  }
+
+  .mega-dropdown:hover .dropdown-menu {
+    display: block;
+  }
+}
+
+/* Mega menú principal */
+.dropdown-menu.mega-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  border-top: 3px solid #0d6efd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 1rem 2rem;
+  z-index: 1001;
+}
+
+/* Distribución interna */
+.mega-menu .row {
+  flex-wrap: wrap;
+  justify-content: start;
+}
+
+/* Columna de cada categoría */
+.mega-menu .col-md-3 {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* Enlace de categoría principal */
+.mega-menu h6 a,
+.mega-menu .dropdown-item {
+  color: #212529;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 0.95rem;
+  display: block;
+  padding: 0.25rem 0;
+}
+
+/* Hover general */
+.mega-menu a:hover {
+  color: #0d6efd;
+}
+
+/* Submenú de subcategorías */
+.mega-menu .col-md-3 > ul {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  min-width: 200px;
+  background-color: #fff;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1rem;
+  display: none;
+  z-index: 1003;
+}
+
+/* Mostrar subcategorías al hover de categoría */
+.mega-menu .col-md-3:hover > ul {
+  display: block;
+}

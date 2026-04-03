@@ -1,0 +1,16 @@
+// Colores personalizados
+$color-primary: #5C2C0C;  // Marrón café
+$color-secondary: #D4A373; // Dorado suave
+$color-accent: #F5E6D3;   // Beige
+$color-dark: #2C1810;     // Marrón oscuro
+$color-light: #FFF9F4;    // Fondo claro
+////////
+$danger: #dc3545;
+$warning: #ffc107;
+$light: #f8f9fa;
+$dark: #212529;
+// Sobrescribir variables de Bootstrap
+$primary: $color-primary;
+$secondary: $color-secondary;
+$body-bg: $color-light;
+$body-color: $color-dark;

@@ -1,0 +1,64 @@
+/*@import "~@fortawesome/fontawesome-free/css/all.min.css";*/
+/* Estilo general de fondo y enlaces */
+.hover-bg:hover {
+    background-color: #343a40 !important;
+}
+
+.dropdown-mega {
+    position: relative;
+}
+
+/* Trigger del hover */
+.dropdown-mega-trigger {
+    position: relative;
+}
+
+/* MEGAMENU */
+.dropdown-mega .mega-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 80vw;
+    background-color: #212529;
+    z-index: 9999;
+    padding: 2rem 1rem;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+/* Mostrar al hacer hover */
+.dropdown-mega:hover .mega-menu {
+    display: block;
+}
+
+/* Asegura que los enlaces del megamenú no se vean apretados */
+.mega-menu a {
+    text-decoration: none;
+    display: block;
+    transition: all 0.2s ease-in-out;
+    padding: 4px 8px;
+}
+
+/* Letra general */
+.navbar-nav .nav-link {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+/* Responsive: cambia el estilo del megamenú en móviles */
+@media (max-width: 991.98px) {
+    .dropdown-mega .mega-menu {
+        position: static;
+        transform: none;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .dropdown-mega:hover .mega-menu {
+        display: block;
+    }
+}

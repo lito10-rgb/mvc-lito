@@ -1,0 +1,58 @@
+// Importar Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// Importar mis estilos
+@import "variables";
+@import "mixins";
+@import "buttons";
+// hasta aqui
+body {
+  background-color: #f9f9f9;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.fichas h3 {
+  background: #007bff;
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.fichas div {
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+.breadcrumb {
+  background-color: transparent;
+  font-size: 0.9rem;
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    padding: 0 8px;
+  }
+}
+.select-dorado {
+  background-color: $color-fondo !important;
+  color: #000 !important; // texto negro
+  border: 1px solid darken($color-fondo, 10%);
+  font-weight: 500;
+
+  // Cambia el color al hacer hover o focus
+  &:focus {
+    background-color: lighten($color-dorado, 5%) !important;
+    color: #000 !important;
+    box-shadow: 0 0 0 0.25rem rgba($color-dorado, 0.4);
+    border-color: darken($color-dorado, 15%);
+  }
+
+  // Opcional: cambiar color del "caret" (flecha del select en algunos navegadores)
+  option {
+    background-color: #fff;
+    color: #000;
+  }
+}

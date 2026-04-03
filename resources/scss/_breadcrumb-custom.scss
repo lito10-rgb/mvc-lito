@@ -1,0 +1,16 @@
+.breadcrumb-custom {
+  background: transparent;
+  font-size: 0.9rem;
+
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: $color-dorado;
+  }
+
+  .breadcrumb-item a {
+    color: $color-cafe;
+    &:hover {
+      color: $color-dorado;
+    }
+  }
+}

@@ -1,0 +1,73 @@
+// Variables de colores
+$color-dorado: #c5a200;
+$color-cafe: #103067;
+$color-fondo: #f8f5f2;
+$color-header-1:  #103067;
+$color-header-2: #103067;
+// $color-header-2: #817964;
+$color-enlace: #c5a200;
+/////////////nuevos botones
+$info: #17a2b8;
+$danger: #dc3545;
+$warning: #ffc107;
+$light: #f8f9fa;
+$dark: #212529;
+///////
+// Colores personalizados
+$active-color: #d4af37; // dorado elegante
+$tab-bg: #f8f9fa;
+$tab-border: #dee2e6;
+// Tipografía
+$font-family-base: 'Poppins', sans-serif;
+// *********
+// Sobrescribir Bootstrap
+$primary: $color-cafe;
+$secondary: $color-dorado;
+
+// Tamaños de botones
+$btn-padding-y: 0.6rem;
+$btn-padding-x: 1.4rem;
+$btn-font-size: 1.05rem;
+$btn-border-radius: 10px;
+
+// Colores de paginación
+$pagination-color: #fff;
+$pagination-bg: $color-cafe;
+$pagination-border-color: $color-cafe;
+
+$pagination-hover-color: #fff;
+$pagination-hover-bg: darken($color-cafe, 8%);
+$pagination-hover-border-color: darken($color-cafe, 8%);
+
+$pagination-active-color: #212529;
+$pagination-active-bg: $color-dorado;
+$pagination-active-border-color: $color-dorado;
+////cd
+// Hover
+// $btn-primary-hover-bg: darken($color-enlace, 80%);
+// $btn-primary-hover-border-color: darken($color-enlace, 12%);
+// $btn-primary-hover-color: $color-dorado;
+// 🎨 Colores principales
+$primary-color: #2563eb;      // azul elegante
+$primary-hover: #1e40af;
+
+$text-dark: #1f2937;
+$text-light: #6b7280;
+
+$bg-light: #f8fafc;
+$bg-white: #ffffff;
+
+$border-soft: #e5e7eb;
+
+// 🌫 Sombras
+$shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+// 🔠 Tipografía
+$font-main: 'Inter', sans-serif;
+
+// 📐 Bordes
+$radius-md: 12px;
+$radius-sm: 8px;
+
+// ⏱ Transiciones
+$transition-fast: all .3s ease;

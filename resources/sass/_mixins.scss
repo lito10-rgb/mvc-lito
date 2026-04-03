@@ -1,0 +1,24 @@
+// Mixin para botones personalizados
+@mixin boton($bg, $color: white) {
+  background: $bg;
+  color: $color;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: darken($bg, 10%); // oscurece al hacer hover
+    transform: translateY(-2px); // leve animación
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+  }
+
+  i {
+    font-size: 1rem; // Íconos de FontAwesome
+  }
+}

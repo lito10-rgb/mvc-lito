@@ -1,0 +1,74 @@
+// ============================================
+// VARIABLES DE MARCA
+// ============================================
+$color-cafe:   #6f4e37;
+$color-dorado: #d4af37;
+$color-beige:  #f5f5dc;
+
+// ============================================
+// IMPORTS
+// ============================================
+
+// Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+// FontAwesome
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+// ============================================
+// MIXIN PARA BOTONES REUTILIZABLES
+// ============================================
+@mixin button-style($bg-color, $text-color, $hover-color, $padding, $radius) {
+  @extend .btn;
+  background-color: $bg-color;
+  color: $text-color;
+  padding: $padding;
+  border-radius: $radius;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: $hover-color;
+    color: $text-color;
+  }
+}
+
+// ============================================
+// EJEMPLOS DE BOTONES CON MIXIN
+// ============================================
+
+.btn-cafe {
+  @include button-style(
+    $color-cafe, 
+    white, 
+    darken($color-cafe, 10%), 
+    0.5rem 1rem, 
+    0.375rem
+  );
+}
+
+.btn-dorado {
+  @include button-style(
+    $color-dorado, 
+    white, 
+    darken($color-dorado, 10%), 
+    0.5rem 1rem, 
+    0.375rem
+  );
+}
+
+.btn-beige {
+  @include button-style(
+    $color-beige, 
+    #333, 
+    darken($color-beige, 10%), 
+    0.5rem 1rem, 
+    0.375rem
+  );
+}
+
+// ============================================
+// OTROS ESTILOS BASE
+// ============================================
+body {
+  background-color: #f8f9fa;
+}

@@ -1,0 +1,315 @@
+@mixin degradado($color1, $color2) {
+  background: linear-gradient(to right, $color1, $color2);
+}
+
+@mixin boton($bg, $color) {
+  background: $bg;
+  color: $color;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+}
+.select-dorado {
+  background-color: $color-fondo;
+  color: #000;
+  border: 1px solid darken($color-fondo, 10%);
+  font-weight: 500;
+
+  &:focus {
+    border-color: darken($color-dorado, 15%);
+    box-shadow: 0 0 0 0.25rem rgba($color-dorado, 0.4);
+  }
+
+  // Opciones internas
+  option {
+    background-color: $color-dorado;
+    color: #000;
+
+    &:hover,
+    &:focus,
+    &:checked {
+      background-color: darken($color-dorado, 8%) !important;
+      color: #000 !important;
+    }
+  }
+}
+
+// cart
+// _mixins.scss
+@mixin card-hover {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+  &:hover {
+    background-color: lighten($color-fondo, 45%);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    transform: translateY(-6px);
+  }
+
+  img {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+
+  .categoria {
+    font-size: 0.8rem;
+    color: $color-dorado;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    a {
+      color: $color-cafe;
+      text-decoration: none;
+      transition: color 0.3s ease-in-out;
+      &:hover {
+        color: $color-dorado;
+      }
+    }
+  }
+
+  .precio {
+    font-size: 1rem;
+    font-weight: bold;
+    color: $color-cafe;
+    margin-bottom: 1rem;
+
+    .precio-oferta {
+      color: $color-dorado;
+      margin-left: 0.5rem;
+    }
+
+    .precio-tachado {
+      text-decoration: line-through;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  }
+
+  .btn-comprar {
+    background-color: $color-dorado;
+    color: black;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+      background-color: darken($color-dorado, 10%);
+      color: white;
+    }
+  }
+}
+
+// Uso
+.card-producto {
+  @include card-hover;
+}
+// _mixins.scss img zomm
+// Mixin para zoom dinámico
+@mixin zoom-dinamico($zoom: 2) {
+  position: relative;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    display: block;
+    transition: transform 0.2s ease;
+    transform-origin: center center;
+  }
+
+  &.activo img {
+    transform: scale($zoom);
+    cursor: crosshair;
+  }
+}
+
+// Clase aplicada al wrapper
+.zoom-wrapper {
+  @include zoom-dinamico(2.2); // puedes ajustar el valor de zoom
+}
+////lito
+@mixin swiper-slide-size($height) {
+  .swiper-slide {
+    height: $height;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img, iframe {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+}
+
+// usar en el swiper principal
+.mySwiper2 {
+  @include swiper-slide-size(500px);
+}
+// Mixin SCSS para los botones
+@mixin btn-custom($bg, $color, $hover-bg, $hover-color) {
+  background-color: $bg;
+  color: $color;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: $hover-bg;
+    color: $hover-color;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+}
+// Botones con mixin
+.btn-custom {
+  &.primary   { @include btn-custom($primary, $light, darken($primary, 10%), $light); }
+  &.secondary { @include btn-custom($secondary, $light, darken($secondary, 10%), $light); }
+  &.info      { @include btn-custom($info, $light, darken($info, 10%), $light); }
+  &.danger    { @include btn-custom($danger, $light, darken($danger, 10%), $light); }
+  &.warning   { @include btn-custom($warning, $dark, darken($warning, 10%), $dark); }
+}
+// ****************social
+@mixin social-icon($color, $hover-color) {
+  color: $color;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: $hover-color;
+    transform: scale(1.2);
+  }
+}
+.compartir a {
+  text-decoration: none;
+
+  i {
+    margin-right: 0.5rem;
+  }
+
+  .fa-facebook  { @include social-icon(#3b5998, darken(#3b5998, 15%)); }
+  .fa-instagram { @include social-icon(#e1306c, darken(#e1306c, 15%)); }
+  .fa-pinterest { @include social-icon(#bd081c, darken(#bd081c, 15%)); }
+}
+/////lito tabs
+@mixin tab-style($active-color: $color-dorado, $border-color: lighten($color-cafe, 60%)) {
+  .product-tabs {
+    .tabs {
+      .nav-link {
+        color: $color-cafe;
+        border: 1px solid transparent;
+        border-bottom: none;
+        font-weight: 600;
+        padding: 0.75rem 1.25rem;
+        transition: color 0.3s, background-color 0.3s;
+
+        &.active {
+          color: $active-color !important;
+          background-color: lighten($active-color, 45%) !important;
+          border-color: $border-color;
+          border-top-left-radius: 0.5rem;
+          border-top-right-radius: 0.5rem;
+        }
+      }
+    }
+
+    .tab-content {
+      border: 1px solid $border-color;
+      border-top: none;
+    }
+  }
+}
+// LITO NUEVO PRODUCTOS RELACIONADOS
+@mixin related-products-style(
+  $bg: #fff,
+  $shadow: 0 4px 12px rgba(0, 0, 0, 0.08),
+  $radius: 12px,
+  $active-color: #d4af37
+) {
+  .related-products {
+    h3 {
+      color: $active-color;
+      font-weight: 700;
+    }
+
+    .product-card {
+      background: $bg;
+      border-radius: $radius;
+      box-shadow: $shadow;
+      text-align: center;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      }
+
+      img {
+        max-height: 220px;
+        object-fit: cover;
+      }
+
+      h5 {
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      .precio {
+        font-size: 1.1rem;
+        color: $active-color;
+      }
+
+      .btn {
+        border-radius: $radius;
+      }
+    }
+  }
+}
+//mixin carrusel
+@mixin related-style($active-color: gold) {
+  .relacionados {
+    h3 {
+      color: $active-color;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+      width: 5%;
+    }
+  }
+}
+
+// .product-tabs {
+//   @include tab-style;
+// }
