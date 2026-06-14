@@ -5,7 +5,7 @@
         "build": "vite build",
         "dev": "vite"
     },
-    "devDependencies": {
+    "devDependencies": {P
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.8.2",
         "concurrently": "^9.0.1",

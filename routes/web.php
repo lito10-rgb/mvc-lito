@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\MarcaController as AdminMarcaController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\BlogController;
 
 
@@ -58,13 +59,20 @@ Route::post('/carrito/vaciar', [CarritoController::class, 'vaciar'])->name('carr
 // Nueva ruta para obtener solo el count (JSON)
 Route::get('/carrito/count', [CarritoController::class, 'count'])->name('carrito.count');
 
-/* Admin */
+/* Admin - Auth */
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/', [AdminAuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+});
+
+/* Admin - Protegidas */
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
     Route::resource('productos', AdminProductoController::class);
 });
-Route::get('/admin', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
 
 /* Producto - vista rápida (admin) */
 Route::get('/producto/vista-rapida/{id}', [AdminProductoController::class, 'vistaRapida'])->name('producto.vistaRapida');
@@ -154,9 +162,9 @@ Route::post('/contacto', [ContactoController::class, 'enviar'])->name('contacto.
 //     ->name('admin.productos.eliminarMultiple');
 Route::post('/admin/productos/eliminar-multiple', 
     [AdminProductoController::class, 'eliminarMultiple']
-)->name('admin.productos.eliminarMultiple');
+)->name('admin.productos.eliminarMultiple')->middleware('admin');
 /////lito
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     // 🔹 rutas especiales de usuarios (ANTES)
     Route::get('usuarios/asignar', [UserAdminController::class, 'asignarView'])
         ->name('usuarios.asignar.view');
@@ -188,7 +196,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 // 7///////////
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('subcategorias', SubcategoriaController::class);
 
     Route::post('subcategorias/eliminar-multiple', 
@@ -196,7 +204,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     )->name('subcategorias.eliminarMultiple');
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('proveedores', AdminProveedorController::class);
     Route::post('proveedores/eliminar-multiple', [AdminProveedorController::class, 'eliminarMultiple'])
          ->name('proveedores.eliminarMultiple');
@@ -205,7 +213,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // =====================
 // ADMIN - MARCAS
 // =====================
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('marcas', \App\Http\Controllers\Admin\MarcaController::class);
 
     // Eliminar múltiples

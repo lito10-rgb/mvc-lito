@@ -1,0 +1,905 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "routes/web.php",
+			"settings":
+			{
+				"buffer_size": 11452,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					1,
+					1,
+					"revert",
+					null,
+					"AwAAAAAAAAAAAAAAAAAAAAAAAACgKgAAPD9waHAKCnVzZSBJbGx1bWluYXRlXFN1cHBvcnRcRmFjYWRlc1xSb3V0ZTsKdXNlIEFwcFxIdHRwXENvbnRyb2xsZXJzXEhvbWVDb250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcUHJvZHVjdG9zQ29udHJvbGxlcjsKdXNlIEFwcFxIdHRwXENvbnRyb2xsZXJzXENhdGVnb3JpYUNvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xTdWJjYXRlZ29yaWFzQ29udHJvbGxlcjsKdXNlIEFwcFxIdHRwXENvbnRyb2xsZXJzXEFkbWluXFByb2R1Y3RvQ29udHJvbGxlciBhcyBBZG1pblByb2R1Y3RvQ29udHJvbGxlcjsKdXNlIEFwcFxIdHRwXENvbnRyb2xsZXJzXENhcnJpdG9Db250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcRmF2b3JpdG9Db250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcQXV0aENvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xDaGVja291dENvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xDb3RpemFjaW9uQ29udHJvbGxlcjsKdXNlIEFwcFxIdHRwXENvbnRyb2xsZXJzXFBlcmZpbENvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xQZWRpZG9Db250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcTVBUZXN0Q29udHJvbGxlcjsKdXNlIEFwcFxIdHRwXENvbnRyb2xsZXJzXE1QRGVidWdDb250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcQ29udGFjdG9Db250cm9sbGVyOwovLy8vYWRtaW4KdXNlIEFwcFxIdHRwXENvbnRyb2xsZXJzXEFkbWluXFVzZXJBZG1pbkNvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xBZG1pblxTdWJjYXRlZ29yaWFDb250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcQWRtaW5cUHJvdmVlZG9yQ29udHJvbGxlciBhcyBBZG1pblByb3ZlZWRvckNvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xBZG1pblxNYXJjYUNvbnRyb2xsZXIgYXMgQWRtaW5NYXJjYUNvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xVYmljYWNpb25Db250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcT3JkZXJDb250cm9sbGVyOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcQWRtaW5cUG9zdENvbnRyb2xsZXI7CnVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xCbG9nQ29udHJvbGxlcjsKCgoKCi8qCnwtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp8IFdlYiBSb3V0ZXMKfC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiovCgpSb3V0ZTo6Z2V0KCcvJywgW0hvbWVDb250cm9sbGVyOjpjbGFzcywgJ21lbnUnXSktPm5hbWUoJ2hvbWUnKTsKCi8qIFByb2R1Y3RvcyAqLwpSb3V0ZTo6Z2V0KCcvcHJvZHVjdG9zJywgW1Byb2R1Y3Rvc0NvbnRyb2xsZXI6OmNsYXNzLCAnaW5kZXgnXSktPm5hbWUoJ3Byb2R1Y3Rvcy5pbmRleCcpOwpSb3V0ZTo6Z2V0KCcvcHJvZHVjdG9zL2J1c2NhcicsIFtQcm9kdWN0b3NDb250cm9sbGVyOjpjbGFzcywgJ2J1c2NhciddKS0+bmFtZSgncHJvZHVjdG9zLmJ1c2NhcicpOwpSb3V0ZTo6Z2V0KCcvcHJvZHVjdG8ve3J1dGF9JywgW1Byb2R1Y3Rvc0NvbnRyb2xsZXI6OmNsYXNzLCAnbW9zdHJhclByb2R1Y3RvJ10pLT5uYW1lKCdwcm9kdWN0by5tb3N0cmFyJyk7CgovKiBDYXRlZ29yw61hcyAvIFN1YmNhdGVnb3LDrWFzICovClJvdXRlOjpwcmVmaXgoJ2NhdGVnb3JpYScpLT5uYW1lKCdjYXRlZ29yaWEuJyktPmdyb3VwKGZ1bmN0aW9uICgpIHsKICAgIFJvdXRlOjpnZXQoJy8nLCBbQ2F0ZWdvcmlhQ29udHJvbGxlcjo6Y2xhc3MsICdpbmRleCddKS0+bmFtZSgnaW5kZXgnKTsKICAgIFJvdXRlOjpnZXQoJy97aWR9JywgW0NhdGVnb3JpYUNvbnRyb2xsZXI6OmNsYXNzLCAnc2hvdyddKS0+bmFtZSgnc2hvdycpOwp9KTsKUm91dGU6OmdldCgnL3N1YmNhdGVnb3JpYS97aWRfY2F0ZWdvcmlhfScsIFtTdWJjYXRlZ29yaWFzQ29udHJvbGxlcjo6Y2xhc3MsICdwb3JDYXRlZ29yaWEnXSk7CgovKiBDYXJyaXRvICovClJvdXRlOjpwb3N0KCcvY2Fycml0by9hZ3JlZ2FyL3twcm9kdWN0b30nLCBbQ2Fycml0b0NvbnRyb2xsZXI6OmNsYXNzLCAnYWdyZWdhciddKS0+bmFtZSgnY2Fycml0by5hZ3JlZ2FyJyk7ClJvdXRlOjpnZXQoJy9jYXJyaXRvJywgW0NhcnJpdG9Db250cm9sbGVyOjpjbGFzcywgJ2luZGV4J10pLT5uYW1lKCdjYXJyaXRvLmluZGV4Jyk7ClJvdXRlOjpwb3N0KCcvY2Fycml0by9lbGltaW5hci97aWR9JywgW0NhcnJpdG9Db250cm9sbGVyOjpjbGFzcywgJ2VsaW1pbmFyJ10pLT5uYW1lKCdjYXJyaXRvLmVsaW1pbmFyJyk7ClJvdXRlOjpwb3N0KCcvY2Fycml0by92YWNpYXInLCBbQ2Fycml0b0NvbnRyb2xsZXI6OmNsYXNzLCAndmFjaWFyJ10pLT5uYW1lKCdjYXJyaXRvLnZhY2lhcicpOwovLyAqKioqKioqKioKLy8gTnVldmEgcnV0YSBwYXJhIG9idGVuZXIgc29sbyBlbCBjb3VudCAoSlNPTikKUm91dGU6OmdldCgnL2NhcnJpdG8vY291bnQnLCBbQ2Fycml0b0NvbnRyb2xsZXI6OmNsYXNzLCAnY291bnQnXSktPm5hbWUoJ2NhcnJpdG8uY291bnQnKTsKCi8qIEFkbWluICovClJvdXRlOjpwcmVmaXgoJ2FkbWluJyktPm5hbWUoJ2FkbWluLicpLT5ncm91cChmdW5jdGlvbiAoKSB7CiAgICBSb3V0ZTo6cmVzb3VyY2UoJ3Byb2R1Y3RvcycsIEFkbWluUHJvZHVjdG9Db250cm9sbGVyOjpjbGFzcyk7Cn0pOwpSb3V0ZTo6Z2V0KCcvYWRtaW4nLCBmdW5jdGlvbiAoKSB7CiAgICByZXR1cm4gdmlldygnYWRtaW4uZGFzaGJvYXJkJyk7Cn0pLT5uYW1lKCdhZG1pbi5kYXNoYm9hcmQnKTsKCi8qIFByb2R1Y3RvIC0gdmlzdGEgcsOhcGlkYSAoYWRtaW4pICovClJvdXRlOjpnZXQoJy9wcm9kdWN0by92aXN0YS1yYXBpZGEve2lkfScsIFtBZG1pblByb2R1Y3RvQ29udHJvbGxlcjo6Y2xhc3MsICd2aXN0YVJhcGlkYSddKS0+bmFtZSgncHJvZHVjdG8udmlzdGFSYXBpZGEnKTsKCi8qIEZhdm9yaXRvcyAqLwpSb3V0ZTo6cG9zdCgnL2Zhdm9yaXRvcy9hZ3JlZ2FyL3twcm9kdWN0b30nLCBbRmF2b3JpdG9Db250cm9sbGVyOjpjbGFzcywgJ2FncmVnYXInXSktPm5hbWUoJ2Zhdm9yaXRvcy5hZ3JlZ2FyJyk7CgovKiBDb3RpemFjacOzbiAqLwpSb3V0ZTo6Z2V0KCcvY290aXphY2lvbi9zb2xpY2l0YXIve2lkfScsIFtDb3RpemFjaW9uQ29udHJvbGxlcjo6Y2xhc3MsICdzb2xpY2l0YXInXSktPm5hbWUoJ2NvdGl6YWNpb24uc29saWNpdGFyJyk7CgovKiBSdXRhcyBkZSBlamVtcGxvIC8gcHJ1ZWJhcyAqLwpSb3V0ZTo6Z2V0KCcvY29tcHJhcicsIGZ1bmN0aW9uICgpIHsKICAgIHJldHVybiAnUMOhZ2luYSBkZSBjb21wcmEnOwp9KS0+bmFtZSgnY29tcHJhcicpOwoKLyogQXV0aCAocmVnaXN0cm8vbG9naW4vbG9nb3V0KSAqLwpSb3V0ZTo6Z2V0KCcvcmVnaXN0ZXInLCBbQXV0aENvbnRyb2xsZXI6OmNsYXNzLCAnc2hvd1JlZ2lzdGVyRm9ybSddKS0+bmFtZSgncmVnaXN0ZXInKTsKUm91dGU6OnBvc3QoJy9yZWdpc3RlcicsIFtBdXRoQ29udHJvbGxlcjo6Y2xhc3MsICdyZWdpc3RlciddKTsKUm91dGU6OmdldCgnL2xvZ2luJywgW0F1dGhDb250cm9sbGVyOjpjbGFzcywgJ3Nob3dMb2dpbkZvcm0nXSktPm5hbWUoJ2xvZ2luJyk7ClJvdXRlOjpwb3N0KCcvbG9naW4nLCBbQXV0aENvbnRyb2xsZXI6OmNsYXNzLCAnbG9naW4nXSk7ClJvdXRlOjpwb3N0KCcvbG9nb3V0JywgW0F1dGhDb250cm9sbGVyOjpjbGFzcywgJ2xvZ291dCddKS0+bmFtZSgnbG9nb3V0Jyk7CgovKiBQZXJmaWwgeSBwZWRpZG9zICovCgovL21vZAovLyBSb3V0ZTo6Z2V0KCcvcGVyZmlsJywgW1BlcmZpbENvbnRyb2xsZXI6OmNsYXNzLCAnaW5kZXgnXSktPm5hbWUoJ3BlcmZpbCcpOwpSb3V0ZTo6bWlkZGxld2FyZShbJ2F1dGgnXSktPmdyb3VwKGZ1bmN0aW9uICgpIHsKCiAgICAvLyBNb3N0cmFyIHZpc3RhCiAgICBSb3V0ZTo6Z2V0KCcvcGVyZmlsJywgW1BlcmZpbENvbnRyb2xsZXI6OmNsYXNzLCAnaW5kZXgnXSktPm5hbWUoJ3BlcmZpbCcpOwoKICAgIC8vIEd1YXJkYXIgY2FtYmlvcwogICAgUm91dGU6OnBvc3QoJy9wZXJmaWwnLCBbUGVyZmlsQ29udHJvbGxlcjo6Y2xhc3MsICd1cGRhdGUnXSktPm5hbWUoJ3BlcmZpbC51cGRhdGUnKTsKCn0pOwpSb3V0ZTo6Z2V0KCcvcGVkaWRvcycsIFtQZWRpZG9Db250cm9sbGVyOjpjbGFzcywgJ2luZGV4J10pLT5uYW1lKCdwZWRpZG9zJyk7CgovKiBDaGVja291dCAocHJvdGVnaWRhcyBwb3IgYXV0aCkgKi8KUm91dGU6Om1pZGRsZXdhcmUoJ2F1dGgnKS0+Z3JvdXAoZnVuY3Rpb24gKCkgewogICAgUm91dGU6OmdldCgnL2NoZWNrb3V0JywgW0NoZWNrb3V0Q29udHJvbGxlcjo6Y2xhc3MsICdpbmRleCddKS0+bmFtZSgnY2hlY2tvdXQuaW5kZXgnKTsKCiAgICAvLyBBbGlhcyAob3BjaW9uYWwpIHBhcmEgY29tcGF0aWJpbGlkYWQgY29uIGxsYW1hZGFzIGEgcm91dGUoJ2NoZWNrb3V0JykKICAgIFJvdXRlOjpnZXQoJy9jaGVja291dC1hbGlhcycsIGZ1bmN0aW9uICgpIHsKICAgICAgICByZXR1cm4gcmVkaXJlY3QoKS0+cm91dGUoJ2NoZWNrb3V0LmluZGV4Jyk7CiAgICB9KS0+bmFtZSgnY2hlY2tvdXQnKTsKCiAgICBSb3V0ZTo6cG9zdCgnL2NoZWNrb3V0L3BheScsIFtDaGVja291dENvbnRyb2xsZXI6OmNsYXNzLCAncGF5J10pLT5uYW1lKCdjaGVja291dC5wYXknKTsKICAgIFJvdXRlOjpnZXQoJy9jaGVja291dC9zdWNjZXNzJywgW0NoZWNrb3V0Q29udHJvbGxlcjo6Y2xhc3MsICdzdWNjZXNzJ10pLT5uYW1lKCdjaGVja291dC5zdWNjZXNzJyk7Cn0pOwoKLy8gUm91dGU6OmdldCgnL2NoZWNrb3V0L3N1Y2Nlc3MnLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ3N1Y2Nlc3MnXSktPm5hbWUoJ2NoZWNrb3V0LnN1Y2Nlc3MnKTsKLy8gUm91dGU6OmdldCgnL2NoZWNrb3V0L2ZhaWx1cmUnLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ2ZhaWx1cmUnXSktPm5hbWUoJ2NoZWNrb3V0LmZhaWx1cmUnKTsKLy8gUm91dGU6OmdldCgnL2NoZWNrb3V0L3BlbmRpbmcnLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ3BlbmRpbmcnXSktPm5hbWUoJ2NoZWNrb3V0LnBlbmRpbmcnKTsKCi8qIFBheVBhbCBjYWxsYmFja3MgKHDDumJsaWNhcyBwb3Igc2kgdmllbmUgZGVzZGUgUGF5UGFsKSAqLwpSb3V0ZTo6Z2V0KCcvY2hlY2tvdXQvcGF5cGFsL3N1Y2Nlc3MnLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ3BheXBhbFN1Y2Nlc3MnXSktPm5hbWUoJ2NoZWNrb3V0LnBheXBhbC5zdWNjZXNzJyk7ClJvdXRlOjpnZXQoJy9jaGVja291dC9wYXlwYWwvY2FuY2VsJywgIFtDaGVja291dENvbnRyb2xsZXI6OmNsYXNzLCAncGF5cGFsQ2FuY2VsJ10pLT5uYW1lKCdjaGVja291dC5wYXlwYWwuY2FuY2VsJyk7CgovLyBNZXJjYWRvIFBhZ28gY2FsbGJhY2tzClJvdXRlOjpnZXQoJy9jaGVja291dC9tZXJjYWRvcGFnby9zdWNjZXNzJywgW0NoZWNrb3V0Q29udHJvbGxlcjo6Y2xhc3MsICdtZXJjYWRvcGFnb1N1Y2Nlc3MnXSktPm5hbWUoJ21lcmNhZG9wYWdvLnN1Y2Nlc3MnKTsKUm91dGU6OmdldCgnL2NoZWNrb3V0L21lcmNhZG9wYWdvL2ZhaWx1cmUnLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ21lcmNhZG9wYWdvRmFpbHVyZSddKS0+bmFtZSgnbWVyY2Fkb3BhZ28uZmFpbHVyZScpOwpSb3V0ZTo6Z2V0KCcvY2hlY2tvdXQvbWVyY2Fkb3BhZ28vcGVuZGluZycsIFtDaGVja291dENvbnRyb2xsZXI6OmNsYXNzLCAnbWVyY2Fkb3BhZ29QZW5kaW5nJ10pLT5uYW1lKCdtZXJjYWRvcGFnby5wZW5kaW5nJyk7CgovLyBXZWJob29rIChQT1NUKQpSb3V0ZTo6cG9zdCgnL2NoZWNrb3V0L21lcmNhZG9wYWdvL25vdGlmaWNhdGlvbicsIFtDaGVja291dENvbnRyb2xsZXI6OmNsYXNzLCAnbWVyY2Fkb3BhZ29Ob3RpZmljYXRpb24nXSktPm5hbWUoJ21lcmNhZG9wYWdvLm5vdGlmaWNhdGlvbicpOwoKLyogTW1lKCdtZXJjYWRvcGFnby5zdWNjZXNzJyk7Ci8vIFJvdXRlOjpnZXQoJy9tZXJlcmNhZG8gUGFnbyBiYWNrIFVSTHMgeSB3ZWJob29rICovCi8vIFJvdXRlOjpnZXQoJy9tZXJjYWRvcGFnby9zdWNjZXNzJywgW0NoZWNrb3V0Q29udHJvbGxlcjo6Y2xhc3MsICdzdWNjZXNzJ10pLT5uYWNhZG9wYWdvL2ZhaWx1cmUnLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ2ZhaWx1cmUnXSktPm5hbWUoJ21lcmNhZG9wYWdvLmZhaWx1cmUnKTsKLy8gUm91dGU6OmdldCgnL21lcmNhZG9wYWdvL3BlbmRpbmcnLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ3BlbmRpbmcnXSktPm5hbWUoJ21lcmNhZG9wYWdvLnBlbmRpbmcnKTsKLy8gUm91dGU6OnBvc3QoJy9tZXJjYWRvcGFnby9ub3RpZmljYXRpb24nLCBbQ2hlY2tvdXRDb250cm9sbGVyOjpjbGFzcywgJ21lcmNhZG9QYWdvTm90aWZpY2F0aW9uJ10pLT5uYW1lKCdtZXJjYWRvcGFnby5ub3RpZmljYXRpb24nKTsKCi8qIEVuZHBvaW50cyBkZSBwcnVlYmEvZGVidWcgKG1vdmVkIHRvIGRlZGljYXRlZCBjb250cm9sbGVycykgKi8KUm91dGU6OmdldCgnL21wL3Rlc3QnLCBbTVBUZXN0Q29udHJvbGxlcjo6Y2xhc3MsICd0ZXN0VXNlciddKS0+bmFtZSgnbXAudGVzdCcpOyAvLyBpbXBsZW1lbnRhciB0ZXN0VXNlciBlbiBNUFRlc3RDb250cm9sbGVyClJvdXRlOjpnZXQoJy9tcC90ZXN0LXByZWZlcmVuY2UnLCBbTVBUZXN0Q29udHJvbGxlcjo6Y2xhc3MsICd0ZXN0UHJlZmVyZW5jZSddKS0+bmFtZSgnbXAudGVzdC1wcmVmZXJlbmNlJyk7ClJvdXRlOjpwb3N0KCcvbXAvbm90aWZpY2F0aW9uLXRlc3QnLCBbTVBUZXN0Q29udHJvbGxlcjo6Y2xhc3MsICdub3RpZmljYXRpb24nXSktPm5hbWUoJ21wLm5vdGlmaWNhdGlvbi10ZXN0Jyk7Ci8vICoqKioqClJvdXRlOjpnZXQoJy9jb250YWN0bycsIFtDb250YWN0b0NvbnRyb2xsZXI6OmNsYXNzLCAnaW5kZXgnXSktPm5hbWUoJ2NvbnRhY3RvLmluZGV4Jyk7ClJvdXRlOjpwb3N0KCcvY29udGFjdG8nLCBbQ29udGFjdG9Db250cm9sbGVyOjpjbGFzcywgJ2VudmlhciddKS0+bmFtZSgnY29udGFjdG8uZW52aWFyJyk7Ci8vICoqKioqKioqKioqCi8vUm91dGU6OnBvc3QoJy9wcm9kdWN0b3MvZWxpbWluYXItbXVsdGlwbGUnLCBbUHJvZHVjdG9Db250cm9sbGVyOjpjbGFzcywgJ2VsaW1pbmFyTXVsdGlwbGUnXSk7Ci8vIHVzZSBBcHBcSHR0cFxDb250cm9sbGVyc1xBZG1pblxQcm9kdWN0b0NvbnRyb2xsZXI7Ci8vIFJvdXRlOjpwb3N0KCcvYWRtaW4vcHJvZHVjdG9zL2VsaW1pbmFyLW11bHRpcGxlJywgCi8vICAgICBbQWRtaW5Qcm9kdWN0b0NvbnRyb2xsZXI6OmNsYXNzLCAnZWxpbWluYXJNdWx0aXBsZSddCi8vICktPm5hbWUoJ2FkbWluLnByb2R1Y3Rvcy5lbGltaW5hck11bHRpcGxlJyk7Ci8vIFJvdXRlOjpwb3N0KCcvYWRtaW4vcHJvZHVjdG9zL2VsaW1pbmFyLW11bHRpcGxlJywgW0FkbWluUHJvZHVjdG9Db250cm9sbGVyOjpjbGFzcywgJ2VsaW1pbmFyTXVsdGlwbGUnXSkKLy8gICAgIC0+bmFtZSgnYWRtaW4ucHJvZHVjdG9zLmVsaW1pbmFyTXVsdGlwbGUnKTsKUm91dGU6OnBvc3QoJy9hZG1pbi9wcm9kdWN0b3MvZWxpbWluYXItbXVsdGlwbGUnLCAKICAgIFtBZG1pblByb2R1Y3RvQ29udHJvbGxlcjo6Y2xhc3MsICdlbGltaW5hck11bHRpcGxlJ10KKS0+bmFtZSgnYWRtaW4ucHJvZHVjdG9zLmVsaW1pbmFyTXVsdGlwbGUnKTsKLy8vLy9saXRvClJvdXRlOjpwcmVmaXgoJ2FkbWluJyktPm5hbWUoJ2FkbWluLicpLT5ncm91cChmdW5jdGlvbiAoKSB7CiAgICAvLyDwn5S5IHJ1dGFzIGVzcGVjaWFsZXMgZGUgdXN1YXJpb3MgKEFOVEVTKQogICAgUm91dGU6OmdldCgndXN1YXJpb3MvYXNpZ25hcicsIFtVc2VyQWRtaW5Db250cm9sbGVyOjpjbGFzcywgJ2FzaWduYXJWaWV3J10pCiAgICAgICAgLT5uYW1lKCd1c3Vhcmlvcy5hc2lnbmFyLnZpZXcnKTsKCiAgICBSb3V0ZTo6cG9zdCgndXN1YXJpb3MvYXNpZ25hcicsIFtVc2VyQWRtaW5Db250cm9sbGVyOjpjbGFzcywgJ2FzaWduYXJTdG9yZSddKQogICAgICAgIC0+bmFtZSgndXN1YXJpb3MuYXNpZ25hci5zdG9yZScpOwoKICAgIFJvdXRlOjpyZXNvdXJjZSgncHJvZHVjdG9zJywgQWRtaW5Qcm9kdWN0b0NvbnRyb2xsZXI6OmNsYXNzKTsKICAgIFJvdXRlOjpyZXNvdXJjZSgnY2F0ZWdvcmlhcycsIENhdGVnb3JpYUNvbnRyb2xsZXI6OmNsYXNzKTsKICAgIFJvdXRlOjpyZXNvdXJjZSgnc3ViY2F0ZWdvcmlhcycsIFN1YmNhdGVnb3JpYUNvbnRyb2xsZXI6OmNsYXNzKTsKICAgIFJvdXRlOjpyZXNvdXJjZSgncHJvdmVlZG9yZXMnLCBQcm92ZWVkb3JDb250cm9sbGVyOjpjbGFzcyk7CiAgICBSb3V0ZTo6cmVzb3VyY2UoJ21hcmNhcycsIE1hcmNhQ29udHJvbGxlcjo6Y2xhc3MpOwogICAgLy8vL2xpdG8KICAgIFJvdXRlOjpyZXNvdXJjZSgndXN1YXJpb3MnLCBVc2VyQWRtaW5Db250cm9sbGVyOjpjbGFzcyk7CiAgICAvLy8vLy9saXRvIHBvc3QKICAgIC8vICBSb3V0ZTo6Z2V0KCdwb3N0cycsIFtQb3N0Q29udHJvbGxlcjo6Y2xhc3MsICdpbmRleCddKS0+bmFtZSgncG9zdHMuaW5kZXgnKTsKICAgIC8vIFJvdXRlOjpnZXQoJ3Bvc3RzL2NyZWF0ZScsIFtQb3N0Q29udHJvbGxlcjo6Y2xhc3MsICdjcmVhdGUnXSktPm5hbWUoJ3Bvc3RzLmNyZWF0ZScpOwogICAgLy8gUm91dGU6OnBvc3QoJ3Bvc3RzJywgW1Bvc3RDb250cm9sbGVyOjpjbGFzcywgJ3N0b3JlJ10pLT5uYW1lKCdwb3N0cy5zdG9yZScpOwogICAgUm91dGU6OnJlc291cmNlKCdwb3N0cycsIFBvc3RDb250cm9sbGVyOjpjbGFzcyk7CiAgICAvLyBSVVRBUyBBRE1JTiAoQ1JVRCkKICAgIC8vID09PT09PT09PT09PT09PT09PT09PQogICAgLy8gUlVUQVMgUMOaQkxJQ0FTIChCTE9HKQogICAgLy8gPT09PT09PT09PT09PT09PT09PT09CiAgICAvLyBSb3V0ZTo6Z2V0KCcvYmxvZycsIFtCbG9nQ29udHJvbGxlcjo6Y2xhc3MsICdpbmRleCddKTsKICAgIC8vIFJvdXRlOjpnZXQoJy9wb3N0L3tzbHVnfScsIFtCbG9nQ29udHJvbGxlcjo6Y2xhc3MsICdzaG93J10pOwogICAgCn0pOwovLy8vbGl0bwpSb3V0ZTo6Z2V0KCcvYmxvZycsIFtCbG9nQ29udHJvbGxlcjo6Y2xhc3MsICdpbmRleCddKS0+bmFtZSgnYmxvZy5pbmRleCcpOwpSb3V0ZTo6Z2V0KCcvYmxvZy97c2x1Z30nLCBbQmxvZ0NvbnRyb2xsZXI6OmNsYXNzLCAnc2hvdyddKS0+bmFtZSgnYmxvZy5zaG93Jyk7Ci8vIDcvLy8vLy8vLy8vLwpSb3V0ZTo6cHJlZml4KCdhZG1pbicpLT5uYW1lKCdhZG1pbi4nKS0+Z3JvdXAoZnVuY3Rpb24gKCkgewogICAgUm91dGU6OnJlc291cmNlKCdzdWJjYXRlZ29yaWFzJywgU3ViY2F0ZWdvcmlhQ29udHJvbGxlcjo6Y2xhc3MpOwoKICAgIFJvdXRlOjpwb3N0KCdzdWJjYXRlZ29yaWFzL2VsaW1pbmFyLW11bHRpcGxlJywgCiAgICAgICAgW1N1YmNhdGVnb3JpYUNvbnRyb2xsZXI6OmNsYXNzLCAnZWxpbWluYXJNdWx0aXBsZSddCiAgICApLT5uYW1lKCdzdWJjYXRlZ29yaWFzLmVsaW1pbmFyTXVsdGlwbGUnKTsKfSk7CgpSb3V0ZTo6cHJlZml4KCdhZG1pbicpLT5uYW1lKCdhZG1pbi4nKS0+Z3JvdXAoZnVuY3Rpb24gKCkgewogICAgUm91dGU6OnJlc291cmNlKCdwcm92ZWVkb3JlcycsIEFkbWluUHJvdmVlZG9yQ29udHJvbGxlcjo6Y2xhc3MpOwogICAgUm91dGU6OnBvc3QoJ3Byb3ZlZWRvcmVzL2VsaW1pbmFyLW11bHRpcGxlJywgW0FkbWluUHJvdmVlZG9yQ29udHJvbGxlcjo6Y2xhc3MsICdlbGltaW5hck11bHRpcGxlJ10pCiAgICAgICAgIC0+bmFtZSgncHJvdmVlZG9yZXMuZWxpbWluYXJNdWx0aXBsZScpOwp9KTsKLy8vCi8vID09PT09PT09PT09PT09PT09PT09PQovLyBBRE1JTiAtIE1BUkNBUwovLyA9PT09PT09PT09PT09PT09PT09PT0KUm91dGU6OnByZWZpeCgnYWRtaW4nKS0+bmFtZSgnYWRtaW4uJyktPmdyb3VwKGZ1bmN0aW9uICgpIHsKICAgIFJvdXRlOjpyZXNvdXJjZSgnbWFyY2FzJywgXEFwcFxIdHRwXENvbnRyb2xsZXJzXEFkbWluXE1hcmNhQ29udHJvbGxlcjo6Y2xhc3MpOwoKICAgIC8vIEVsaW1pbmFyIG3Dumx0aXBsZXMKICAgIFJvdXRlOjpwb3N0KCcvbWFyY2FzL2VsaW1pbmFyLW11bHRpcGxlJywgCiAgICAgICAgW1xBcHBcSHR0cFxDb250cm9sbGVyc1xBZG1pblxNYXJjYUNvbnRyb2xsZXI6OmNsYXNzLCAnZWxpbWluYXJNdWx0aXBsZSddCiAgICApLT5uYW1lKCdtYXJjYXMuZWxpbWluYXJNdWx0aXBsZScpOwp9KTsKLy8vLy8vLy8vLy9saXRvClJvdXRlOjpnZXQoJy91YmljYWNpb24vZXN0YWRvcy97cGFpc30nLCBbVWJpY2FjaW9uQ29udHJvbGxlcjo6Y2xhc3MsICdlc3RhZG9zJ10pOwpSb3V0ZTo6Z2V0KCcvdWJpY2FjaW9uL3Byb3ZpbmNpYXMve2VzdGFkb30nLCBbVWJpY2FjaW9uQ29udHJvbGxlcjo6Y2xhc3MsICdwcm92aW5jaWFzJ10pOwpSb3V0ZTo6Z2V0KCcvdWJpY2FjaW9uL2Rpc3RyaXRvcy97cHJvdmluY2lhfScsIFtVYmljYWNpb25Db250cm9sbGVyOjpjbGFzcywgJ2Rpc3RyaXRvcyddKTsKLy8vLy8vLy8vLy8KUm91dGU6OmdldCgnL2NhdGVnb3JpYS97aWR9L3N1YmNhdGVnb3JpYXMnLCBbQ2F0ZWdvcmlhQ29udHJvbGxlcjo6Y2xhc3MsICdzdWJjYXRlZ29yaWFzJ10pOwovLy8vLy8vLy8vClJvdXRlOjpnZXQoJy9tcC9jb25maXJtYWNpb24nLCBbT3JkZXJDb250cm9sbGVyOjpjbGFzcywgJ3Byb2Nlc2FyUGFnbyddKQogICAgLT5uYW1lKCdtcC5jb25maXJtYWNpb24nKTsKLy8vLy9saXRvClJvdXRlOjpnZXQoJy9wYXlwYWwvY2FwdHVyZScsIFtDaGVja291dENvbnRyb2xsZXI6OmNsYXNzLCAnY2FwdHVyZVBheXBhbCddKQogICAgLT5uYW1lKCdwYXlwYWwuY2FwdHVyZScpOwoKCgAAAAAAAAAAvCwAAAAAAAAAAAAAAAAAAAAAAAC8LAAAAAAAAAAAAAA",
+					"AgAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8"
+				]
+			]
+		},
+		{
+			"contents": "# AGENTS.md\n\n# PROYECTO\n\nNombre: mvc-lito\n\n# MISIÓN\n\nMantener, mejorar y expandir mvc-lito respetando la arquitectura existente.\n\n# REGLA PRINCIPAL\n\nAntes de realizar cualquier cambio:\n\n1. Analizar el código existente.\n2. Comprender la funcionalidad actual.\n3. Identificar dependencias.\n4. Evaluar impacto.\n5. Proponer solución.\n6. Implementar cambios.\n7. Ejecutar revisión QA.\n\nNunca asumir que el proyecto está vacío.\n\n# DIRECTOR DE ORQUESTA\n\nResponsabilidades:\n\n* Coordinar agentes.\n* Analizar requerimientos.\n* Dividir tareas.\n* Consolidar resultados.\n* Supervisar calidad.\n\n# AGENTE ARQUITECTO\n\nResponsabilidades:\n\n* Analizar arquitectura actual.\n* Detectar deuda técnica.\n* Proponer mejoras escalables.\n* Mantener coherencia global.\n\n# AGENTE BACKEND\n\nStack:\n\n* Laravel\n* PHP\n* MySQL\n\nResponsabilidades:\n\n* Modelos\n* Controladores\n* Servicios\n* Migraciones\n* API\n\nReglas:\n\n* Seguir convenciones Laravel.\n* Evitar duplicación.\n* Priorizar mantenibilidad.\n\n# AGENTE FRONTEND\n\nStack:\n\n* Vue 3\n* Vite\n* Bootstrap\n\nResponsabilidades:\n\n* Componentes\n* Formularios\n* UX\n* Interactividad\n\nReglas:\n\n* Diseño limpio.\n* Componentes reutilizables.\n* Código organizado.\n\n# AGENTE DBA\n\nResponsabilidades:\n\n* Diseño de tablas.\n* Relaciones.\n* Índices.\n* Optimización.\n\n# AGENTE QA\n\nObligatorio antes de finalizar cualquier tarea.\n\nRevisar:\n\n* Errores de sintaxis.\n* Errores lógicos.\n* Seguridad.\n* Rendimiento.\n* Escalabilidad.\n* Mantenibilidad.\n\n# FORMATO DE RESPUESTA\n\nAntes de modificar código:\n\n1. Qué entendiste.\n2. Archivos afectados.\n3. Riesgos.\n4. Solución propuesta.\n\nDespués:\n\n1. Cambios realizados.\n2. Beneficios.\n3. QA final.\n",
+			"file": "AGENTS.md",
+			"file_size": 11,
+			"file_write_time": 134259353385696337,
+			"settings":
+			{
+				"buffer_size": 1629,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "AGENTS.md"
+			},
+			"undo_stack":
+			[
+				[
+					1,
+					1,
+					"paste",
+					{
+						"event":
+						{
+							"modifier_keys":
+							{
+							},
+							"text_point": 0,
+							"x": 424.5,
+							"y": 59.5
+						}
+					},
+					"AQAAAAAAAAAAAAAACQAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					4,
+					1,
+					"ensure_newline_at_eof",
+					null,
+					"AQAAAAkAAAAAAAAACgAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAACQAAAAAAAAAJAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					6,
+					1,
+					"paste",
+					null,
+					"AQAAAAAAAAAAAAAAXQYAAAAAAAAKAAAAQUdFTlRTLm1kCg",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"contents": "# PLAN.md\n\n# VISIÓN GENERAL\n\nmvc-lito es una plataforma empresarial modular.\n\nObjetivos:\n\n* Escalabilidad.\n* Automatización.\n* Productividad.\n* Código limpio.\n\n# MÓDULOS ACTUALES\n\n(Analizar automáticamente desde el proyecto)\n\n# MÓDULOS FUTUROS\n\n* Clientes\n* Productos\n* Cotizaciones\n* Ventas\n* Inventario\n* Reportes\n* Configuración\n* Dashboard\n\n# PRIORIDADES\n\n1. Estabilidad.\n2. Seguridad.\n3. Rendimiento.\n4. Experiencia de usuario.\n5. Escalabilidad.\n\n",
+			"file": "PLAN.md",
+			"file_size": 9,
+			"file_write_time": 134259353737868622,
+			"settings":
+			{
+				"buffer_size": 452,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "PLAN.md"
+			},
+			"undo_stack":
+			[
+				[
+					1,
+					1,
+					"paste",
+					{
+						"event":
+						{
+							"modifier_keys":
+							{
+							},
+							"text_point": 0,
+							"x": 599.5,
+							"y": 74.5
+						}
+					},
+					"AQAAAAAAAAAAAAAABwAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					4,
+					1,
+					"ensure_newline_at_eof",
+					null,
+					"AQAAAAcAAAAAAAAACAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAABwAAAAAAAAAHAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					8,
+					1,
+					"paste",
+					null,
+					"AQAAAAAAAAAAAAAAwwEAAAAAAAAHAAAAUExBTi5tZA",
+					"AQAAAAAAAAABAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "TODO.md",
+			"settings":
+			{
+				"buffer_size": 457,
+				"encoding": "UTF-8",
+				"line_ending": "Windows",
+				"name": "TODO.md"
+			},
+			"undo_stack":
+			[
+				[
+					1,
+					1,
+					"paste",
+					{
+						"event":
+						{
+							"modifier_keys":
+							{
+							},
+							"text_point": 0,
+							"x": 437.5,
+							"y": 54.5
+						}
+					},
+					"AQAAAAAAAAAAAAAABwAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					4,
+					1,
+					"ensure_newline_at_eof",
+					null,
+					"AQAAAAcAAAAAAAAACAAAAAAAAAAAAAAA",
+					"AQAAAAAAAAABAAAABwAAAAAAAAAHAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					8,
+					1,
+					"paste",
+					{
+						"event":
+						{
+							"modifier_keys":
+							{
+							},
+							"text_point": 8,
+							"x": 428.5,
+							"y": 57.5
+						}
+					},
+					"AQAAAAAAAAAAAAAAyAEAAAAAAAAHAAAAVE9ETy5tZA",
+					"AQAAAAAAAAABAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		},
+		{
+			"file": "app/Models/Administrador.php",
+			"settings":
+			{
+				"buffer_size": 424,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 130.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/xampp/htdocs/mvc-lito"
+	],
+	"file_history":
+	[
+		"/C/xampp/htdocs/mvc-lito/package.json",
+		"/C/Users/lito/AppData/Roaming/Sublime Text/Packages/User/Package Control.sublime-settings",
+		"/C/Users/lito/AppData/Roaming/Sublime Text/Packages/Package Control/Package Control.sublime-settings",
+		"/C/Users/lito/AppData/Roaming/Sublime Text/Packages/User/Plain text.sublime-settings",
+		"/C/Users/lito/AppData/Roaming/Sublime Text/Packages/Default/Preferences.sublime-settings"
+	],
+	"find":
+	{
+		"height": 0.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "routes/web.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11452,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 900.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "AGENTS.md",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1629,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1629,
+								1629
+							]
+						],
+						"settings":
+						{
+							"auto_name": "AGENTS.md",
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/Markdown/Markdown.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 2100.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "PLAN.md",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 452,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								451,
+								451
+							]
+						],
+						"settings":
+						{
+							"auto_name": "PLAN.md",
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/Markdown/Markdown.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "TODO.md",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 457,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								456,
+								456
+							]
+						],
+						"settings":
+						{
+							"auto_name": "TODO.md",
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/Markdown/Markdown.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "app/Models/Administrador.php",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 424,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.Terminal":
+	{
+		"height": 350.0,
+		"history":
+		[
+		]
+	},
+	"output.find_results":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"pinned_build_system": "",
+	"project": "mvc-lito.sublime-project",
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"C:\\Users\\lito\\AppData\\Roaming\\Sublime Text\\Packages\\User\\Package Control.sublime-settings"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 324.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

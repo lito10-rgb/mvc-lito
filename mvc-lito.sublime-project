@@ -1,0 +1,80 @@
+{
+    "folders":
+    [
+        {
+            "path": ".",
+            "folder_exclude_patterns": ["vendor", "node_modules", "storage", "bootstrap/cache"],
+            "file_exclude_patterns": [".DS_Store", "*.log"]
+        }
+    ],
+    "settings":
+    {
+        "tab_size": 4,
+        "translate_tabs_to_spaces": true,
+        "trim_trailing_white_space_on_save": true,
+        "ensure_newline_at_eof_on_save": true,
+        "highlight_line": true,
+        "bold_folder_labels": true,
+        "index_files": true,
+        "index_exclude_patterns": ["vendor", "node_modules"]
+    },
+    "build_systems":
+    [
+        {
+            "name": "Laravel - Serve",
+            "cmd": ["php", "artisan", "serve"],
+            "working_dir": "${project_path}",
+            "file_regex": "^(.*?):([0-9]+):([0-9]+)(?:\u200b|:)? (.*)$"
+        },
+        {
+            "name": "Laravel - Vite Dev",
+            "cmd": ["npm", "run", "dev"],
+            "working_dir": "${project_path}",
+            "file_regex": "^(.*?):([0-9]+):([0-9]+)(?:\u200b|:)? (.*)$"
+        },
+        {
+            "name": "Laravel - Queue Listen",
+            "cmd": ["php", "artisan", "queue:listen", "--tries=1"],
+            "working_dir": "${project_path}"
+        },
+        {
+            "name": "Laravel - Clear Cache",
+            "cmd": ["php", "artisan", "optimize:clear"],
+            "working_dir": "${project_path}"
+        },
+        {
+            "name": "Laravel - Migrate",
+            "cmd": ["php", "artisan", "migrate"],
+            "working_dir": "${project_path}"
+        },
+        {
+            "name": "Laravel - Make Controller",
+            "cmd": ["php", "artisan", "make:controller", "$prompt('Controller name:')"],
+            "working_dir": "${project_path}"
+        },
+        {
+            "name": "Laravel - Make Model",
+            "cmd": ["php", "artisan", "make:model", "$prompt('Model name:')"],
+            "working_dir": "${project_path}"
+        },
+        {
+            "name": "Laravel - Tinker",
+            "cmd": ["php", "artisan", "tinker"],
+            "working_dir": "${project_path}"
+        },
+        {
+            "name": "Laravel - Routes List",
+            "cmd": ["php", "artisan", "route:list"],
+            "working_dir": "${project_path}"
+        },
+        {
+            "name": "npm run build",
+            "cmd": ["npm", "run", "build"],
+            "working_dir": "${project_path}"
+        }
+    ],
+    "syntaxes":
+    [
+        {"name": "Blade", "scope": "text.html.blade", "extensions": ["blade.php"]}
+    ]
+}

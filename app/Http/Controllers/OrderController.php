@@ -1,6 +1,8 @@
 <?php
 
-class OrderController {
+namespace App\Http\Controllers;
+
+class OrderController extends Controller {
 
     // =====================
     //  MERCADOPAGO SUCCESS
