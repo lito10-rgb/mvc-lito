@@ -15,7 +15,7 @@ class HomeController extends Controller
         $productos = Producto::orderBy('vistas', 'desc') // ✅ orden por vistas
             ->paginate(12)                               // ✅ con paginación
             ->through(function ($producto) {
-                $producto->imagen_url = asset('storage/' . $producto->imagen);
+                $producto->imagen_url = asset('storage/' . $producto->portada);
                 return $producto;
             });
 

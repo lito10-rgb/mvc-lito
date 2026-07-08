@@ -18,7 +18,7 @@
         </h5>
 
         <p class="card-text fw-bold">
-            ${{ $producto->precio }}
+            S/ {{ number_format($producto->precio, 2) }}
         </p>
 
         <form action="{{ route('carrito.agregar', $producto->id) }}" method="POST">

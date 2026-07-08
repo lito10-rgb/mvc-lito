@@ -21,8 +21,10 @@ class ProductoController extends Controller
     public function index()
 {
     $productos = Producto::with(['categoria', 'subcategoria', 'marca', 'proveedor'])
-                         ->paginate(5); // Puedes ajustar el número
-    return view('admin.productos.index', compact('productos'));
+                         ->paginate(5);
+    $categorias = Categoria::orderBy('nombre')->get();
+    $subcategorias = Subcategoria::orderBy('subcategoria')->get();
+    return view('admin.productos.index', compact('productos', 'categorias', 'subcategorias'));
 }
 
     public function create()
@@ -41,6 +43,12 @@ class ProductoController extends Controller
     public function show(Producto $producto)
     {
         return view('admin.productos.show', compact('producto'));
+    }
+
+    public function vistaRapida($id)
+    {
+        $producto = Producto::with(['categoria', 'subcategoria', 'marca'])->findOrFail($id);
+        return view('productos.detalle', compact('producto'));
     }
 
     public function edit(Producto $producto)
@@ -301,6 +309,34 @@ public function update(Request $request, Producto $producto)
 
     return redirect()->route('admin.productos.index')->with('success', 'Producto actualizado correctamente.');
 }
+    public function quickUpdate(Request $request, Producto $producto)
+    {
+        $request->validate([
+            'titulo'         => 'required|string|max:255',
+            'titular'        => 'nullable|string|max:255',
+            'precio'         => 'required|numeric|min:0',
+            'categoria_id'   => 'required|exists:categorias,id',
+            'subcategoria_id'=> 'required|exists:subcategorias,id',
+            'portada'        => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'ruta'           => 'nullable|string|max:255',
+            'palabras_claves'=> 'nullable|string|max:255',
+            'descripcion'    => 'nullable|string',
+            'detalles'       => 'nullable|string',
+        ]);
+
+        $data = $request->only(['titulo', 'titular', 'precio', 'categoria_id', 'subcategoria_id', 'ruta', 'palabras_claves', 'descripcion', 'detalles']);
+
+        if ($request->hasFile('portada')) {
+            if ($producto->portada && \Storage::disk('public')->exists($producto->portada)) {
+                \Storage::disk('public')->delete($producto->portada);
+            }
+            $data['portada'] = $request->file('portada')->store('imagenes/productos', 'public');
+        }
+
+        $producto->update($data);
+
+        return response()->json(['success' => true, 'message' => 'Producto actualizado.']);
+    }
 }
 ////////////////////////update
 // }

@@ -14,6 +14,7 @@ class Categoria extends Model
 
     protected $fillable = [
         'categoria',
+        'nombre',
         'ruta',
         'estado',
         'oferta',
@@ -24,18 +25,13 @@ class Categoria extends Model
         'fecha',
     ];
 
-    // Relaciones
-    // public function subcategorias()
-    // {
-    //     return $this->hasMany(Subcategoria::class, 'id_categoria');
-    // }
-
-    // public function productos()
-    // {
-    //     return $this->hasMany(Producto::class, 'categoria_id');
-    // }
     public function subcategorias()
     {
         return $this->hasMany(Subcategoria::class, 'id_categoria');
+    }
+
+    public function getCategoriaAttribute($value)
+    {
+        return $this->attributes['nombre'] ?? $value;
     }
 }

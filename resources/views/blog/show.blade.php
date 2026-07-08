@@ -17,8 +17,29 @@
             Publicado el {{ $post->created_at->format('d M Y') }}
         </p>
 
+        @if($post->imagen)
+            <div class="mb-4">
+                <img src="{{ asset('storage/' . $post->imagen) }}" alt="{{ $post->titulo }}" class="img-fluid rounded">
+            </div>
+        @endif
+
         <div class="mt-4">
-            {!! $post->contenido !!}
+            {!! $post->cuerpo !!}
+        </div>
+
+        @php
+            $url = url()->current();
+            $title = $post->titulo;
+        @endphp
+
+        <div class="mt-4">
+            <strong>Compartir:</strong>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($url) }}"
+               target="_blank" class="btn btn-primary btn-sm">Facebook</a>
+            <a href="https://wa.me/?text={{ urlencode($title . ' ' . $url) }}"
+               target="_blank" class="btn btn-success btn-sm">WhatsApp</a>
+            <a href="https://twitter.com/intent/tweet?text={{ urlencode($title) }}&url={{ urlencode($url) }}"
+               target="_blank" class="btn btn-dark btn-sm">X</a>
         </div>
 
         <a href="{{ route('blog.index') }}" class="btn btn-outline-secondary mt-4">
@@ -27,32 +48,3 @@
     </article>
 </div>
 @endsection
-@php
-    $url = url()->current();
-    $title = $post->titulo;
-@endphp
-
-<div class="mt-4">
-    <strong>Compartir:</strong>
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($url) }}"
-       target="_blank"
-       class="btn btn-primary btn-sm">
-        Facebook
-    </a>
-
-    <!-- WhatsApp -->
-    <a href="https://wa.me/?text={{ urlencode($title . ' ' . $url) }}"
-       target="_blank"
-       class="btn btn-success btn-sm">
-        WhatsApp
-    </a>
-
-    <!-- X / Twitter -->
-    <a href="https://twitter.com/intent/tweet?text={{ urlencode($title) }}&url={{ urlencode($url) }}"
-       target="_blank"
-       class="btn btn-dark btn-sm">
-        X
-    </a>
-</div>

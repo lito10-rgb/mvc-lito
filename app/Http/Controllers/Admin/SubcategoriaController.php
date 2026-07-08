@@ -24,11 +24,16 @@ class SubcategoriaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'categoria_id' => 'required|exists:categorias,id',
-            'nombre' => 'required|string|max:255',
+            'id_categoria' => 'required|exists:categorias,id',
+            'subcategoria' => 'required|string|max:255',
         ]);
 
-        Subcategoria::create($request->all());
+        Subcategoria::create([
+            'subcategoria' => $request->subcategoria,
+            'id_categoria' => $request->id_categoria,
+            'ruta' => \Str::slug($request->subcategoria),
+            'estado' => 1,
+        ]);
         return redirect()->route('admin.subcategorias.index')->with('success', 'Subcategoría creada.');
     }
 
@@ -41,11 +46,15 @@ class SubcategoriaController extends Controller
     public function update(Request $request, Subcategoria $subcategoria)
     {
         $request->validate([
-            'categoria_id' => 'required|exists:categorias,id',
-            'nombre' => 'required|string|max:255',
+            'id_categoria' => 'required|exists:categorias,id',
+            'subcategoria' => 'required|string|max:255',
         ]);
 
-        $subcategoria->update($request->all());
+        $subcategoria->update([
+            'subcategoria' => $request->subcategoria,
+            'id_categoria' => $request->id_categoria,
+            'ruta' => \Str::slug($request->subcategoria),
+        ]);
         return redirect()->route('admin.subcategorias.index')->with('success', 'Actualizado correctamente.');
     }
 

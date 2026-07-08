@@ -1,45 +1,76 @@
-@extends('admin')
+@extends('layouts.admin')
 
 @section('title', 'Subcategorías')
 
 @section('content')
-<div class="d-flex justify-content-between mb-3">
-    <h3>Subcategorías</h3>
-    <a href="{{ route('admin.subcategorias.create') }}" class="btn btn-primary">Nueva</a>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">Subcategorías</h3>
+        <a href="{{ route('admin.subcategorias.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Nueva Subcategoría
+        </a>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-3">
+                <button id="btnEliminar" class="btn btn-danger" disabled>
+                    <i class="fas fa-trash me-1"></i> Eliminar seleccionados
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><input type="checkbox" id="checkAll"></th>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($subcategorias as $s)
+                        <tr>
+                            <td><input type="checkbox" class="checkItem" value="{{ $s->id }}"></td>
+                            <td>{{ $s->id }}</td>
+                            <td>{{ $s->subcategoria }}</td>
+                            <td>{{ $s->categoria->categoria ?? '' }}</td>
+                            <td>
+                                <a href="{{ route('admin.subcategorias.edit', $s) }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('admin.subcategorias.destroy', $s) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar esta subcategoría?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No hay subcategorías registradas</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        {{ $subcategorias->links() }}
+    </div>
 </div>
-
-<button id="btnEliminar" class="btn btn-danger mb-3" disabled>
-    Eliminar seleccionados
-</button>
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th><input type="checkbox" id="checkAll"></th>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($subcategorias as $s)
-        <tr>
-            <td><input type="checkbox" class="checkItem" value="{{ $s->id }}"></td>
-            <td>{{ $s->id }}</td>
-            <td>{{ $s->nombre }}</td>
-            <td>{{ $s->categoria->nombre }}</td>
-            <td>
-                <a href="{{ route('admin.subcategorias.edit', $s) }}" class="btn btn-sm btn-warning">
-                    Editar
-                </a>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-
-{{ $subcategorias->links() }}
 
 <meta name="subcategorias-eliminar-url" content="{{ route('admin.subcategorias.eliminarMultiple') }}">
 @endsection

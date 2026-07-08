@@ -50,22 +50,40 @@
                                             {{ $item['titulo'] }}
                                         </a>
                                         <div class="small text-muted">
-                                            Cantidad: {{ $item['cantidad'] }} &middot; Precio unitario: ${{ number_format($item['precio'], 2) }}
+                                            Cantidad: {{ $item['cantidad'] }} &middot; Precio unitario: S/ {{ number_format($item['precio'], 2) }}
                                         </div>
                                     </div>
 
                                     <div class="text-end ms-3">
-                                        <div class="fw-bold">${{ number_format($item['precio'] * $item['cantidad'], 2) }}</div>
+                                        <div class="fw-bold">S/ {{ number_format($item['precio'] * $item['cantidad'], 2) }}</div>
 
                                         <form action="{{ route('carrito.eliminar', $id) }}" method="POST" class="mt-2">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="fas fa-trash-alt"></i> Eliminar
+                                                <i class="fas fa-trash-can"></i> Eliminar
                                             </button>
                                         </form>
                                     </div>
                                 </div>
                             @endforeach
+                        </div>
+
+                        <div class="mt-4">
+                            <h5>Dirección de envío</h5>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <input type="text" name="direccion" class="form-control form-control-sm" placeholder="Dirección" value="{{ old('direccion', auth()->user()->direccion ?? '') }}" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" name="ciudad" class="form-control form-control-sm" placeholder="Ciudad" value="{{ old('ciudad') }}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" name="departamento" class="form-control form-control-sm" placeholder="Departamento" value="{{ old('departamento') }}">
+                                </div>
+                                <div class="col-12">
+                                    <input type="text" name="telefono" class="form-control form-control-sm" placeholder="Teléfono" value="{{ old('telefono', auth()->user()->telefono ?? '') }}" required>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -80,16 +98,16 @@
 
                         <div class="d-flex justify-content-between">
                             <div>Subtotal</div>
-                            <div>${{ number_format($subtotal, 2) }}</div>
+                            <div>S/ {{ number_format($subtotal, 2) }}</div>
                         </div>
                         <div class="d-flex justify-content-between">
                             <div>Envío</div>
-                            <div>${{ number_format($envio, 2) }}</div>
+                            <div>S/ {{ number_format($envio, 2) }}</div>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between fs-5 fw-bold">
                             <div>Total</div>
-                            <div>${{ number_format($total, 2) }}</div>
+                            <div>S/ {{ number_format($total, 2) }}</div>
                         </div>
 
                         <hr>
@@ -101,9 +119,11 @@
     <div class="mb-3">
         <label for="metodo" class="form-label">Selecciona método de pago</label>
         <select name="metodo" id="metodo" class="form-select" required>
-            <option value="simulado">💠 Simulado (pruebas)</option>
-            <option value="mercadopago">🟨 Mercado Pago</option>
-            <option value="paypal">🅿️ PayPal</option>
+            @if(app()->environment('local'))
+                <option value="simulado">Simulado (pruebas)</option>
+            @endif
+            <option value="mercadopago">Mercado Pago</option>
+            <option value="paypal">PayPal</option>
         </select>
     </div>
 

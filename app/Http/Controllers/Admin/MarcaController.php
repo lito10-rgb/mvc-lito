@@ -25,7 +25,15 @@ class MarcaController extends Controller
             'nombre' => 'required|string|max:255'
         ]);
 
-        Marca::create($request->only('nombre'));
+        Marca::create([
+            'nombre' => $request->nombre,
+            'ruta' => \Str::slug($request->nombre),
+            'descripcion' => $request->nombre,
+            'detalle' => $request->nombre,
+            'estado' => 1,
+            'imgMarca' => 'sin-marca.jpg',
+            'fecha' => now(),
+        ]);
 
         return redirect()->route('admin.marcas.index')
                          ->with('success', 'Marca creada correctamente.');
@@ -42,7 +50,10 @@ class MarcaController extends Controller
             'nombre' => 'required|string|max:255'
         ]);
 
-        $marca->update($request->only('nombre'));
+        $marca->update([
+            'nombre' => $request->nombre,
+            'ruta' => \Str::slug($request->nombre),
+        ]);
 
         return redirect()->route('admin.marcas.index')
                          ->with('success', 'Marca actualizada.');

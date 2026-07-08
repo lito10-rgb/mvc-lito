@@ -11,6 +11,7 @@ class Post extends Model
         'cuerpo',
         'slug',
         'estado',
+        'imagen',
     ];
 
     public function users()

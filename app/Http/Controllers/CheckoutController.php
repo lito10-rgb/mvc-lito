@@ -71,9 +71,15 @@ class CheckoutController extends Controller
      */
     public function pay(Request $request)
     {
-        $request->validate(['metodo' => 'required|string|in:mercadopago,paypal,simulado']);
+        $request->validate([
+            'metodo' => 'required|string|in:mercadopago,paypal,simulado',
+            'direccion' => 'required|string|max:255',
+            'telefono' => 'required|string|max:20',
+        ]);
         $metodo = $request->input('metodo');
         $carrito = session('carrito', []);
+
+        session(['checkout_direccion' => $request->only(['direccion', 'ciudad', 'departamento', 'telefono'])]);
 
         if (empty($carrito)) {
             return redirect()->route('carrito.index')->with('error', 'Carrito vacío.');
@@ -93,7 +99,21 @@ class CheckoutController extends Controller
 
     protected function simulateSuccess(string $metodo, float $total)
     {
+        $dir = session('checkout_direccion', []);
+        $userId = auth()->id() ?: null;
+        Order::create([
+            'user_id' => $userId,
+            'amount' => $total,
+            'status' => 'approved',
+            'gateway' => $metodo,
+            'direccion' => $dir['direccion'] ?? null,
+            'ciudad' => $dir['ciudad'] ?? null,
+            'departamento' => $dir['departamento'] ?? null,
+            'telefono' => $dir['telefono'] ?? null,
+            'payload' => ['carrito' => session('carrito', [])],
+        ]);
         session()->forget('carrito');
+        session()->forget('checkout_direccion');
         return redirect()->route('checkout.success')->with('success', "Pago simulado con {$metodo}. Total: {$total}");
     }
 
@@ -110,15 +130,26 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.index')->with('error', 'Token de Mercado Pago no configurado.');
     }
 
-    //////
-    // Crear orden local (idempotencia)
+    $dir = session('checkout_direccion', []);
     $userId = auth()->id() ?: null;
     $order = Order::create([
         'user_id' => $userId,
         'amount' => $total,
         'status' => 'pending',
+        'gateway' => 'mercadopago',
+        'direccion' => $dir['direccion'] ?? null,
+        'ciudad' => $dir['ciudad'] ?? null,
+        'departamento' => $dir['departamento'] ?? null,
+        'telefono' => $dir['telefono'] ?? null,
         'payload' => ['carrito' => $carrito],
     ]);
+    session()->forget('checkout_direccion');
+
+    // Validar stock antes de continuar
+    $stockError = $this->validarStock($carrito);
+    if ($stockError) {
+        return redirect()->route('checkout.index')->with('error', $stockError);
+    }
 
     // Validar y construir items
     $items = [];
@@ -722,9 +753,10 @@ public function capturePaypal(Request $request)
         //     'payload'   => json_encode($response->result),
         // ]);
 
+        $dir = session('checkout_direccion', []);
         $order = Order::create([
         'user_id'        => auth()->id(),
-        'preference_id'  => $orderId, // token de PayPal
+        'preference_id'  => $orderId,
         'mp_payment_id'  => $response->result
                                 ->purchase_units[0]
                                 ->payments
@@ -732,8 +764,14 @@ public function capturePaypal(Request $request)
                                 ->id,
         'amount'         => $amountPEN,
         'status'         => 'paid',
+        'gateway'        => 'paypal',
+        'direccion'      => $dir['direccion'] ?? null,
+        'ciudad'         => $dir['ciudad'] ?? null,
+        'departamento'   => $dir['departamento'] ?? null,
+        'telefono'       => $dir['telefono'] ?? null,
         'payload'        => json_encode($response->result),
     ]);
+    session()->forget('checkout_direccion');
 
 
 
@@ -786,18 +824,16 @@ public function capturePaypal(Request $request)
 // }
 protected function guardarItemsYDescontarStock($order)
     {
-        $carrito = session('carrito', []);
+        $carrito = $order->payload['carrito'] ?? session('carrito', []);
 
         foreach ($carrito as $item) {
-            if (!isset($item['id'])) continue; // validar id
+            if (!isset($item['id'])) continue;
 
-            $product = Product::find($item['id']);
+            $product = Producto::find($item['id']);
             if ($product) {
-                // Descontar stock
                 $product->stock -= $item['cantidad'] ?? 0;
                 $product->save();
 
-                // Guardar detalle en pivot (o tabla items)
                 $order->items()->create([
                     'product_id' => $product->id,
                     'cantidad'   => $item['cantidad'] ?? 0,
@@ -805,6 +841,21 @@ protected function guardarItemsYDescontarStock($order)
                 ]);
             }
         }
+    }
+
+    protected function validarStock(array $carrito): ?string
+    {
+        foreach ($carrito as $item) {
+            if (!isset($item['id'])) continue;
+            $product = Producto::find($item['id']);
+            if (!$product) {
+                return "El producto \"{$item['titulo']}\" ya no está disponible.";
+            }
+            if ($product->stock < ($item['cantidad'] ?? 1)) {
+                return "Stock insuficiente para \"{$product->titulo}\" (disponible: {$product->stock}).";
+            }
+        }
+        return null;
     }
     //////////////hasta aqui capture lito
     public function failure(Request $request)

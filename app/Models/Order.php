@@ -12,6 +12,11 @@ class Order extends Model
         'mp_payment_id',
         'amount',
         'status',
+        'gateway',
+        'direccion',
+        'ciudad',
+        'departamento',
+        'telefono',
         'payload',
     ];
 
@@ -19,4 +24,14 @@ class Order extends Model
         'payload' => 'array',
         'amount' => 'decimal:2',
     ];
+
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

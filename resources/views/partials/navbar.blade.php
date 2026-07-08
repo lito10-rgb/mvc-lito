@@ -13,12 +13,13 @@
         <strong>{{ Auth::user()->nombre ?? Auth::user()->name ?? 'Admin' }}</strong>
       </a>
       <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark text-small shadow">
-        <li><a class="dropdown-item" href="{{ url('/') }}" target="_blank"><i class="fas fa-external-link-alt me-2"></i> Ver Sitio</a></li>
+        <li><a class="dropdown-item" href="{{ route('admin.mi-perfil') }}"><i class="fas fa-user-pen me-2"></i> Modificar Perfil</a></li>
+        <li><a class="dropdown-item" href="{{ url('/') }}" target="_blank"><i class="fas fa-up-right-from-square me-2"></i> Ver Sitio</a></li>
         <li><hr class="dropdown-divider" /></li>
         <li>
           <form method="POST" action="{{ route('admin.logout') }}">
             @csrf
-            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión</button>
+            <button type="submit" class="dropdown-item"><i class="fas fa-right-from-bracket me-2"></i> Cerrar Sesión</button>
           </form>
         </li>
       </ul>

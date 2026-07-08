@@ -14,14 +14,9 @@
   }
 
   // escucha evento custom cuando carrito cambia
-  window.addEventListener('cart:updated', (ev) => {
+  window.addEventListener('carrito-actualizado', (ev) => {
     const count = ev.detail && ev.detail.count !== undefined ? ev.detail.count : ev.detail;
     setCount(count);
-  });
-
-  // si el sitio dispara 'cart:counter:updated'
-  window.addEventListener('cart:counter:updated', (ev) => {
-    setCount(ev.detail && ev.detail.count !== undefined ? ev.detail.count : ev.detail);
   });
 
   // intento inicial: si existe una API global para obtener contador

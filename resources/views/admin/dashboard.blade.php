@@ -12,6 +12,12 @@
     use App\Models\Slide;
     use App\Models\Banner;
     use App\Models\Cabecera;
+    use App\Models\Cotizacion;
+    use Illuminate\Support\Facades\Schema;
+
+    $eximCotizaciones = Schema::hasTable('exim_cotizaciones') ? \DB::table('exim_cotizaciones')->count() : 0;
+    $eximClientes = Schema::hasTable('exim_clientes') ? \DB::table('exim_clientes')->count() : 0;
+    $eximProductos = Schema::hasTable('exim_productos') ? \DB::table('exim_productos')->count() : 0;
 
     $counts = [
         'productos' => Producto::count(),
@@ -20,6 +26,7 @@
         'subcategorias' => Subcategoria::count(),
         'marcas' => Marca::count(),
         'proveedores' => Proveedor::count(),
+        'cotizaciones' => Cotizacion::count(),
         'posts' => Post::count(),
         'ordenes' => Order::count(),
         'comentarios' => Comentario::count(),
@@ -27,6 +34,9 @@
         'slides' => Slide::count(),
         'banners' => Banner::count(),
         'cabeceras' => Cabecera::count(),
+        'exim_cotizaciones' => $eximCotizaciones,
+        'exim_clientes' => $eximClientes,
+        'exim_productos' => $eximProductos,
     ];
 @endphp
 
@@ -47,7 +57,7 @@
                         <h6 class="card-title mb-1">Productos</h6>
                         <h2 class="mb-0">{{ $counts['productos'] }}</h2>
                     </div>
-                    <i class="fas fa-boxes fa-3x opacity-50"></i>
+                    <i class="fas fa-boxes-stacked fa-3x opacity-50"></i>
                 </div>
                 <a href="{{ route('admin.productos.index') }}" class="card-footer text-white text-center text-decoration-none small bg-dark border-0">Gestionar →</a>
             </div>
@@ -73,7 +83,7 @@
                         <h6 class="card-title mb-1">Categorías</h6>
                         <h2 class="mb-0">{{ $counts['categorias'] }}</h2>
                     </div>
-                    <i class="fas fa-tags fa-3x opacity-50"></i>
+                    <i class="fas fa-tag fa-3x opacity-50"></i>
                 </div>
                 <a href="{{ route('admin.categorias.index') }}" class="card-footer text-white text-center text-decoration-none small" style="background:#8e44ad;">Gestionar →</a>
             </div>
@@ -99,7 +109,7 @@
                         <h6 class="card-title mb-1">Marcas</h6>
                         <h2 class="mb-0">{{ $counts['marcas'] }}</h2>
                     </div>
-                    <i class="fas fa-trademark fa-3x opacity-50"></i>
+                    <i class="fas fa-copyright fa-3x opacity-50"></i>
                 </div>
                 <a href="{{ route('admin.marcas.index') }}" class="card-footer text-white text-center text-decoration-none small" style="background:#e67e22;">Gestionar →</a>
             </div>
@@ -119,6 +129,19 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm text-white" style="background:#1abc9c;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1">Cotizaciones</h6>
+                        <h2 class="mb-0">{{ $counts['cotizaciones'] }}</h2>
+                    </div>
+                    <i class="fas fa-file-invoice-dollar fa-3x opacity-50"></i>
+                </div>
+                <a href="{{ route('admin.cotizaciones.index') }}" class="card-footer text-white text-center text-decoration-none small" style="background:#1abc9c;">Gestionar →</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm text-white" style="background:#16a085;">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
@@ -128,6 +151,22 @@
                     <i class="fas fa-blog fa-3x opacity-50"></i>
                 </div>
                 <a href="{{ route('admin.posts.index') }}" class="card-footer text-white text-center text-decoration-none small" style="background:#16a085;">Gestionar →</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm text-white" style="background:#0d6efd;">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title mb-1">EXIM Exportaciones</h6>
+                        <h2 class="mb-0">{{ $counts['exim_cotizaciones'] }}</h2>
+                        <small class="opacity-75">
+                            {{ $counts['exim_clientes'] }} clientes · {{ $counts['exim_productos'] }} productos
+                        </small>
+                    </div>
+                    <i class="fas fa-ship fa-3x opacity-50"></i>
+                </div>
+                <a href="{{ route('admin.exim.dashboard') }}" class="card-footer text-white text-center text-decoration-none small" style="background:#0d6efd;">Gestionar →</a>
             </div>
         </div>
 
@@ -164,7 +203,7 @@
                         <h6 class="card-title mb-1">Slides</h6>
                         <h2 class="mb-0">{{ $counts['slides'] }}</h2>
                     </div>
-                    <i class="fas fa-images fa-3x opacity-50"></i>
+                    <i class="fas fa-image fa-3x opacity-50"></i>
                 </div>
                 <div class="card-footer text-white text-center small" style="background:#34495e;">Sin CRUD</div>
             </div>
@@ -203,7 +242,7 @@
                         <h6 class="card-title mb-1">Compras</h6>
                         <h2 class="mb-0">{{ $counts['compras'] }}</h2>
                     </div>
-                    <i class="fas fa-hand-holding-usd fa-3x opacity-50"></i>
+                    <i class="fas fa-hand-holding-dollar fa-3x opacity-50"></i>
                 </div>
                 <div class="card-footer text-white text-center small" style="background:#5d4e37;">Sin CRUD</div>
             </div>

@@ -42,6 +42,7 @@ class Producto extends Model
         'marca_id',
         'proveedor_id',
         'fecha',
+        'stock',
           // 'palabras_claves', // Esto es lo que necesitas agregar
     ];
 

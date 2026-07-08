@@ -1,8 +1,5 @@
-@extends('layouts.volt')
-
-@section('title', $user->exists ? 'Editar Usuario' : 'Crear Usuario')
-
-@section('content')
+<div class="container-fluid py-4">
+    <h1 class="fw-bold">{{ $user->exists ? 'Editar Usuario' : 'Crear Usuario' }}</h1>
 @push('scripts')
     @vite('resources/js/perfil.js')
 @endpush
@@ -24,19 +21,19 @@
         <div class="row">
             <div class="col-md-4">
                 <label>Nombre</label>
-                <input name="nombre" class="form-control"
+                <input name="nombre" class="form-control" style="background-color:yellow"
                        value="{{ old('nombre', $user->nombre) }}">
             </div>
 
             <div class="col-md-4">
                 <label>Apellidos</label>
-                <input name="apellidos" class="form-control"
+                <input name="apellidos" class="form-control" style="background-color:yellow"
                        value="{{ old('apellidos', $user->apellidos) }}">
             </div>
 
             <div class="col-md-4">
                 <label>Email</label>
-                <input name="email" class="form-control"
+                <input name="email" class="form-control" style="background-color:yellow"
                        value="{{ old('email', $user->email) }}" readonly>
             </div>
         </div>
@@ -44,13 +41,13 @@
         <div class="row mt-2">
             <div class="col-md-4">
                 <label>Password (opcional)</label>
-                <input name="password" type="password" class="form-control">
+                <input name="password" type="password" class="form-control" style="background-color:yellow">
             </div>
 
             <div class="col-md-4">
                 <label>Modo</label>
                 <input name="modo" class="form-control"
-                       value="{{ old('modo', $user->modo) }}">
+                       value="{{ old('modo', $user->modo ?? ($user->exists ? '' : 'pagina')) }}">
             </div>
 
             <div class="col-md-4">
@@ -70,7 +67,7 @@
         <div class="row">
             <div class="col-md-4">
                 <label>Empresa</label>
-                <input name="empresa" class="form-control"
+                <input name="empresa" class="form-control" style="background-color:yellow"
                        value="{{ old('empresa', $user->profile->empresa ?? '') }}">
             </div>
 
@@ -95,7 +92,7 @@
                     <option value="">-- seleccionar --</option>
                     @foreach(['DNI','RUC','PAS'] as $doc)
                         <option value="{{ $doc }}"
-                            @selected(($user->profile->tipo_documento ?? '')==$doc)>
+                            @selected((old('tipo_documento', $user->profile->tipo_documento ?? ($user->exists ? '' : 'RUC')))==$doc)>
                             {{ $doc }}
                         </option>
                     @endforeach
@@ -104,7 +101,7 @@
 
             <div class="col-md-4">
                 <label>N° Documento</label>
-                <input name="num_documento" class="form-control"
+                <input name="num_documento" class="form-control" style="background-color:yellow"
                        value="{{ old('num_documento', $user->profile->num_documento ?? '') }}">
             </div>
 
@@ -118,7 +115,7 @@
         {{-- Contactos --}}
         <div class="row mt-2">
             <div class="col-md-3"><label>Teléfono</label>
-                <input name="telefono" class="form-control" value="{{ $user->profile->telefono ?? '' }}">
+                <input name="telefono" class="form-control" style="background-color:yellow" value="{{ old('telefono', $user->profile->telefono ?? '') }}">
             </div>
             <div class="col-md-3"><label>Celular</label>
                 <input name="celular" class="form-control" value="{{ $user->profile->celular ?? '' }}">
@@ -200,7 +197,7 @@
                 <option value="">Seleccione país</option>
                 @foreach($paises as $pais)
                     <option value="{{ $pais->id }}"
-                        {{ old('pais', $user->profile->pais ?? '') == $pais->id ? 'selected' : '' }}>
+                        {{ old('pais', $user->profile->pais ?? ($user->exists ? '' : 1)) == $pais->id ? 'selected' : '' }}>
                         {{ $pais->nombre }}
                     </option>
                 @endforeach
@@ -213,7 +210,7 @@
         <option value="">Seleccione estado</option>
         @foreach ($estados as $estado)
             <option value="{{ $estado->id }}"
-                {{ old('estado', $user->profile->estado ?? '') == $estado->id ? 'selected' : '' }}>
+                {{ old('estado', $user->profile->estado ?? ($user->exists ? '' : 15)) == $estado->id ? 'selected' : '' }}>
                 {{ $estado->nombre }}
             </option>
         @endforeach
@@ -228,7 +225,7 @@
 
     @foreach ($provincias as $provincia)
         <option value="{{ $provincia->id }}"
-            {{ old('provincia', $user->profile->provincia ?? '') == $provincia->id ? 'selected' : '' }}>
+            {{ old('provincia', $user->profile->provincia ?? ($user->exists ? '' : 128)) == $provincia->id ? 'selected' : '' }}>
             {{ $provincia->nombre }}
         </option>
     @endforeach
@@ -243,7 +240,7 @@
 
     @foreach ($distritos as $distrito)
         <option value="{{ $distrito->id }}"
-            {{ old('distrito', $user->profile->distrito ?? '') == $distrito->id ? 'selected' : '' }}>
+            {{ old('distrito', $user->profile->distrito ?? ($user->exists ? '' : 150101)) == $distrito->id ? 'selected' : '' }}>
             {{ $distrito->nombre }}
         </option>
     @endforeach
@@ -267,7 +264,7 @@
         {{-- Web / Redes --}}
         <div class="row mt-3">
             <div class="col-md-3"><label>Web</label>
-                <input name="web" class="form-control" value="{{ $user->profile->web ?? '' }}">
+                <input name="web" class="form-control" style="background-color:yellow" value="{{ old('web', $user->profile->web ?? '') }}">
             </div>
             <div class="col-md-3"><label>Web2</label>
                 <input name="web2" class="form-control" value="{{ $user->profile->web2 ?? '' }}">
@@ -283,7 +280,7 @@
         {{-- Detalle --}}
         <div class="mt-3">
             <label>Detalle</label>
-            <textarea name="detalle" class="form-control" rows="3">{{ $user->profile->detalle ?? '' }}</textarea>
+            <textarea name="detalle" class="form-control" style="background-color:yellow" rows="3">{{ $user->profile->detalle ?? '' }}</textarea>
         </div>
     </div>
 </div>
@@ -365,7 +362,7 @@
                     <input type="checkbox"
                            name="roles[]"
                            value="{{ $role->id }}"
-                           {{ $user->roles->contains($role->id) ? 'checked' : '' }}>
+                           {{ old('roles') ? (in_array($role->id, old('roles', [])) ? 'checked' : '') : ($user->roles->contains($role->id) || (!$user->exists && $role->id == 5) ? 'checked' : '') }}>
                     {{ ucfirst($role->nombre) }}
                 </label>
             </div>
@@ -383,7 +380,7 @@
                     <input type="checkbox"
                            name="rubros[]"
                            value="{{ $rubro->id }}"
-                           {{ $user->rubros->contains($rubro->id) ? 'checked' : '' }}>
+                           {{ old('rubros') ? (in_array($rubro->id, old('rubros', [])) ? 'checked' : '') : ($user->rubros->contains($rubro->id) || (!$user->exists && $rubro->id == 3) ? 'checked' : '') }}>
                     {{ $rubro->nombre }}
                 </label>
             </div>
@@ -405,4 +402,4 @@
 
 </form>
 
-@endsection
+</div>

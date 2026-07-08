@@ -8,18 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 class Subcategoria extends Model
 {
     use HasFactory;
-     // public $timestamps = false;
 
-    // Relación con productos (una subcategoría tiene muchos productos)
+    protected $fillable = [
+        'subcategoria',
+        'id_categoria',
+        'ruta',
+        'estado',
+        'ofertadoPorCategoria',
+        'oferta',
+        'precioOferta',
+        'descuentoOferta',
+        'imgOferta',
+        'finOferta',
+        'fecha',
+    ];
+
     public function productos()
     {
-
         return $this->hasMany(Producto::class, 'subcategoria_id');
-
     }
-    public function categoria()
-{
-    return $this->belongsTo(Categoria::class, 'id_categoria');
-}  
 
+    public function categoria()
+    {
+        return $this->belongsTo(Categoria::class, 'id_categoria');
+    }
 }

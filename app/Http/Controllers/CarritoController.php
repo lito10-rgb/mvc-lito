@@ -17,16 +17,27 @@ class CarritoController extends Controller
 {
     $producto = Producto::findOrFail($id);
 
+    $qtySolicitada = (int) ($request->cantidad ?? 1);
+    if ($producto->stock < 1) {
+        $msg = 'Producto sin stock disponible.';
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => $msg], 422);
+        }
+        return redirect()->back()->with('error', $msg);
+    }
+
     $carrito = session()->get('carrito', []);
 
     if (isset($carrito[$id])) {
         $carrito[$id]['cantidad'] = (int) $carrito[$id]['cantidad'] + 1;
     } else {
         $carrito[$id] = [
-            "titulo"  => $producto->titulo,
-            "precio"  => (float) $producto->precio,
-            "imagen"  => $producto->portada,
-            "cantidad"=> 1
+            "id"       => $id,
+            "titulo"   => $producto->titulo,
+            "precio"   => (float) $producto->precio,
+            "imagen"   => $producto->portada,
+            "ruta"     => $producto->ruta,
+            "cantidad" => 1
         ];
     }
 
@@ -58,6 +69,26 @@ class CarritoController extends Controller
         }
 
         return redirect()->back()->with('success', 'Producto eliminado.');
+    }
+
+    public function actualizar(Request $request, $id)
+    {
+        $request->validate(['cantidad' => 'required|integer|min:1']);
+
+        $carrito = session()->get('carrito', []);
+        if (!isset($carrito[$id])) {
+            return redirect()->back()->with('error', 'Producto no encontrado en el carrito.');
+        }
+
+        $producto = Producto::find($id);
+        if ($producto && $producto->stock < $request->cantidad) {
+            return redirect()->back()->with('error', "Stock insuficiente (disponible: {$producto->stock}).");
+        }
+
+        $carrito[$id]['cantidad'] = $request->cantidad;
+        session()->put('carrito', $carrito);
+
+        return redirect()->back()->with('success', 'Cantidad actualizada.');
     }
 
     public function vaciar()

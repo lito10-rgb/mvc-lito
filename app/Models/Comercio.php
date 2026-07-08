@@ -9,4 +9,6 @@ class Comercio extends Model
 {
     /** @use HasFactory<\Database\Factories\ComercioFactory> */
     use HasFactory;
+
+    protected $table = 'comercio';
 }

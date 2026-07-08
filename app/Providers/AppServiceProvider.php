@@ -23,16 +23,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-    //     //
-    //      Paginator::useBootstrapFive(); // o useBootstrapFour() si usas v4
-    //      ///
-    //      $categorias = Categoria::with('subcategorias')->get();
-    // View::share('categorias', $categorias);
-    // 
            Paginator::useBootstrapFive();
+           $this->loadMigrationsFrom(database_path('migrations/exim'));
 
     view()->composer('*', function ($view) {
-        $view->with('categorias', Categoria::with('subcategorias')->get());
+        $view->with('menuCategorias', Categoria::with('subcategorias')->get());
     });
     }
 }

@@ -34,7 +34,7 @@
                         @endphp
 
                         @if ($img)
-                            <img src="{{ asset('storage/' . trim($img)) }}" class="card-img-top" style="height:170px; object-fit:cover;" alt="{{ $producto->nombre }}">
+                            <img src="{{ asset('storage/' . trim($img)) }}" class="card-img-top" style="height:170px; object-fit:cover;" alt="{{ $producto->titulo }}">
                         @else
                             <img src="{{ asset('images/placeholder.png') }}" class="card-img-top" style="height:170px; object-fit:cover;" alt="sin imagen">
                         @endif

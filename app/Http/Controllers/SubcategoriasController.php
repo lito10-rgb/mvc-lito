@@ -8,10 +8,10 @@ use App\Models\Subcategoria;
 class SubcategoriasController extends Controller
 {
     //
-    public function show($id)
+    public function show($ruta)
     {
-        $subcategoria = Subcategoria::with('productos')->findOrFail($id);
-        return view('subcategoria.show', compact('subcategorias'));
+        $subcategoria = Subcategoria::with('productos')->where('ruta', $ruta)->firstOrFail();
+        return view('subcategoria.show', compact('subcategoria'));
     }
 //     public function porCategoria($categoria_id)
 // {

@@ -21,9 +21,9 @@
         <!-- RUC -->
         <div class="col-md-2">
             <label class="form-label">RUC/DNI</label>
-            <input type="text" name="documento" class="form-control"
+            <input type="text" name="ruc" class="form-control"
        placeholder="DNI o RUC"
-       value="{{ request('documento') }}">
+       value="{{ request('ruc') }}">
         </div>
 
         <!-- Rol -->

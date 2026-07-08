@@ -9,4 +9,6 @@ class Plantilla extends Model
 {
     /** @use HasFactory<\Database\Factories\PlantillaFactory> */
     use HasFactory;
+
+    protected $table = 'plantilla';
 }

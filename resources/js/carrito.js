@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 await axios.post(url);
-                const response = await axios.get("/carrito/contador");
+                const response = await axios.get("/carrito/count");
                 contadorCarrito.textContent = response.data.count;
             } catch (error) {
                 console.error("Error al agregar producto al carrito:", error);

@@ -29,19 +29,16 @@ const loading = ref(false)
 async function addToCart() {
   loading.value = true
   try {
-    const res = await axios.post('/cart/add', {
-      product_id: props.productId,
-      qty: props.qty
+    const res = await axios.post(`/carrito/agregar/${props.productId}`, {
+      cantidad: props.qty
     })
 
     if (res && res.data && res.data.success) {
-      // Dispara evento global para que CartCounter.vue se actualice
       const newCount = res.data.count ?? null
-      window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count: newCount } }))
+      window.dispatchEvent(new CustomEvent('carrito-actualizado', { detail: { count: newCount } }))
     } else {
       console.warn('Respuesta inesperada:', res.data)
-      // Igual notificamos el evento para que actualice por si acaso
-      window.dispatchEvent(new CustomEvent('cart-updated'))
+      window.dispatchEvent(new CustomEvent('carrito-actualizado'))
     }
   } catch (error) {
     console.error('Error al agregar al carrito:', error)

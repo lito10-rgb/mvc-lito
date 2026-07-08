@@ -11,6 +11,7 @@ use App\Models\Provincia;   // <- Añadir
 use App\Models\Distrito;    // <- Añadir
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Rubro;
 use App\Models\Role;
 
@@ -88,10 +89,10 @@ class UserAdminController extends Controller
 
         // 📅 fecha creación
         ->when($request->fecha_desde, function ($q) use ($request) {
-            $q->whereDate('created_at', '>=', $request->fecha_desde);
+            $q->whereDate('fecha', '>=', $request->fecha_desde);
         })
         ->when($request->fecha_hasta, function ($q) use ($request) {
-            $q->whereDate('created_at', '<=', $request->fecha_hasta);
+            $q->whereDate('fecha', '<=', $request->fecha_hasta);
         })
 
         ->paginate(10)
@@ -118,14 +119,11 @@ public function create()
     $roles  = Role::orderBy('nombre')->get();
     $rubros = Rubro::orderBy('nombre')->get();
     $paises = Pais::orderBy('nombre')->get();
-     $estados    = collect();
-    $provincias = collect();
-    $distritos  = collect();
+    $estados    = Departamento::where('pais_id', 1)->orderBy('nombre')->get();
+    $provincias = Provincia::where('departamento_id', 15)->orderBy('nombre')->get();
+    $distritos  = Distrito::where('provincia_id', 128)->orderBy('nombre')->get();
 
-    $rubros = Rubro::orderBy('nombre')->get();
-    $roles  = Role::orderBy('nombre')->get();
-
-    return view('admin.usuarios._form', compact(
+    return view('admin.usuarios.create', compact(
         'user',
         'roles',
         'rubros',
@@ -133,8 +131,6 @@ public function create()
         'estados',
         'provincias',
         'distritos',
-        'rubros',
-        'roles'
     ));
 }
     // public function store(Request $request)
@@ -505,4 +501,52 @@ public function asignarStore(Request $request)
     return back()->with('success', 'Asignación realizada');
 }
 
+    public function miPerfil()
+    {
+        $user = User::with(['profile', 'scores'])->findOrFail(auth()->id());
+
+        if (!$user->profile) $user->profile = new UserProfile();
+        if (!$user->scores) $user->scores = new UserScore();
+
+        $paises = Pais::orderBy('nombre')->get();
+        $estados = $user->profile->pais
+            ? Departamento::where('pais_id', $user->profile->pais)->orderBy('nombre')->get()
+            : collect();
+        $provincias = $user->profile->estado
+            ? Provincia::where('departamento_id', $user->profile->estado)->orderBy('nombre')->get()
+            : collect();
+        $distritos = $user->profile->provincia
+            ? Distrito::where('provincia_id', $user->profile->provincia)->orderBy('nombre')->get()
+            : collect();
+        $rubros = Rubro::orderBy('nombre')->get();
+        $roles  = Role::orderBy('nombre')->get();
+
+        return view('admin.usuarios.edit', compact(
+            'user', 'paises', 'estados', 'provincias', 'distritos', 'rubros', 'roles'
+        ));
+    }
+
+    public function actualizarMiPerfil(Request $request)
+    {
+        $user = User::findOrFail(auth()->id());
+
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellidos' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        $user->nombre = $request->nombre;
+        $user->apellidos = $request->apellidos;
+        $user->email = $request->email;
+
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('admin.mi-perfil')->with('success', 'Perfil actualizado correctamente.');
+    }
 }

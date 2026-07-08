@@ -82,7 +82,7 @@
 <!-- CTA -->
 <section class="cta text-center bg-primary text-white py-5">
     <h2>Solicita una cotización personalizada</h2>
-    <a href="#" class="btn btn-light mt-3">Agenda una visita técnica</a>
+    <a href="{{ route('visita-tecnica.create') }}" class="btn btn-light mt-3"><i class="fa-solid fa-calendar-check me-2"></i> Agenda una visita técnica</a>
 </section>
 
 @endsection

@@ -39,6 +39,7 @@ class Marca extends Model
 
     protected $fillable = [
         'nombre',
+        'ruta',
         'descripcion',
         'detalle',
         'fecha',

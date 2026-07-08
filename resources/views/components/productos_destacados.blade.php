@@ -24,18 +24,21 @@
 
             <!-- Precio -->
             <p class="precio">
-                @if($producto->precio_oferta)
+                @if($producto->precioOferta)
                     <span class="precio-tachado">S/ {{ number_format($producto->precio, 2) }}</span>
-                    <span class="precio-oferta">S/ {{ number_format($producto->precio_oferta, 2) }}</span>
+                    <span class="precio-oferta">S/ {{ number_format($producto->precioOferta, 2) }}</span>
                 @else
                     <span>S/ {{ number_format($producto->precio, 2) }}</span>
                 @endif
             </p>
 
             <!-- Botón Comprar -->
-            <a href="{{ route('comprar', $producto->id) }}" class="btn btn-comprar">
-                <i class="fas fa-shopping-cart me-2"></i> Comprar
-            </a>
+            <form action="{{ route('carrito.agregar', $producto->id) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-comprar w-100">
+                    <i class="fas fa-shopping-cart me-2"></i> Comprar
+                </button>
+            </form>
         </div>
     </div>
 </div>

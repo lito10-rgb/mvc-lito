@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('title', $cabecera->titulo)
-@section('description', $cabecera->descripcion)
-@section('keywords', $cabecera->palabras_claves)
+@section('title', $cabecera->titulo ?? $producto->titulo)
+@section('description', $cabecera->descripcion ?? $producto->descripcion)
+@section('keywords', $cabecera->palabras_claves ?? '')
 
 @section('content')
 <div class="container">
@@ -55,7 +55,7 @@
                         <img src="{{ asset('storage/' . $img) }}"
                              class="img-fluid"
                              data-zoom="{{ asset('storage/' . $img) }}"
-                             alt="{{ $producto->nombre }}">
+                             alt="{{ $producto->titulo }}">
                     @endif
                 </div>
             </div>
@@ -70,7 +70,7 @@
             @php $img = trim($img); @endphp
             <div class="swiper-slide">
                 @if (!preg_match('/^https?:\/\//', $img))
-                    <img src="{{ asset('storage/' . $img) }}" class="img-fluid" alt="{{ $producto->nombre }}">
+                    <img src="{{ asset('storage/' . $img) }}" class="img-fluid" alt="{{ $producto->titulo }}">
                 @endif
             </div>
         @endforeach

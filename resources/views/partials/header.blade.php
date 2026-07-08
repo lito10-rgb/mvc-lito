@@ -37,7 +37,7 @@
 
                         <div class="row">
 
-                            @foreach($categorias->chunk(ceil($categorias->count()/4)) as $chunk)
+                            @foreach($menuCategorias->chunk(ceil($menuCategorias->count()/4)) as $chunk)
 
                                 <div class="col-lg-3">
 

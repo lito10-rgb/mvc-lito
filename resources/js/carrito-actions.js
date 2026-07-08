@@ -65,9 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // si es absoluta (empieza con http) la tomamos tal cual, si es relativa la convertimos
         url = (/^https?:\/\//i.test(dataUrl) ? dataUrl : absolutePath(dataUrl));
       } else if (productId) {
-        // endpoint por defecto: carrito/add o carrito/agregar según tu backend
-        // usamos 'carrito/add' como ejemplo; si tu ruta es 'carrito/agregar/{id}' ajusta aquí
-        url = absolutePath(`carrito/add`);
+        url = absolutePath(`carrito/agregar/${productId}`);
       } else {
         console.error('[carrito-actions] ERROR: no se encontró URL (data-url) ni data-product-id en', btn);
         alert('Error: falta configuración en el botón (data-url o data-product-id).');

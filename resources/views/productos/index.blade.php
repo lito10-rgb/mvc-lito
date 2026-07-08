@@ -27,7 +27,7 @@
 
                         {{-- Nombre --}}
                         <h5 class="mt-2">
-                            {{ $producto->nombre }}
+                            {{ $producto->titulo }}
                         </h5>
 
                         {{-- Precio --}}

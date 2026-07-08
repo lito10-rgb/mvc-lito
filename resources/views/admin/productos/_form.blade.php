@@ -281,7 +281,7 @@
         <option value="">-- Seleccione Categoría --</option>
         @foreach($categorias as $cat)
             <option value="{{ $cat->id }}" {{ old('categoria_id', $producto->categoria_id ?? '') == $cat->id ? 'selected' : '' }}>
-                {{ $cat->nombre }}
+                {{ $cat->categoria ?? $cat->nombre }}
             </option>
         @endforeach
     </select>
@@ -292,7 +292,7 @@
         @foreach($categorias as $cat)
             <option value="{{ $cat->id }}"
                 {{ old('categoria_id', $producto->categoria_id ?? 1) == $cat->id ? 'selected' : '' }}>
-                {{ $cat->nombre }}
+                {{ $cat->categoria ?? $cat->nombre }}
             </option>
         @endforeach
     </select>
@@ -305,7 +305,7 @@
         @foreach($subcategorias as $subcat)
             <option value="{{ $subcat->id }}"
                 {{ old('subcategoria_id', $producto->subcategoria_id ?? 2) == $subcat->id ? 'selected' : '' }}>
-                {{ $subcat->nombre }}
+                {{ $subcat->subcategoria ?? $subcat->nombre }}
             </option>
         @endforeach
     </select>

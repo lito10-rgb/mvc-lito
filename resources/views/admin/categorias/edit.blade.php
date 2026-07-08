@@ -1,17 +1,51 @@
-<!-- resources/views/admin/categorias/edit.blade.php -->
-@extends('admin.layout')
+@extends('layouts.volt')
+
 @section('content')
-<div class="container py-4">
-    <h1>Editar Categoría</h1>
-    <form action="{{ route('admin.categorias.update', $categoria) }}" method="POST">
-        @csrf
-        @method('PUT')
-        <div class="mb-3">
-            <label class="form-label">Nombre</label>
-            <input type="text" class="form-control" name="nombre" value="{{ $categoria->nombre }}" required>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">Editar Categoría</h3>
+        <a href="{{ route('admin.categorias.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form action="{{ route('admin.categorias.update', $categoria) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre de la categoría</label>
+                    <input type="text" name="categoria" class="form-control @error('categoria') is-invalid @enderror"
+                           value="{{ old('categoria', $categoria->categoria) }}" required>
+                    @error('categoria')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ruta (slug)</label>
+                    <input type="text" name="ruta" class="form-control @error('ruta') is-invalid @enderror"
+                           value="{{ old('ruta', $categoria->ruta) }}">
+                    @error('ruta')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-control">
+                        <option value="1" {{ $categoria->estado == 1 ? 'selected' : '' }}>Activo</option>
+                        <option value="0" {{ $categoria->estado == 0 ? 'selected' : '' }}>Inactivo</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save me-1"></i> Actualizar
+                </button>
+            </form>
         </div>
-        <button class="btn btn-success">Actualizar</button>
-        <a href="{{ route('admin.categorias.index') }}" class="btn btn-secondary">Volver</a>
-    </form>
+    </div>
 </div>
 @endsection

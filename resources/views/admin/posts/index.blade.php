@@ -21,6 +21,7 @@
             <thead class="table-light">
                 <tr>
                     <th>ID</th>
+                    <th>Imagen</th>
                     <th>Título</th>
                     <th>Estado</th>
                     <th>Fecha</th>
@@ -31,6 +32,13 @@
                 @foreach($posts as $post)
                     <tr>
                         <td>{{ $post->id }}</td>
+                        <td>
+                            @if($post->imagen)
+                                <img src="{{ asset('storage/' . $post->imagen) }}" alt="" style="width: 60px; height: 40px; object-fit: cover;" class="rounded">
+                            @else
+                                <span class="text-muted small">—</span>
+                            @endif
+                        </td>
                         <td>{{ $post->titulo }}</td>
                         <td>
                             {{ $post->estado == 1 ? 'Activo' : 'Inactivo' }}
@@ -41,12 +49,13 @@
                         </td>
                         <td class="d-flex gap-1">
 
-    <!-- VER (público) -->
-    <a href="/post/{{ $post->slug }}"
+    @if($post->slug)
+    <a href="{{ route('post.show', $post->slug) }}"
        class="btn btn-sm btn-info"
        target="_blank">
        Ver
     </a>
+    @endif
 
     <!-- EDITAR (admin) -->
     <a href="{{ route('admin.posts.edit', $post->id) }}"

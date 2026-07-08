@@ -14,6 +14,8 @@ export default defineConfig({
                 'resources/js/fallback-counter.js',
                 'resources/js/fallback-thumbs.js',
                 'resources/js/admin/productos.js',
+                'resources/js/proveedores.js',
+                'resources/js/marcas.js',
             ],
             refresh: true,
         }),
