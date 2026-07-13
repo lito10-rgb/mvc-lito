@@ -179,7 +179,7 @@
                     </div>
                     <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
                 </div>
-                <div class="card-footer text-white text-center small" style="background:#2980b9;">Sin CRUD</div>
+                <a href="{{ route('admin.pedidos.index') }}" class="card-footer text-white text-center text-decoration-none small" style="background:#2980b9;">Gestionar →</a>
             </div>
         </div>
 

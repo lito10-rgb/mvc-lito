@@ -10,7 +10,9 @@ class CotizacionController extends Controller
 {
     public function solicitar($id)
     {
-        $producto = Producto::findOrFail($id);
+        $negocioId = negocio_actual_id();
+        $producto = Producto::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->findOrFail($id);
         return view('cotizacion.solicitar', compact('producto'));
     }
 

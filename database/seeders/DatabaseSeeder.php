@@ -17,6 +17,7 @@ public function run()
             AdministradorSeeder::class,
             CategoriaSeeder::class,
             EximInitialDataSeeder::class,
+            NegocioSeeder::class,
             // SubcategoriaSeeder::class,
             // MarcaSeeder::class,        
             // ProveedorSeeder::class,

@@ -10,7 +10,10 @@ class SubcategoriasController extends Controller
     //
     public function show($ruta)
     {
-        $subcategoria = Subcategoria::with('productos')->where('ruta', $ruta)->firstOrFail();
+        $negocioId = negocio_actual_id();
+        $subcategoria = Subcategoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->with(['productos' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+            ->where('ruta', $ruta)->firstOrFail();
         return view('subcategoria.show', compact('subcategoria'));
     }
 //     public function porCategoria($categoria_id)
@@ -26,6 +29,9 @@ class SubcategoriasController extends Controller
 // }
 public function porCategoria($id_categoria)
     {
-        return Subcategoria::where('id_categoria', $id_categoria)->get();
+        $negocioId = negocio_actual_id();
+        return Subcategoria::where('id_categoria', $id_categoria)
+            ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->get();
     }
 }

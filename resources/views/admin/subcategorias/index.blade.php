@@ -18,6 +18,17 @@
         </div>
     @endif
 
+    <form method="GET" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select name="negocio_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">Todos los negocios</option>
+                @foreach($negocios as $neg)
+                    <option value="{{ $neg->id }}" {{ request('negocio_id', 1) == $neg->id ? 'selected' : '' }}>{{ $neg->nombre }}</option>
+                @endforeach
+            </select>
+        </div>
+    </form>
+
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between mb-3">
@@ -33,6 +44,7 @@
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Categoría</th>
+                            <th>Negocios</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -43,6 +55,11 @@
                             <td>{{ $s->id }}</td>
                             <td>{{ $s->subcategoria }}</td>
                             <td>{{ $s->categoria->categoria ?? '' }}</td>
+                            <td>
+                                @foreach($s->negocios as $neg)
+                                    <span class="badge bg-info">{{ $neg->nombre }}</span>
+                                @endforeach
+                            </td>
                             <td>
                                 <a href="{{ route('admin.subcategorias.edit', $s) }}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i>
@@ -58,7 +75,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No hay subcategorías registradas</td>
+                            <td colspan="6" class="text-center text-muted py-4">No hay subcategorías registradas</td>
                         </tr>
                         @endforelse
                     </tbody>

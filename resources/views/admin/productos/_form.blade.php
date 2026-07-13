@@ -43,7 +43,7 @@
 <div class="mb-3">
     <label for="palabras_claves" class="form-label">Palabras Clave (SEO)</label>
     <input type="text" name="palabras_claves" id="palabras_claves" class="form-control" 
-    value="{{ old('palabras_claves', $producto->cabecera->palabras_claves ?? '') }}">
+    value="{{ old('palabras_claves', $producto->cabecera?->palabras_claves ?? '') }}">
     <small class="form-text text-muted">Separadas por comas, ejemplo: café, especialidad, orgánico</small>
 </div>
 <!-- {{-- Campos para SEO (se usarán en la tabla cabeceras) --}}
@@ -95,8 +95,9 @@
 
     @if(isset($producto) && $producto->multimedia)
     @php
-
         $imagenes = json_decode($producto->multimedia, true) ?? [];
+        $imagenes = array_map(fn($img) => is_array($img) ? ($img['foto'] ?? '') : $img, $imagenes);
+        $imagenes = array_values(array_filter($imagenes));
     @endphp
     <!-- <input type="hidden" name="imagenes_actuales" id="imagenes_actuales" value='@json($imagenes)'> -->
 
@@ -358,6 +359,22 @@
     <input type="date" name="fecha" id="fecha" class="form-control"
         value="{{ old('fecha', isset($producto->fecha) ? \Carbon\Carbon::parse($producto->fecha)->format('Y-m-d') : \Carbon\Carbon::now()->format('Y-m-d')) }}"
         required>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Negocios (donde se publica)</label>
+    <div class="row">
+        @foreach($negocios as $neg)
+        <div class="col-md-4">
+            <div class="form-check">
+                <input type="checkbox" name="negocios[]" value="{{ $neg->id }}" class="form-check-input"
+                    id="neg_{{ $neg->id }}"
+                    {{ in_array($neg->id, old('negocios', $productoNegocioIds ?? [])) ? 'checked' : '' }}>
+                <label class="form-check-label" for="neg_{{ $neg->id }}">{{ $neg->nombre }}</label>
+            </div>
+        </div>
+        @endforeach
+    </div>
 </div>
 
 <button type="submit" class="btn btn-primary">Guardar</button>

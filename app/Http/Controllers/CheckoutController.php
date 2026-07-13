@@ -12,6 +12,7 @@ use App\Models\Producto;
 /* PayPal SDK */
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
+use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 // use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
@@ -30,7 +31,11 @@ class CheckoutController extends Controller
     $clientId = env('PAYPAL_CLIENT_ID');
     $clientSecret = env('PAYPAL_CLIENT_SECRET');
 
-    $environment = new SandboxEnvironment($clientId, $clientSecret);
+    if (env('PAYPAL_ENV', 'sandbox') === 'production') {
+        $environment = new ProductionEnvironment($clientId, $clientSecret);
+    } else {
+        $environment = new SandboxEnvironment($clientId, $clientSecret);
+    }
     return new PayPalHttpClient($environment);
 }
     public function __construct()

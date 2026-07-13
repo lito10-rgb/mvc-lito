@@ -40,6 +40,22 @@
                     @enderror
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">Negocios (donde se publica)</label>
+                    <div class="row">
+                        @foreach($negocios as $neg)
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input type="checkbox" name="negocios[]" value="{{ $neg->id }}" class="form-check-input"
+                                    id="sub_neg_{{ $neg->id }}"
+                                    {{ in_array($neg->id, old('negocios', $subcategoriaNegocioIds ?? [])) ? 'checked' : '' }}>
+                                <label class="form-check-label" for="sub_neg_{{ $neg->id }}">{{ $neg->nombre }}</label>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-save me-1"></i> Actualizar
                 </button>

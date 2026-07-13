@@ -1,7 +1,7 @@
 /*@import "~@fortawesome/fontawesome-free/css/all.min.css";*/
 /* Estilo general de fondo y enlaces */
 .hover-bg:hover {
-    background-color: #343a40 !important;
+    background-color: var(--theme-primary, #103067) !important;
 }
 
 .dropdown-mega {

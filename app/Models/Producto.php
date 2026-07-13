@@ -76,4 +76,8 @@ class Producto extends Model
         return $this->hasOne(Cabecera::class, 'ruta', 'ruta');
     }
 
+    public function negocios()
+    {
+        return $this->belongsToMany(Negocio::class, 'producto_negocio');
+    }
 }

@@ -125,9 +125,9 @@ public function index(Request $request)
     // }
 public function buscar(Request $request)
 {
-    // Iniciamos la consulta con relaciones
-	
-    $query = Producto::with(['categoria', 'subcategoria', 'marca', 'proveedor']);
+    $negocioId = negocio_actual_id();
+    $query = Producto::with(['categoria', 'subcategoria', 'marca', 'proveedor'])
+        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId));
 
     // 🔍 Búsqueda general (por texto en nombre o descripción o id)
     if ($request->filled('q')) {
@@ -180,7 +180,7 @@ public function buscar(Request $request)
 
     // Paginación (puedes ajustar la cantidad)
     $productos = $query->paginate(8);
-	$categorias = Categoria::all();
+	$categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
 
     //return view('productos.buscar', compact('productos'));
 	return view('productos.index', compact('productos', 'categorias'));
@@ -198,16 +198,18 @@ public function buscar(Request $request)
 // lito
 public function mostrarProducto($ruta)
 {
+    $negocioId = negocio_actual_id();
     $producto = Producto::where('ruta', $ruta)
+        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
         ->with(['categoria', 'subcategoria', 'marca', 'proveedor'])
         ->firstOrFail();
 
     $cabecera = Cabecera::where('ruta', $ruta)->first();
 
-    // Obtener relacionados por categoría y subcategoría
     $relacionados = Producto::where('categoria_id', $producto->categoria_id)
         ->where('subcategoria_id', $producto->subcategoria_id)
         ->where('id', '!=', $producto->id)
+        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
         ->take(6)
         ->get();
 

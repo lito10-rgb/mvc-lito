@@ -13,12 +13,21 @@
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 
   <style>
+    :root {
+      --theme-primary: {{ config('theme.colors.primary') }};
+      --theme-secondary: {{ config('theme.colors.secondary') }};
+      --theme-accent: {{ config('theme.colors.accent') }};
+      --theme-accent-light: {{ config('theme.colors.accent_light') }};
+      --theme-sidebar-bg: {{ config('theme.colors.sidebar_bg') }};
+      --theme-sidebar-hover: {{ config('theme.colors.sidebar_hover') }};
+    }
+
     body {
       overflow-x: hidden;
     }
 
     #sidebar {
-      background-color: #343a40;
+      background-color: var(--theme-sidebar-bg);
       color: white;
       padding-top: 4.5rem;
     }
@@ -31,7 +40,7 @@
     }
 
     .sidebar-link:hover {
-      background-color: #495057;
+      background-color: var(--theme-sidebar-hover);
     }
 
     .main-content {
@@ -76,7 +85,7 @@
     </main>
 
     {{-- Footer --}}
-    @include('partials.footer')
+    @include('partials.admin-footer')
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

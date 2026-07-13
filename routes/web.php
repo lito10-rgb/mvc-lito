@@ -88,21 +88,29 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('subcategorias', \App\Http\Controllers\Admin\SubcategoriaController::class);
     Route::post('subcategorias/eliminar-multiple', [\App\Http\Controllers\Admin\SubcategoriaController::class, 'eliminarMultiple'])->name('subcategorias.eliminarMultiple');
 
-    Route::resource('proveedores', AdminProveedorController::class);
+    Route::resource('proveedores', AdminProveedorController::class)->parameters(['proveedores' => 'proveedor']);
     Route::post('proveedores/eliminar-multiple', [AdminProveedorController::class, 'eliminarMultiple'])->name('proveedores.eliminarMultiple');
 
     Route::resource('marcas', AdminMarcaController::class);
     Route::post('marcas/eliminar-multiple', [AdminMarcaController::class, 'eliminarMultiple'])->name('marcas.eliminarMultiple');
 
     Route::resource('usuarios', UserAdminController::class);
+    Route::put('usuarios/negocio/bulk', [UserAdminController::class, 'negocioBulk'])->name('usuarios.negocio.bulk');
     Route::get('mi-perfil', [UserAdminController::class, 'miPerfil'])->name('mi-perfil');
     Route::post('mi-perfil', [UserAdminController::class, 'actualizarMiPerfil'])->name('mi-perfil.update');
     Route::resource('rubros', \App\Http\Controllers\Admin\RubroController::class);
     Route::post('rubros/eliminar-multiple', [\App\Http\Controllers\Admin\RubroController::class, 'eliminarMultiple'])->name('rubros.eliminarMultiple');
     Route::resource('posts', \App\Http\Controllers\Admin\PostController::class);
     Route::resource('cotizaciones', \App\Http\Controllers\Admin\CotizacionController::class);
+    Route::post('cotizaciones/crear-cliente', [\App\Http\Controllers\Admin\CotizacionController::class, 'crearCliente'])->name('cotizaciones.crearCliente');
+    Route::get('cotizaciones/{cotizacione}/print', [\App\Http\Controllers\Admin\CotizacionController::class, 'print'])->name('cotizaciones.print');
     Route::resource('visitas-tecnicas', \App\Http\Controllers\Admin\VisitaTecnicaController::class)->only(['index', 'show', 'destroy']);
     Route::resource('suscripciones', \App\Http\Controllers\Admin\SuscripcionController::class)->only(['index', 'destroy']);
+    Route::resource('pedidos', \App\Http\Controllers\Admin\PedidoController::class)->only(['index', 'show', 'edit', 'update']);
+    Route::resource('condiciones', \App\Http\Controllers\Admin\CondicionesComercialeController::class)->parameters(['condiciones' => 'condicionesComerciale']);
+    Route::resource('logos', \App\Http\Controllers\Admin\EmpresaLogoController::class);
+    Route::resource('plantillas', \App\Http\Controllers\Admin\PlantillaCorreoController::class)->except(['show']);
+    Route::post('cotizaciones/{cotizacione}/enviar-correo', [\App\Http\Controllers\Admin\CotizacionController::class, 'enviarCorreo'])->name('cotizaciones.enviarCorreo');
 
     Route::prefix('exim')->name('exim.')->group(function () {
         Route::get('dashboard', [\App\Http\Controllers\Admin\Exim\DashboardController::class, 'index'])->name('dashboard');
@@ -202,6 +210,11 @@ Route::post('/contacto', [ContactoController::class, 'enviar'])->name('contacto.
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 ///////////lito
+Route::get('/negocio/switch/{id}', function ($id) {
+    session(['negocio_id' => (int) $id]);
+    return redirect()->back();
+})->name('negocio.switch');
+
 Route::get('/ubicacion/estados/{pais}', [UbicacionController::class, 'estados']);
 Route::get('/ubicacion/provincias/{estado}', [UbicacionController::class, 'provincias']);
 Route::get('/ubicacion/distritos/{provincia}', [UbicacionController::class, 'distritos']);
@@ -212,5 +225,7 @@ Route::get('/categoria/{id}/subcategorias', [CategoriaController::class, 'subcat
 /////lito
 Route::get('/paypal/capture', [CheckoutController::class, 'capturePaypal'])
     ->name('paypal.capture');
+
+
 
 

@@ -22,7 +22,52 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
-            <div class="table-responsive">
+                        <form method="GET" class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3">
+        <label class="form-label small mb-1">Buscar</label>
+        <input type="text" name="buscar" class="form-control form-control-sm" placeholder="Título, descripción, detalles..." value="{{ request('buscar') }}">
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small mb-1">Categoría</label>
+        <select name="categoria_id" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            @foreach($categorias as $cat)
+                <option value="{{ $cat->id }}" {{ request('categoria_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small mb-1">Subcategoría</label>
+        <select name="subcategoria_id" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            @foreach($subcategorias as $sub)
+                <option value="{{ $sub->id }}" {{ request('subcategoria_id') == $sub->id ? 'selected' : '' }}>{{ $sub->subcategoria }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small mb-1">Negocio</label>
+        <select name="negocio_id" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            @foreach($negocios as $neg)
+                <option value="{{ $neg->id }}" {{ request('negocio_id', 1) == $neg->id ? 'selected' : '' }}>{{ $neg->nombre }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-1">
+        <label class="form-label small mb-1">Orden</label>
+        <select name="orden" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="reciente" {{ request('orden', 'reciente') == 'reciente' ? 'selected' : '' }}>Más reciente</option>
+            <option value="vistas" {{ request('orden') == 'vistas' ? 'selected' : '' }}>Más vistos</option>
+            <option value="ventas" {{ request('orden') == 'ventas' ? 'selected' : '' }}>Más vendidos</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <label class="form-label small mb-1">&nbsp;</label>
+        <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-search me-1"></i>Filtrar</button>
+    </div>
+</form>
+                        <div class="table-responsive">
 <table class="table table-hover align-middle text-sm">
     <thead class="table-dark text-center">
         <tr>
@@ -33,6 +78,7 @@
             <th>Precio</th>
             <th>Categoría</th>
             <th>Subcategoría</th>
+            <th>Negocios</th>
             <th>Estado</th>
             <th>Acciones</th>
         </tr>
@@ -65,6 +111,12 @@
                 <td class="td-subcategoria">{{ $producto->subcategoria->subcategoria ?? $producto->subcategoria->nombre ?? '-' }}</td>
 
                 <td>
+                    @foreach($producto->negocios as $neg)
+                        <span class="badge bg-info">{{ $neg->nombre }}</span>
+                    @endforeach
+                </td>
+
+                <td>
                     <span class="badge bg-{{ $producto->estado ? 'success' : 'secondary' }}">
                         {{ $producto->estado ? 'Activo' : 'Inactivo' }}
                     </span>
@@ -83,6 +135,7 @@
                             data-palabras="{{ $producto->palabras_claves ?? '' }}"
                             data-descripcion="{{ $producto->descripcion }}"
                             data-detalles="{{ $producto->detalles }}"
+                            data-multimedia="{{ $producto->multimedia }}"
                             title="Edición rápida">
                         <i class="bi bi-lightning-fill"></i>
                     </button>
@@ -105,7 +158,7 @@
 
         @empty
             <tr>
-                <td colspan="9" class="text-center text-muted">No hay productos registrados.</td>
+                <td colspan="10" class="text-center text-muted">No hay productos registrados.</td>
             </tr>
         @endforelse
     </tbody>
@@ -143,8 +196,15 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Imagen</label>
+                        <label class="form-label">Portada</label>
                         <input type="file" name="portada" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imágenes del producto</label>
+                        <input type="file" name="multimedia[]" class="form-control" accept="image/*" multiple>
+                        <div id="qe-multimedia-preview" class="row mt-2 g-2"></div>
+                        <input type="hidden" name="imagenes_actuales" id="qe-imagenes-actuales" value="[]">
                     </div>
 
                     <div class="mb-3">
@@ -231,6 +291,9 @@
     const selectCat = document.getElementById('qe-categoria');
     const selectSub = document.getElementById('qe-subcategoria');
     const imgPreview = document.getElementById('qe-portada-preview');
+    const multimediaPreview = document.getElementById('qe-multimedia-preview');
+    const inputImagenesActuales = document.getElementById('qe-imagenes-actuales');
+    const inputMultimedia = document.querySelector('[name="multimedia[]"]');
     const errorDiv = document.getElementById('qe-error');
     const submitBtn = document.getElementById('qe-submit');
 
@@ -253,6 +316,16 @@
 
     selectCat.addEventListener('change', function() {
         filtrarSubcats(this.value);
+    });
+
+    // eliminar imagen de multimedia (marca para no enviarla)
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-remove-qe-img')) {
+            var imgPath = e.target.dataset.imagen;
+            var actuales = JSON.parse(inputImagenesActuales.value || '[]');
+            inputImagenesActuales.value = JSON.stringify(actuales.filter(function(p) { return p !== imgPath; }));
+            e.target.closest('.col-4, .col-md-3').remove();
+        }
     });
 
     // abrir modal
@@ -283,6 +356,21 @@
                 imgPreview.src = '';
                 imgPreview.style.display = 'none';
             }
+
+            // multimedia preview
+            multimediaPreview.innerHTML = '';
+            var multimediaRaw = this.dataset.multimedia;
+            var imagenes = [];
+            try { imagenes = JSON.parse(multimediaRaw) || []; } catch(e) {}
+            // normalizar: [{"foto":"path"}] → ["path"]
+            imagenes = imagenes.map(function(i) { return typeof i === 'object' ? (i.foto || '') : i; }).filter(function(i) { return i; });
+            inputImagenesActuales.value = JSON.stringify(imagenes);
+            imagenes.forEach(function(img) {
+                var col = document.createElement('div');
+                col.className = 'col-4 col-md-3';
+                col.innerHTML = '<div class="position-relative"><img src="{{ asset("storage") }}/' + img + '" class="img-fluid rounded border"><button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 btn-remove-qe-img" data-imagen="' + img + '" style="font-size:10px;line-height:1;padding:2px 5px;">&times;</button></div>';
+                multimediaPreview.appendChild(col);
+            });
 
             // actualizar action del form
             form.action = '{{ url("admin/productos/quick-update") }}/' + currentProductId;
@@ -324,8 +412,16 @@
                 row.querySelector('.td-categoria').textContent = catText;
                 row.querySelector('.td-subcategoria').textContent = subText;
 
-                // si se subio imagen, actualizar preview y data-portada del boton
-                // la imagen se actualiza al recargar
+                // actualizar portada si se subio nueva imagen
+                var btn = row.querySelector('.btn-quick-edit');
+                if (res.data.portada_url) {
+                    var imgCell = row.querySelectorAll('td')[2];
+                    if (imgCell) imgCell.innerHTML = '<img src="' + res.data.portada_url + '" alt="" class="img-fluid rounded" style="max-height:60px;">';
+                    if (btn) btn.dataset.portada = res.data.portada_url;
+                } else if (btn && !btn.dataset.portada) {
+                    var imgCell = row.querySelectorAll('td')[2];
+                    if (imgCell) imgCell.innerHTML = '<span class="text-muted">Sin imagen</span>';
+                }
             }
 
             // cerrar modal

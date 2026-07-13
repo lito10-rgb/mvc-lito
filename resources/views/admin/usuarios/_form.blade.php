@@ -34,7 +34,7 @@
             <div class="col-md-4">
                 <label>Email</label>
                 <input name="email" class="form-control" style="background-color:yellow"
-                       value="{{ old('email', $user->email) }}" readonly>
+                       value="{{ old('email', $user->email) }}">
             </div>
         </div>
 
@@ -53,6 +53,17 @@
             <div class="col-md-4">
                 <label>Foto</label>
                 <input type="file" name="foto" class="form-control">
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-md-4">
+                <label>Negocio (origen)</label>
+                <select name="negocio" class="form-control">
+                    <option value="">— Ninguno —</option>
+                    <option value="equiposymaquinas.com" @selected(old('negocio', $user->negocio ?? '') == 'equiposymaquinas.com')>equiposymaquinas.com</option>
+                    <option value="cafe-peruano.com" @selected(old('negocio', $user->negocio ?? '') == 'cafe-peruano.com')>cafe-peruano.com</option>
+                </select>
             </div>
         </div>
     </div>
@@ -258,6 +269,15 @@
                 <label>Código Postal</label>
                 <input name="codigopostal" class="form-control"
                        value="{{ $user->profile->codigopostal ?? '' }}">
+            </div>
+        </div>
+
+        {{-- Cuenta Bancaria --}}
+        <div class="row mt-2">
+            <div class="col-md-4">
+                <label>Cuenta Bancaria</label>
+                <input name="cuenta_banco" class="form-control" style="background-color:yellow"
+                       value="{{ old('cuenta_banco', $user->profile->cuenta_banco ?? '') }}">
             </div>
         </div>
 

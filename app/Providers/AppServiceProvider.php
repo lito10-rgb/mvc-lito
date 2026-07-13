@@ -8,6 +8,8 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use App\Models\Categoria;
 
+require_once app_path('Helpers/negocio.php');
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -15,7 +17,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->commands([
+            \App\Console\Commands\MigrarCafePeruano::class,
+            \App\Console\Commands\CopiarImagenesCafe::class,
+        ]);
     }
 
     /**
@@ -27,7 +32,10 @@ class AppServiceProvider extends ServiceProvider
            $this->loadMigrationsFrom(database_path('migrations/exim'));
 
     view()->composer('*', function ($view) {
-        $view->with('menuCategorias', Categoria::with('subcategorias')->get());
+        $negocioId = negocio_actual_id();
+        $view->with('menuCategorias', Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+            ->get());
     });
     }
 }

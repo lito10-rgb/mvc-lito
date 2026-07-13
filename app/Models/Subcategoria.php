@@ -32,4 +32,9 @@ class Subcategoria extends Model
     {
         return $this->belongsTo(Categoria::class, 'id_categoria');
     }
+
+    public function negocios()
+    {
+        return $this->belongsToMany(Negocio::class, 'subcategoria_negocio');
+    }
 }

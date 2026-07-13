@@ -11,6 +11,9 @@
         </a>
 
         <div class="px-3 py-2 text-secondary small text-uppercase fw-bold mt-2">Gestión</div>
+        <a href="{{ route('admin.pedidos.index') }}" class="sidebar-link">
+            <i class="fas fa-shopping-cart me-2"></i> Pedidos
+        </a>
         <a href="{{ route('admin.productos.index') }}" class="sidebar-link">
             <i class="fas fa-boxes-stacked me-2"></i> Productos
         </a>
@@ -28,6 +31,15 @@
         </a>
         <a href="{{ route('admin.cotizaciones.index') }}" class="sidebar-link">
             <i class="fas fa-file-invoice-dollar me-2"></i> Cotizaciones
+        </a>
+        <a href="{{ route('admin.plantillas.index') }}" class="sidebar-link">
+            <i class="fas fa-envelope-open-text me-2"></i> Plantillas Correo
+        </a>
+        <a href="{{ route('admin.condiciones.index') }}" class="sidebar-link">
+            <i class="fas fa-file-contract me-2"></i> Condiciones
+        </a>
+        <a href="{{ route('admin.logos.index') }}" class="sidebar-link">
+            <i class="fas fa-image me-2"></i> Logos Empresa
         </a>
         <a href="{{ route('admin.exim.dashboard') }}" class="sidebar-link">
             <i class="fas fa-ship me-2"></i> EXIM Exportaciones

@@ -9,6 +9,7 @@ use App\Models\Subcategoria;
 use App\Models\Marca;
 use App\Models\Proveedor;
 use App\Models\Cabecera;
+use App\Models\Negocio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -18,13 +19,59 @@ class ProductoController extends Controller
 {
     
 
-    public function index()
+    public function index(Request $request)
 {
-    $productos = Producto::with(['categoria', 'subcategoria', 'marca', 'proveedor'])
-                         ->paginate(5);
+    $query = Producto::with(['categoria', 'subcategoria', 'marca', 'proveedor', 'negocios']);
+
+    if ($buscar = $request->input('buscar')) {
+        $query->where(function ($q) use ($buscar) {
+            $q->where('titulo', 'like', "%{$buscar}%")
+              ->orWhere('descripcion', 'like', "%{$buscar}%")
+              ->orWhere('detalles', 'like', "%{$buscar}%")
+              ->orWhere('titular', 'like', "%{$buscar}%");
+        });
+    }
+
+    // filtrar por categoría
+    if ($catId = $request->input('categoria_id')) {
+        $query->where('categoria_id', $catId);
+    }
+
+    // filtrar por subcategoría
+    if ($subId = $request->input('subcategoria_id')) {
+        $query->where('subcategoria_id', $subId);
+    }
+
+    // filtrar por negocio (por defecto solo Equipos y Maquinas)
+    $negId = $request->input('negocio_id');
+    if ($negId === null) {
+        $negId = 1;
+    }
+    if ($negId !== '' && $negId !== null) {
+        $query->whereHas('negocios', function ($q) use ($negId) {
+            $q->where('negocio_id', $negId);
+        });
+    }
+
+    // ordenamiento
+    $orden = $request->input('orden', 'reciente');
+    switch ($orden) {
+        case 'vistas':
+            $query->orderBy('vistas', 'desc');
+            break;
+        case 'ventas':
+            $query->orderBy('ventas', 'desc');
+            break;
+        default:
+            $query->orderBy('id', 'desc');
+            break;
+    }
+
+    $productos = $query->paginate(10)->withQueryString();
     $categorias = Categoria::orderBy('nombre')->get();
     $subcategorias = Subcategoria::orderBy('subcategoria')->get();
-    return view('admin.productos.index', compact('productos', 'categorias', 'subcategorias'));
+    $negocios = Negocio::orderBy('nombre')->get();
+    return view('admin.productos.index', compact('productos', 'categorias', 'subcategorias', 'negocios'));
 }
 
     public function create()
@@ -33,9 +80,11 @@ class ProductoController extends Controller
         $subcategorias = Subcategoria::all();
         $marcas = Marca::all();
         $proveedores = Proveedor::all();
-         $cabecera = null; // para evitar error en la vista
+        $cabecera = null;
+        $negocios = Negocio::all();
+        $productoNegocioIds = Negocio::where('dominio', 'equiposymaquinas.com')->pluck('id')->toArray();
 
-        return view('admin.productos.create', compact('categorias', 'subcategorias', 'marcas', 'proveedores','cabecera'));
+        return view('admin.productos.create', compact('categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds'));
     }
 
     
@@ -47,22 +96,24 @@ class ProductoController extends Controller
 
     public function vistaRapida($id)
     {
-        $producto = Producto::with(['categoria', 'subcategoria', 'marca'])->findOrFail($id);
+        $negocioId = negocio_actual_id();
+        $producto = Producto::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->with(['categoria', 'subcategoria', 'marca'])
+            ->findOrFail($id);
         return view('productos.detalle', compact('producto'));
     }
 
     public function edit(Producto $producto)
     {
         $categorias = Categoria::all();
-        //$subcategorias = Subcategoria::all();
         $subcategorias = Subcategoria::where('id_categoria', $producto->categoria_id)->get();
         $marcas = Marca::all();
         $proveedores = Proveedor::all();
-         $cabecera = null; // para evitar error en la vista
-          // dd($subcategorias->pluck('id')->toArray());
-             //dd($producto->subcategoria_id);
+        $cabecera = null;
+        $negocios = Negocio::all();
+        $productoNegocioIds = $producto->negocios->pluck('id')->toArray();
 
-        return view('admin.productos.edit', compact('producto', 'categorias', 'subcategorias', 'marcas', 'proveedores','cabecera'));
+        return view('admin.productos.edit', compact('producto', 'categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds'));
     }
 
     
@@ -118,6 +169,10 @@ class ProductoController extends Controller
     $data['ofertadoPorCategoria'] = $request->input('ofertadoPorCategoria', 0);
     $data['ofertadoPorSubCategoria'] = $request->input('ofertadoPorSubCategoria', 0);
     $data['oferta'] = $request->input('oferta', 0);
+    $data['vistas'] = $request->input('vistas', rand(10, 500));
+    $data['ventas'] = $request->input('ventas', rand(1, 100));
+    $data['vistasGratis'] = $request->input('vistasGratis', rand(0, 50));
+    $data['ventasGratis'] = $request->input('ventasGratis', rand(0, 20));
 
     // Slug
     if (empty($data['ruta'])) {
@@ -147,6 +202,9 @@ class ProductoController extends Controller
 
     // Crear producto
     $producto = Producto::create($data);
+
+    // Negocios
+    $producto->negocios()->sync($request->input('negocios', []));
 
     // Cabecera
     Cabecera::create([
@@ -295,6 +353,9 @@ public function update(Request $request, Producto $producto)
     // ACTUALIZAR PRODUCTO
     $producto->update($data);
 
+    // Negocios
+    $producto->negocios()->sync($request->input('negocios', []));
+
     // CABECERA
     Cabecera::updateOrCreate(
         ['ruta' => $producto->ruta],
@@ -312,16 +373,19 @@ public function update(Request $request, Producto $producto)
     public function quickUpdate(Request $request, Producto $producto)
     {
         $request->validate([
-            'titulo'         => 'required|string|max:255',
-            'titular'        => 'nullable|string|max:255',
-            'precio'         => 'required|numeric|min:0',
-            'categoria_id'   => 'required|exists:categorias,id',
-            'subcategoria_id'=> 'required|exists:subcategorias,id',
-            'portada'        => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'ruta'           => 'nullable|string|max:255',
-            'palabras_claves'=> 'nullable|string|max:255',
-            'descripcion'    => 'nullable|string',
-            'detalles'       => 'nullable|string',
+            'titulo'          => 'required|string|max:255',
+            'titular'         => 'nullable|string|max:255',
+            'precio'          => 'required|numeric|min:0',
+            'categoria_id'    => 'required|exists:categorias,id',
+            'subcategoria_id' => 'required|exists:subcategorias,id',
+            'portada'         => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'ruta'            => 'nullable|string|max:255',
+            'palabras_claves' => 'nullable|string|max:255',
+            'descripcion'     => 'nullable|string',
+            'detalles'        => 'nullable|string',
+            'multimedia'      => 'nullable|array',
+            'multimedia.*'    => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'imagenes_actuales' => 'nullable|json',
         ]);
 
         $data = $request->only(['titulo', 'titular', 'precio', 'categoria_id', 'subcategoria_id', 'ruta', 'palabras_claves', 'descripcion', 'detalles']);
@@ -333,9 +397,32 @@ public function update(Request $request, Producto $producto)
             $data['portada'] = $request->file('portada')->store('imagenes/productos', 'public');
         }
 
+        // manejo de multimedia (imágenes del producto)
+        $imagenesActuales = json_decode($request->input('imagenes_actuales'), true) ?? [];
+        $imagenesOriginales = json_decode($producto->multimedia, true) ?? [];
+        $imagenesEliminadas = array_diff($imagenesOriginales, $imagenesActuales);
+        foreach ($imagenesEliminadas as $img) {
+            if (\Storage::disk('public')->exists($img)) {
+                \Storage::disk('public')->delete($img);
+            }
+        }
+        if ($request->hasFile('multimedia')) {
+            foreach ($request->file('multimedia') as $file) {
+                $imagenesActuales[] = $file->store('imagenes/productos', 'public');
+            }
+        }
+        $data['multimedia'] = json_encode($imagenesActuales);
+
         $producto->update($data);
 
-        return response()->json(['success' => true, 'message' => 'Producto actualizado.']);
+        $portadaUrl = $producto->portada ? asset('storage/' . $producto->portada) : '';
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto actualizado.',
+            'portada_url' => $portadaUrl,
+            'producto' => $producto,
+        ]);
     }
 }
 ////////////////////////update

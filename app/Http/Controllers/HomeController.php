@@ -10,10 +10,15 @@ class HomeController extends Controller
 {
     public function menu()
     {
-        $categorias = Categoria::with('subcategorias')->get();
+        $negocioId = negocio_actual_id();
 
-        $productos = Producto::orderBy('vistas', 'desc') // ✅ orden por vistas
-            ->paginate(12)                               // ✅ con paginación
+        $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+            ->get();
+
+        $productos = Producto::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->orderBy('vistas', 'desc')
+            ->paginate(12)
             ->through(function ($producto) {
                 $producto->imagen_url = asset('storage/' . $producto->portada);
                 return $producto;

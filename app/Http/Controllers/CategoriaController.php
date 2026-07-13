@@ -17,12 +17,18 @@ class CategoriaController extends Controller
     // }
 public function index()
 {
-    $categorias = Categoria::with('subcategorias')->get();
+    $negocioId = negocio_actual_id();
+    $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+        ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+        ->get();
     return view('categoria.index', compact('categorias'));
 }
 public function show($id)
 {
-    $categoria = Categoria::with('subcategorias')->findOrFail($id);
+    $negocioId = negocio_actual_id();
+    $categoria = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+        ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+        ->findOrFail($id);
     return view('categoria.show', compact('categoria'));
 }
 
@@ -75,10 +81,11 @@ public function show($id)
     }
      public function subcategorias($id)
     {
-        // traer solo subcategorías de esa categoría
+        $negocioId = negocio_actual_id();
         $subcats = Subcategoria::where('id_categoria', $id)
+            ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
             ->orderBy('subcategoria', 'ASC')
-            ->get(['id', 'subcategoria']); // los campos exactos
+            ->get(['id', 'subcategoria']);
 
         return response()->json($subcats);
     }

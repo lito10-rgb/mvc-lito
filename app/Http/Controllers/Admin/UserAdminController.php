@@ -87,6 +87,11 @@ class UserAdminController extends Controller
             );
         })
 
+        // 🏪 negocio (origen del usuario)
+        ->when($request->negocio, function ($q) use ($request) {
+            $q->where('negocio', $request->negocio);
+        })
+
         // 📅 fecha creación
         ->when($request->fecha_desde, function ($q) use ($request) {
             $q->whereDate('fecha', '>=', $request->fecha_desde);
@@ -101,10 +106,17 @@ class UserAdminController extends Controller
     $roles  = Role::orderBy('nombre')->get();
     $rubros = Rubro::orderBy('nombre')->get();
 
+    $dominios = User::whereNotNull('negocio')
+        ->where('negocio', '!=', '')
+        ->distinct()
+        ->orderBy('negocio')
+        ->pluck('negocio');
+
     return view('admin.usuarios.index', compact(
         'users',
         'roles',
-        'rubros'
+        'rubros',
+        'dominios'
     ));
 }
 
@@ -372,6 +384,7 @@ public function edit($id)
             'email'     => $request->email,
             'modo'      => $request->modo,
             'password'  => $request->password ? bcrypt($request->password) : $user->password,
+            'negocio'   => $request->negocio,
         ]);
 
         // Actualiza todo el profile
@@ -400,6 +413,7 @@ public function edit($id)
                 'categoria'      => $request->categoria,
                 'subcategoria'   => $request->subcategoria,
                 'representantelegal' => $request->representantelegal,
+                'cuenta_banco'   => $request->cuenta_banco,
                 'fecha_registro' => now(),
 
                 // <-- AÑADE ESTOS CAMPOS
@@ -499,6 +513,27 @@ public function asignarStore(Request $request)
     });
 
     return back()->with('success', 'Asignación realizada');
+}
+
+public function negocioBulk(Request $request)
+{
+    $request->validate([
+        'user_ids' => 'required|array',
+        'user_ids.*' => 'exists:users,id',
+    ]);
+
+    $negocio = $request->negocio;
+    if ($negocio === '__custom__') {
+        $negocio = $request->negocio_custom;
+    }
+
+    if (!$negocio) {
+        $negocio = null;
+    }
+
+    User::whereIn('id', $request->user_ids)->update(['negocio' => $negocio]);
+
+    return back()->with('success', 'Negocio actualizado para ' . count($request->user_ids) . ' usuarios.');
 }
 
     public function miPerfil()

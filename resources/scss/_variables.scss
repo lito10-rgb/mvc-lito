@@ -1,11 +1,10 @@
-// Variables de colores
-$color-dorado: #c5a200;
-$color-cafe: #103067;
+// Variables de colores (deben coincidir con config/theme.php)
+$color-dorado: #c5a200;       // theme.secondary
+$color-cafe: #103067;         // theme.primary
 $color-fondo: #f8f5f2;
-$color-header-1:  #103067;
-$color-header-2: #103067;
-// $color-header-2: #817964;
-$color-enlace: #c5a200;
+$color-header-1:  #103067;    // theme.primary
+$color-header-2: #103067;     // theme.primary
+$color-enlace: #c5a200;       // theme.secondary
 /////////////nuevos botones
 $info: #17a2b8;
 $danger: #dc3545;

@@ -30,6 +30,11 @@ class Categoria extends Model
         return $this->hasMany(Subcategoria::class, 'id_categoria');
     }
 
+    public function negocios()
+    {
+        return $this->belongsToMany(Negocio::class, 'categoria_negocio');
+    }
+
     public function getCategoriaAttribute($value)
     {
         return $this->attributes['nombre'] ?? $value;

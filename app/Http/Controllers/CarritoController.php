@@ -17,15 +17,6 @@ class CarritoController extends Controller
 {
     $producto = Producto::findOrFail($id);
 
-    $qtySolicitada = (int) ($request->cantidad ?? 1);
-    if ($producto->stock < 1) {
-        $msg = 'Producto sin stock disponible.';
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => false, 'message' => $msg], 422);
-        }
-        return redirect()->back()->with('error', $msg);
-    }
-
     $carrito = session()->get('carrito', []);
 
     if (isset($carrito[$id])) {
@@ -78,11 +69,6 @@ class CarritoController extends Controller
         $carrito = session()->get('carrito', []);
         if (!isset($carrito[$id])) {
             return redirect()->back()->with('error', 'Producto no encontrado en el carrito.');
-        }
-
-        $producto = Producto::find($id);
-        if ($producto && $producto->stock < $request->cantidad) {
-            return redirect()->back()->with('error', "Stock insuficiente (disponible: {$producto->stock}).");
         }
 
         $carrito[$id]['cantidad'] = $request->cantidad;

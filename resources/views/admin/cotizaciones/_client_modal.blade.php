@@ -6,6 +6,12 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold">Lista de clientes</span>
+                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#nuevoClienteModal">
+                        <i class="fas fa-plus me-1"></i> Nuevo Cliente
+                    </button>
+                </div>
                 <div class="row g-2 mb-3">
                     <div class="col-md-4">
                         <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar por nombre o email...">
@@ -76,7 +82,8 @@
                         </thead>
                         <tbody>
                             @foreach($usuarios as $u)
-                            <tr data-nombre="{{ $u->nombre }}"
+                            <tr data-id="{{ $u->id }}"
+                                data-nombre="{{ $u->nombre }}"
                                 data-apellidos="{{ $u->apellidos }}"
                                 data-email="{{ $u->email }}"
                                 data-fecha="{{ $u->fecha ? \Carbon\Carbon::parse($u->fecha)->format('Y-m-d') : '' }}"
@@ -107,8 +114,7 @@
                                 <td>{{ $u->profile->empresa ?? '—' }}</td>
                                 <td>{{ $u->profile->tipo_documento ?? '—' }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-sm seleccionar-cliente"
-                                            data-bs-dismiss="modal">
+                                    <button type="button" class="btn btn-primary btn-sm seleccionar-cliente">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </td>
@@ -118,6 +124,45 @@
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+{{-- Modal para crear nuevo cliente --}}
+<div class="modal fade" id="nuevoClienteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Nuevo Cliente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formNuevoCliente">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" name="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Apellidos</label>
+                        <input type="text" name="apellidos" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input type="text" name="telefono" class="form-control">
+                    </div>
+                    <div id="nuevoClienteError" class="alert alert-danger d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success" id="btnGuardarCliente">
+                        <i class="fas fa-save me-1"></i> Guardar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -239,6 +284,8 @@
         document.querySelector('[name="cliente"]').value = (nombre + ' ' + apellidos).trim();
         const correoInput = document.querySelector('[name="correo"]');
         if (correoInput) correoInput.value = row.dataset.email || '';
+        const idInput = document.querySelector('[name="cliente_id"]');
+        if (idInput) idInput.value = row.dataset.id || '';
     }
 
     document.querySelectorAll('.seleccionar-cliente').forEach(function(btn) {
@@ -250,6 +297,62 @@
     document.getElementById('clienteModal').addEventListener('click', function(e) {
         const btn = e.target.closest('.seleccionar-cliente');
         if (btn) asignar(btn.closest('tr'));
+    });
+
+    // --- Nuevo cliente ---
+    const formNuevo = document.getElementById('formNuevoCliente');
+    const btnGuardar = document.getElementById('btnGuardarCliente');
+    const errorDiv = document.getElementById('nuevoClienteError');
+
+    formNuevo.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        btnGuardar.disabled = true;
+        btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Guardando...';
+        errorDiv.classList.add('d-none');
+
+        try {
+            const res = await fetch('{{ route("admin.cotizaciones.crearCliente") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    nombre: formNuevo.nombre.value,
+                    apellidos: formNuevo.apellidos.value,
+                    email: formNuevo.email.value,
+                    telefono: formNuevo.telefono.value,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al crear cliente');
+            }
+
+            // seleccionar el nuevo cliente
+            document.querySelector('[name="cliente"]').value = (data.user.nombre + ' ' + data.user.apellidos).trim();
+            const correoInput = document.querySelector('[name="correo"]');
+            if (correoInput) correoInput.value = data.user.email || '';
+            const idInput = document.querySelector('[name="cliente_id"]');
+            if (idInput) idInput.value = data.user.id || '';
+            const telefonoInput = document.querySelector('[name="telefono"]');
+            if (telefonoInput) telefonoInput.value = formNuevo.telefono.value;
+
+            // cerrar ambos modales
+            bootstrap.Modal.getInstance(document.getElementById('nuevoClienteModal')).hide();
+            bootstrap.Modal.getInstance(document.getElementById('clienteModal')).hide();
+
+            formNuevo.reset();
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.classList.remove('d-none');
+        } finally {
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = '<i class="fas fa-save me-1"></i> Guardar';
+        }
     });
 })();
 </script>

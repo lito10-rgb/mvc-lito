@@ -48,8 +48,7 @@
                             <th>ID</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
-                            <th>Producto</th>
-                            <th>Cant.</th>
+                            <th>Productos</th>
                             <th>Total</th>
                             <th>Estado</th>
                             <th>Acciones</th>
@@ -61,8 +60,10 @@
                             <td>{{ $c->id }}</td>
                             <td>{{ $c->fecha->format('d/m/Y') }}</td>
                             <td>{{ $c->cliente }}</td>
-                            <td>{{ $c->producto }}</td>
-                            <td>{{ $c->cantidad }}</td>
+                            <td>
+                                {{ count($c->items) }} item(s)
+                                <small class="text-muted d-block">{{ $c->producto }}</small>
+                            </td>
                             <td>S/ {{ number_format($c->total, 2) }}</td>
                             <td>
                                 @php
@@ -71,6 +72,9 @@
                                 <span class="badge bg-{{ $badges[$c->estado] ?? 'secondary' }}">{{ ucfirst($c->estado) }}</span>
                             </td>
                             <td>
+                                <a href="{{ route('admin.cotizaciones.print', $c) }}" class="btn btn-outline-dark btn-sm" target="_blank" title="Imprimir">
+                                    <i class="fas fa-print"></i>
+                                </a>
                                 <a href="{{ route('admin.cotizaciones.show', $c) }}" class="btn btn-info btn-sm text-white">
                                     <i class="fas fa-eye"></i>
                                 </a>
@@ -88,7 +92,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-4">No hay cotizaciones registradas</td>
+                            <td colspan="7" class="text-center text-muted py-4">No hay cotizaciones registradas</td>
                         </tr>
                         @endforelse
                     </tbody>

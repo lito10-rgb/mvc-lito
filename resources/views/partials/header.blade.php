@@ -150,6 +150,25 @@
 
         </div>
 
+        <!-- SELECTOR NEGOCIO (local) -->
+        @if(app()->environment('local'))
+        <div class="dropdown me-2">
+            <button class="btn btn-sm btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                {{ negocio_actual_nombre() }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                @foreach(negocios_disponibles() as $n)
+                <li>
+                    <a class="dropdown-item {{ $n->id == negocio_actual_id() ? 'active' : '' }}"
+                       href="{{ route('negocio.switch', $n->id) }}">
+                        {{ $n->nombre }}
+                    </a>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         <!-- CARRITO DERECHA -->
         <div class="d-flex align-items-center ms-auto">
 

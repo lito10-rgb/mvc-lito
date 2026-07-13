@@ -61,8 +61,7 @@
                                 <td>{{ $p->subcategoria->subcategoria ?? '—' }}</td>
                                 <td>S/ {{ number_format($p->precio, 2) }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-sm seleccionar-producto"
-                                            data-bs-dismiss="modal">
+                                    <button type="button" class="btn btn-primary btn-sm seleccionar-producto">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </td>
@@ -130,24 +129,37 @@
     filtroCat.addEventListener('change', actualizarSubcategorias);
     filtroSub.addEventListener('change', filtrar);
 
-    document.querySelectorAll('.seleccionar-producto').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const row = this.closest('tr');
-            document.querySelector('[name="producto"]').value = row.dataset.titulo;
-            const precioInput = document.querySelector('[name="precio_unitario"]');
-            if (precioInput) precioInput.value = row.dataset.precio;
-        });
-    });
-
-    // re-asignar eventos cuando el modal se abre (por si hay productos dinámicos)
-    modal.addEventListener('click', function(e) {
-        const btn = e.target.closest('.seleccionar-producto');
-        if (btn) {
-            const row = btn.closest('tr');
-            document.querySelector('[name="producto"]').value = row.dataset.titulo;
+    function seleccionarProducto(row) {
+        const target = window._productoInput;
+        if (target) {
+            target.value = row.dataset.titulo;
+            const tr = target.closest('tr');
+            const pu = tr.querySelector('.precio-unitario');
+            if (pu) pu.value = row.dataset.precio;
+            const pid = tr.querySelector('.producto-id');
+            if (pid) pid.value = row.dataset.id;
+            // show thumbnail
+            const thumb = tr.querySelector('.producto-thumb');
+            const img = row.querySelector('img');
+            if (thumb && img) {
+                thumb.src = img.src;
+                thumb.style.display = '';
+            } else if (thumb) {
+                thumb.style.display = 'none';
+            }
+            if (typeof calcularFila === 'function') calcularFila(tr);
+        } else {
+            const mainInput = document.querySelector('[name="producto"]');
+            if (mainInput) mainInput.value = row.dataset.titulo;
             const precioInput = document.querySelector('[name="precio_unitario"]');
             if (precioInput) precioInput.value = row.dataset.precio;
         }
+        bootstrap.Modal.getInstance(modal).hide();
+    }
+
+    modal.addEventListener('click', function(e) {
+        const btn = e.target.closest('.seleccionar-producto');
+        if (btn) seleccionarProducto(btn.closest('tr'));
     });
 })();
 </script>

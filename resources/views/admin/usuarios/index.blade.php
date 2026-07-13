@@ -68,6 +68,20 @@
                    value="{{ request('fecha_hasta') }}">
         </div>
 
+        <!-- Negocio (origen) -->
+        <div class="col-md-2">
+            <label class="form-label">Negocio</label>
+            <select name="negocio" class="form-control">
+                <option value="">— Todos —</option>
+                @foreach($dominios as $dom)
+                    <option value="{{ $dom }}"
+                        {{ request('negocio') == $dom ? 'selected' : '' }}>
+                        {{ $dom }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
         <!-- Orden por puntuación -->
         <div class="col-md-2">
             <label class="form-label">Ordenar</label>
@@ -95,22 +109,57 @@
     </div>
 </form>
 
+<form method="POST" action="{{ route('admin.usuarios.negocio.bulk') }}" id="bulk-form">
+    @csrf
+    @method('PUT')
+
 <div class="card">
-  <div class="card-header d-flex justify-content-between">
-    <h5>Usuarios</h5>
-    <a href="{{ route('admin.usuarios.create') }}" class="btn btn-primary">
-      Nuevo Usuario
-    </a>
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Usuarios</h5>
+    <div>
+        <a href="{{ route('admin.usuarios.create') }}" class="btn btn-primary">
+          Nuevo Usuario
+        </a>
+    </div>
   </div>
 
   <div class="card-body">
+    {{-- Bulk actions bar --}}
+    <div class="row g-2 mb-3 align-items-end" id="bulk-bar">
+        <div class="col-md-2">
+            <label class="form-label small">Seleccionados: <span id="selected-count">0</span></label>
+            <button type="button" class="btn btn-sm btn-outline-primary d-block" onclick="toggleAll()">✔ Seleccionar / Deseleccionar</button>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small">Cambiar Negocio a:</label>
+            <select name="negocio" class="form-control form-control-sm">
+                <option value="">— Sin negocio —</option>
+                @foreach($dominios as $dom)
+                    <option value="{{ $dom }}">{{ $dom }}</option>
+                @endforeach
+                <option value="__custom__">→ Otro...</option>
+            </select>
+        </div>
+        <div class="col-md-2" id="custom-negocio-wrap" style="display:none">
+            <label class="form-label small">Nuevo negocio:</label>
+            <input type="text" name="negocio_custom" class="form-control form-control-sm" placeholder="ej: otro-dominio.com">
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Cambiar negocio a los usuarios seleccionados?')">
+                ✏️ Cambiar
+            </button>
+        </div>
+    </div>
+
     <table class="table table-hover align-middle">
       <thead class="table-dark">
         <tr>
+          <th><input type="checkbox" id="check-all" onclick="toggleCheckbox(this)"></th>
           <th>ID</th>
           <th>Nombre</th>
           <th>Email</th>
           <th>Web</th>
+          <th>Negocio</th>
           <th>DNI/RUC</th>
           <th>Nivel</th>
           <th>Score</th>
@@ -144,6 +193,9 @@ if ($roles->isEmpty()) {
 @endphp
 
 <tr>
+    <td style="background-color: {{ $bgColor }}">
+        <input type="checkbox" name="user_ids[]" value="{{ $user->id }}" class="user-check" onchange="updateSelected()">
+    </td>
     <td style="background-color: {{ $bgColor }}">{{ $user->id }}</td>
     <td style="background-color: {{ $bgColor }}">{{ $user->nombre }} {{ $user->apellidos }}</td>
     <td style="background-color: {{ $bgColor }}">{{ $user->email }}</td>
@@ -193,6 +245,14 @@ if ($roles->isEmpty()) {
     @endif
 </td>
 
+    <td style="background-color: {{ $bgColor }}">
+        @if($user->negocio)
+            <span class="badge bg-secondary">{{ $user->negocio }}</span>
+        @else
+            —
+        @endif
+    </td>
+
     <td style="background-color: {{ $bgColor }}">{{ $user->profile->num_documento ?? '-' }}</td>
     <td style="background-color: {{ $bgColor }}">
         <span class="badge bg-info">{{ $user->scores->nivel ?? 'bronce' }}</span>
@@ -231,4 +291,30 @@ if ($roles->isEmpty()) {
     {{ $users->links() }}
   </div>
 </div>
+
+</form>{{-- end bulk-form --}}
+
+@section('scripts')
+<script>
+function toggleCheckbox(master) {
+    document.querySelectorAll('.user-check').forEach(c => c.checked = master.checked);
+    updateSelected();
+}
+
+function updateSelected() {
+    const n = document.querySelectorAll('.user-check:checked').length;
+    document.getElementById('selected-count').textContent = n;
+}
+
+function toggleAll() {
+    const master = document.getElementById('check-all');
+    master.checked = !master.checked;
+    toggleCheckbox(master);
+}
+
+document.querySelector('[name="negocio"]')?.addEventListener('change', function() {
+    document.getElementById('custom-negocio-wrap').style.display = this.value === '__custom__' ? 'block' : 'none';
+});
+</script>
+@endsection
 @endsection

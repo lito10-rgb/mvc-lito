@@ -17,7 +17,7 @@
 @import "megamenu"; //
 @include tab-style($active-color);
 @include related-products-style();
-@include related-style($active-color: #c5a200);
+@include related-style($active-color: $color-dorado);
 /* clase para la imagen principal para que tenga transición suave */
 .product-main-image img,
 #product-main-img,
@@ -83,13 +83,13 @@
   transform: scale(1.02);
 }
 .mySwiper .swiper-slide img.thumb-active {
-  border-color: #ffc107; /* color que indica activo (amarillo) */
+  border-color: $warning; /* color que indica activo (amarillo) */
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 // *****
 /* ajustes estéticos para el buscador */
 .select-dorado {
-  border-color: #c5a200;
+  border-color: $color-dorado;
 }
 section.bg-light .form-control,
 section.bg-light .form-select {

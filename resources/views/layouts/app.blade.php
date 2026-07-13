@@ -18,6 +18,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --theme-primary: {{ config('theme.colors.primary') }};
+            --theme-secondary: {{ config('theme.colors.secondary') }};
+            --theme-accent: {{ config('theme.colors.accent') }};
+            --theme-accent-light: {{ config('theme.colors.accent_light') }};
+        }
+    </style>
 
     <!-- Vite: compilar SCSS y JS UNA sola vez -->
     @vite([

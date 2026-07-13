@@ -1,7 +1,7 @@
 @extends('layouts.app')
-@section('title', $cabecera->titulo ?? $producto->titulo)
-@section('description', $cabecera->descripcion ?? $producto->descripcion)
-@section('keywords', $cabecera->palabras_claves ?? '')
+@section('title', $cabecera?->titulo ?? $producto->titulo)
+@section('description', $cabecera?->descripcion ?? $producto->descripcion)
+@section('keywords', $cabecera?->palabras_claves ?? '')
 
 @section('content')
 <div class="container">
