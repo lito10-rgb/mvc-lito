@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
-                    <table class="table table-hover table-sm mb-0" id="tablaProductos">
+                    <table class="table table-hover table-sm mb-0" id="tablaProductosModal">
                         <thead class="table-dark sticky-top">
                             <tr>
                                 <th style="width:50px;">ID</th>
@@ -43,11 +43,12 @@
                         </thead>
                         <tbody>
                             @foreach($productos as $p)
-                            <tr data-id="{{ $p->id }}"
-                                data-titulo="{{ $p->titulo }}"
-                                data-precio="{{ $p->precio }}"
-                                data-categoria="{{ $p->categoria_id }}"
-                                data-subcategoria="{{ $p->subcategoria_id }}">
+                             <tr data-id="{{ $p->id }}"
+                                 data-titulo="{{ $p->titulo }}"
+                                 data-precio="{{ $p->precio }}"
+                                 data-descripcion="{{ $p->descripcion }}"
+                                 data-categoria="{{ $p->categoria_id }}"
+                                 data-subcategoria="{{ $p->subcategoria_id }}">
                                 <td>{{ $p->id }}</td>
                                 <td>
                                     @if($p->portada)
@@ -82,7 +83,7 @@
     const buscar = document.getElementById('buscarProducto');
     const filtroCat = document.getElementById('filtroCategoria');
     const filtroSub = document.getElementById('filtroSubcategoria');
-    const tabla = document.getElementById('tablaProductos');
+    const tabla = document.getElementById('tablaProductosModal');
     const rows = tabla.querySelectorAll('tbody tr');
     const contador = document.getElementById('productoCount');
 
@@ -138,6 +139,8 @@
             if (pu) pu.value = row.dataset.precio;
             const pid = tr.querySelector('.producto-id');
             if (pid) pid.value = row.dataset.id;
+            const desc = tr.querySelector('textarea');
+            if (desc && row.dataset.descripcion) desc.value = row.dataset.descripcion;
             // show thumbnail
             const thumb = tr.querySelector('.producto-thumb');
             const img = row.querySelector('img');
