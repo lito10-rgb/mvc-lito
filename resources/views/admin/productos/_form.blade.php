@@ -273,7 +273,7 @@
 
 <div class="mb-3">
     <label for="entrega" class="form-label">Entrega</label>
-    <input type="text" name="entrega" id="entrega" class="form-control" value="{{ old('entrega', $producto->entrega ?? '') }}">
+    <input type="text" name="entrega" id="entrega" class="form-control" value="{{ old('entrega', $producto->entrega ?? 2) }}">
 </div>
 
 <!-- <div class="mb-3">
