@@ -174,6 +174,7 @@ class ProductoController extends Controller
     $data['vistasGratis'] = $request->input('vistasGratis', rand(0, 50));
     $data['ventasGratis'] = $request->input('ventasGratis', rand(0, 20));
     $data['detalles'] = $request->input('detalles', '');
+    $data['stock'] = $request->input('stock', 0);
 
     // Slug
     if (empty($data['ruta'])) {

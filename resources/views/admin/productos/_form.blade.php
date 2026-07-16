@@ -407,21 +407,40 @@
 
     // ======== Generar slug automático ========
     let rutaEditadaManualmente = false;
+    let titularEditadoManualmente = false;
+    let palabrasEditadoManualmente = false;
+
+    const titularInput = document.getElementById('titular');
+    const palabrasInput = document.getElementById('palabras_claves');
 
     rutaInput.addEventListener('input', function () {
         rutaEditadaManualmente = true;
     });
+    titularInput.addEventListener('input', function () {
+        titularEditadoManualmente = true;
+    });
+    palabrasInput.addEventListener('input', function () {
+        palabrasEditadoManualmente = true;
+    });
 
-    nombreInput.addEventListener('input', function () {
+    const esCreacion = {{ $producto ? 'false' : 'true' }};
+
+    function autoCompletar() {
+        const title = nombreInput.value.trim();
+        if (!title) return;
         if (!rutaEditadaManualmente) {
-            const slug = nombreInput.value
-                .toLowerCase()
-                .trim()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/\s+/g, '-');
+            const slug = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
             rutaInput.value = slug;
         }
-    });
+        if (esCreacion && !titularEditadoManualmente) {
+            titularInput.value = title;
+        }
+        if (esCreacion && !palabrasEditadoManualmente) {
+            palabrasInput.value = title;
+        }
+    }
+
+    nombreInput.addEventListener('input', autoCompletar);
 
     // ======== Evento al cambiar categoría ========
     categoriaSelect.addEventListener('change', function () {
