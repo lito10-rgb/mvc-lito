@@ -173,6 +173,7 @@ class ProductoController extends Controller
     $data['ventas'] = $request->input('ventas', rand(1, 100));
     $data['vistasGratis'] = $request->input('vistasGratis', rand(0, 50));
     $data['ventasGratis'] = $request->input('ventasGratis', rand(0, 20));
+    $data['detalles'] = $request->input('detalles', '');
 
     // Slug
     if (empty($data['ruta'])) {
@@ -301,6 +302,7 @@ public function update(Request $request, Producto $producto)
     $data['ofertadoPorCategoria'] = $request->input('ofertadoPorCategoria', 0);
     $data['ofertadoPorSubCategoria'] = $request->input('ofertadoPorSubCategoria', 0);
     $data['oferta'] = $request->input('oferta', 0);
+    $data['detalles'] = $request->input('detalles', '');
 
     if (empty($data['ruta'])) {
         $data['ruta'] = Str::slug($data['titulo']);
@@ -388,7 +390,8 @@ public function update(Request $request, Producto $producto)
             'imagenes_actuales' => 'nullable|json',
         ]);
 
-        $data = $request->only(['titulo', 'titular', 'precio', 'categoria_id', 'subcategoria_id', 'ruta', 'palabras_claves', 'descripcion', 'detalles']);
+        $data = $request->only(['titulo', 'titular', 'precio', 'categoria_id', 'subcategoria_id', 'ruta', 'palabras_claves', 'descripcion']);
+        $data['detalles'] = $request->input('detalles', '');
 
         if ($request->hasFile('portada')) {
             if ($producto->portada && \Storage::disk('public')->exists($producto->portada)) {
