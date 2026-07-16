@@ -169,22 +169,22 @@
 </div>
 <div class="mb-3">
     <label for="vistas" class="form-label">Vistas</label>
-    <input type="number" name="vistas" id="vistas" class="form-control" value="{{ old('vistas', $producto->vistas ?? 0) }}">
+    <input type="number" name="vistas" id="vistas" class="form-control" value="{{ old('vistas', $producto->vistas ?? rand(10, 500)) }}">
 </div>
 
 <div class="mb-3">
     <label for="ventas" class="form-label">Ventas</label>
-    <input type="number" name="ventas" id="ventas" class="form-control" value="{{ old('ventas', $producto->ventas ?? 0) }}">
+    <input type="number" name="ventas" id="ventas" class="form-control" value="{{ old('ventas', $producto->ventas ?? rand(1, 100)) }}">
 </div>
 
 <div class="mb-3">
     <label for="vistasGratis" class="form-label">Vistas Gratis</label>
-    <input type="number" name="vistasGratis" id="vistasGratis" class="form-control" value="{{ old('vistasGratis', $producto->vistasGratis ?? 0) }}">
+    <input type="number" name="vistasGratis" id="vistasGratis" class="form-control" value="{{ old('vistasGratis', $producto->vistasGratis ?? rand(0, 50)) }}">
 </div>
 
 <div class="mb-3">
     <label for="ventasGratis" class="form-label">Ventas Gratis</label>
-    <input type="number" name="ventasGratis" id="ventasGratis" class="form-control" value="{{ old('ventasGratis', $producto->ventasGratis ?? 0) }}">
+    <input type="number" name="ventasGratis" id="ventasGratis" class="form-control" value="{{ old('ventasGratis', $producto->ventasGratis ?? rand(0, 20)) }}">
 </div>
 <!-- <input type="hidden" name="ofertadoPorCategoria" value="0"> -->
 <div class="mb-3">
