@@ -48,6 +48,7 @@ class CategoriaController extends Controller
 
         $data['ruta'] = $data['ruta'] ?? Str::slug($data['categoria']);
         $data['estado'] = $data['estado'] ?? 1;
+        $data['nombre'] = $data['categoria'];
 
         $categoria = Categoria::create($data);
         $categoria->negocios()->sync($request->input('negocios', []));
@@ -72,6 +73,7 @@ class CategoriaController extends Controller
         ]);
 
         $data['ruta'] = $data['ruta'] ?? Str::slug($data['categoria']);
+        $data['nombre'] = $data['categoria'];
 
         $categoria->update($data);
         $categoria->negocios()->sync($request->input('negocios', []));
