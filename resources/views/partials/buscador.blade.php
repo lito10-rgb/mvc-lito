@@ -39,16 +39,17 @@
                 <div class="col-md-2 col-6">
                     <select name="categoria" class="form-select select-dorado">
                         <option value="">Categoría</option>
-                        <option value="laborum">Laborum</option>
-                        <option value="empaque">Empacadora</option>
-                        <option value="filtro">Filtro</option>
+                        @foreach($categorias as $cat)
+                            <option value="{{ $cat->nombre }}" {{ request('categoria') == $cat->nombre ? 'selected' : '' }}>{{ $cat->nombre }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-2 col-6">
                     <select name="marca" class="form-select select-dorado">
                         <option value="">Marca</option>
-                        <option value="marca1">Marca 1</option>
-                        <option value="marca2">Marca 2</option>
+                        @foreach($marcas as $m)
+                            <option value="{{ $m->nombre }}" {{ request('marca') == $m->nombre ? 'selected' : '' }}>{{ $m->nombre }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-2 col-6">

@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Producto;
 use App\Models\Cabecera;
 use Illuminate\Http\Request;
-use App\Models\Categoria; // arriba del archivo si no est?
+use App\Models\Categoria;
+use App\Models\Marca;
 
 class ProductosController extends Controller
 {
@@ -181,9 +182,9 @@ public function buscar(Request $request)
     // Paginación (puedes ajustar la cantidad)
     $productos = $query->paginate(8);
 	$categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+	$marcas = Marca::all();
 
-    //return view('productos.buscar', compact('productos'));
-	return view('productos.index', compact('productos', 'categorias'));
+	return view('productos.index', compact('productos', 'categorias', 'marcas'));
 }
 
 

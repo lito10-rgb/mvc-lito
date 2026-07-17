@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Categoria;
 use App\Models\Producto;
+use App\Models\Marca;
 
 class HomeController extends Controller
 {
@@ -24,6 +25,8 @@ class HomeController extends Controller
                 return $producto;
             });
 
-        return view('home', compact('categorias', 'productos'));
+        $marcas = Marca::all();
+
+        return view('home', compact('categorias', 'productos', 'marcas'));
     }
 }
