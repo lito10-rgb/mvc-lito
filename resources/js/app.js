@@ -5,6 +5,7 @@ import './carrito-actions';
 import './fallback-counter';
 import './fallback-thumbs';
 import './admin/productos';
+import './marcas';
 import CartCounter from './components/CartCounter.vue';
 import AddToCart from './components/AddToCart.vue';
 
