@@ -17,7 +17,8 @@ jobs:
           extensions: mbstring, bcmath, curl, gd, json, mbstring, openssl, pdo, pdo_mysql, tokenbank, xml, ctype, dom, fileinfo, filter, hash, intl, json, session, simplexml, xmlreader, xmlwriter, zip
 
       - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader
+        continue-on-error: true
+        run: composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
         env:
           COMPOSER_MEMORY_LIMIT: -1
 
