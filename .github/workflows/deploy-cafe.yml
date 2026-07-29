@@ -1,6 +1,7 @@
 name: Deploy Cafe Peruano
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master, main ]
 
