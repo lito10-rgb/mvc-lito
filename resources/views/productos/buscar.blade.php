@@ -46,12 +46,29 @@
                                 </a>
                             </h6>
 
-                            <p class="mb-2 text-warning fw-bold">S/ {{ number_format($producto->precio ?? 0, 2) }}</p>
+                            @if(($producto->tipo ?? '') === 'servicio' && ($producto->precio ?? 0) == 0)
+                                <p class="mb-2 text-theme-accent fw-bold">Consultar precio</p>
+                            @else
+                                <p class="mb-2 text-theme-accent fw-bold">S/ {{ number_format($producto->precio ?? 0, 2) }}</p>
+                            @endif
+
+                            @php($dias = $producto->entrega ?? '2')
+                            @if(($producto->tipo ?? '') === 'servicio')
+                                <small class="text-info d-block mb-1"><i class="fa-solid fa-gear"></i> Servicio — {{ $dias == 0 ? 'Entrega inmediata' : $dias . ' días' }}</small>
+                            @elseif(($producto->tipo ?? '') === 'digital' || ($producto->tipo ?? '') === 'planos')
+                                <small class="text-success d-block mb-1"><i class="fa-solid fa-download"></i> Descarga digital</small>
+                            @elseif(($producto->stock ?? 0) > 0)
+                                <small class="text-success d-block mb-1"><i class="fa-solid fa-check-circle"></i> {{ $dias == 0 ? 'Entrega inmediata' : 'En stock — ' . $dias . ' días' }}</small>
+                            @else
+                                <small class="text-warning d-block mb-1"><i class="fa-solid fa-clock"></i> {{ $dias == 0 ? 'Disponibilidad — Entrega inmediata' : 'Por encargo — ' . $dias . ' días (aprox)' }}</small>
+                            @endif
 
                             <div class="mt-auto d-flex gap-2">
                                 <a href="{{ url('producto/' . ($producto->slug ?? $producto->id)) }}" class="btn btn-sm btn-outline-secondary flex-fill">Ver</a>
 
-                                <!-- Botón añadir carrito: usa data-url o data-product-id según tu implementación -->
+                                @if(($producto->tipo ?? '') === 'servicio' && ($producto->precio ?? 0) == 0)
+                                    <a href="{{ route('cotizacion.solicitar', $producto->id) }}" class="btn btn-sm btn-outline-warning"><i class="fa-solid fa-file-invoice-dollar"></i></a>
+                                @else
                                 <button
                                     class="btn btn-sm btn-primary btn-agregar-carrito"
                                     data-product-id="{{ $producto->id }}"
@@ -60,6 +77,7 @@
                                     type="button">
                                     <i class="bi bi-cart-plus"></i>
                                 </button>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -49,8 +49,9 @@ class CotizacionController extends Controller
             ->orderBy('nombre')->get();
         $logos = EmpresaLogo::orderBy('por_defecto', 'desc')->orderBy('nombre')->get();
         $condiciones = CondicionesComerciale::where('activo', true)->orderBy('titulo')->get();
+        $ultimoTipoCambio = Cotizacion::whereNotNull('tipo_cambio')->latest()->value('tipo_cambio');
         return view('admin.cotizaciones.create', compact(
-            'productos', 'categorias', 'usuarios', 'roles', 'rubros', 'emisores', 'logos', 'condiciones'
+            'productos', 'categorias', 'usuarios', 'roles', 'rubros', 'emisores', 'logos', 'condiciones', 'ultimoTipoCambio'
         ));
     }
 
@@ -67,6 +68,8 @@ class CotizacionController extends Controller
             'productos.*.cantidad' => 'required|integer|min:1',
             'productos.*.precio_unitario' => 'required|numeric|min:0',
             'productos.*.producto_id' => 'nullable|integer|exists:productos,id',
+            'productos.*.moneda' => 'nullable|in:PEN,USD',
+            'tipo_cambio'  => 'nullable|numeric|min:0',
             'impuesto'       => 'nullable|numeric|min:0',
             'descuento_porcentaje' => 'nullable|numeric|min:0|max:100',
             'condiciones'    => 'nullable|string',
@@ -88,8 +91,11 @@ class CotizacionController extends Controller
                 'subtotal' => $subtotal,
                 'producto_id' => $item['producto_id'] ?? null,
                 'portada' => $portada,
+                'moneda' => $item['moneda'] ?? 'PEN',
             ];
         })->toArray();
+
+        $items = array_values($items);
 
         $subtotal = array_sum(array_column($items, 'subtotal'));
         $impuesto = $validated['impuesto'] ?? 0;
@@ -113,6 +119,11 @@ class CotizacionController extends Controller
             }
         }
 
+        $imagenReferencia = null;
+        if ($request->hasFile('imagen_referencia')) {
+            $imagenReferencia = $request->file('imagen_referencia')->store('imagenes/cotizaciones', 'public');
+        }
+
         Cotizacion::create([
             'fecha' => $validated['fecha'],
             'cliente' => $validated['cliente'],
@@ -124,6 +135,7 @@ class CotizacionController extends Controller
             'precio_unitario' => $first['precio_unitario'],
             'subtotal' => $subtotal,
             'impuesto' => $impuesto,
+            'tipo_cambio' => $validated['tipo_cambio'] ?? null,
             'descuento_porcentaje' => $descuento_pct,
             'descuento_monto' => $descuento_monto,
             'total' => max($total, 0),
@@ -135,6 +147,7 @@ class CotizacionController extends Controller
             'logo_id' => $request->logo_id,
             'condicion_id' => $request->condicion_id,
             'cliente_id' => $request->cliente_id,
+            'imagen_referencia' => $imagenReferencia,
         ]);
 
         return redirect()->route('admin.cotizaciones.index')->with('success', 'Cotización creada correctamente.');
@@ -176,6 +189,8 @@ class CotizacionController extends Controller
             'productos.*.cantidad' => 'required|integer|min:1',
             'productos.*.precio_unitario' => 'required|numeric|min:0',
             'productos.*.producto_id' => 'nullable|integer|exists:productos,id',
+            'productos.*.moneda' => 'nullable|in:PEN,USD',
+            'tipo_cambio'  => 'nullable|numeric|min:0',
             'impuesto'       => 'nullable|numeric|min:0',
             'descuento_porcentaje' => 'nullable|numeric|min:0|max:100',
             'condiciones'    => 'nullable|string',
@@ -197,8 +212,11 @@ class CotizacionController extends Controller
                 'subtotal' => $subtotal,
                 'producto_id' => $item['producto_id'] ?? null,
                 'portada' => $portada,
+                'moneda' => $item['moneda'] ?? 'PEN',
             ];
         })->toArray();
+
+        $items = array_values($items);
 
         $subtotal = array_sum(array_column($items, 'subtotal'));
         $impuesto = $validated['impuesto'] ?? 0;
@@ -222,6 +240,11 @@ class CotizacionController extends Controller
             }
         }
 
+        $imagenReferencia = $cotizacione->imagen_referencia;
+        if ($request->hasFile('imagen_referencia')) {
+            $imagenReferencia = $request->file('imagen_referencia')->store('imagenes/cotizaciones', 'public');
+        }
+
         $cotizacione->update([
             'fecha' => $validated['fecha'],
             'cliente' => $validated['cliente'],
@@ -233,6 +256,7 @@ class CotizacionController extends Controller
             'precio_unitario' => $first['precio_unitario'],
             'subtotal' => $subtotal,
             'impuesto' => $impuesto,
+            'tipo_cambio' => $validated['tipo_cambio'] ?? $cotizacione->tipo_cambio,
             'descuento_porcentaje' => $descuento_pct,
             'descuento_monto' => $descuento_monto,
             'total' => max($total, 0),
@@ -244,6 +268,7 @@ class CotizacionController extends Controller
             'logo_id' => $request->logo_id,
             'condicion_id' => $request->condicion_id,
             'cliente_id' => $request->cliente_id,
+            'imagen_referencia' => $imagenReferencia,
         ]);
 
         return redirect()->route('admin.cotizaciones.index')->with('success', 'Cotización actualizada correctamente.');
@@ -253,6 +278,24 @@ class CotizacionController extends Controller
     {
         $cotizacione->delete();
         return back()->with('success', 'Cotización eliminada.');
+    }
+
+    public function duplicar(Cotizacion $cotizacione)
+    {
+        $origen = $cotizacione;
+        $productos = Producto::with('categoria', 'subcategoria')->orderBy('titulo')->get();
+        $categorias = Categoria::orderBy('nombre')->get();
+        $usuarios = User::with(['profile', 'scores', 'roles', 'rubros'])->orderBy('nombre')->get();
+        $roles = Role::orderBy('nombre')->get();
+        $rubros = Rubro::orderBy('nombre')->get();
+        $emisores = User::whereHas('roles', fn($q) => $q->whereIn('nombre', ['admin', 'superadmin']))
+            ->orWhere('modo', 'admin')
+            ->orderBy('nombre')->get();
+        $logos = EmpresaLogo::orderBy('por_defecto', 'desc')->orderBy('nombre')->get();
+        $condiciones = CondicionesComerciale::where('activo', true)->orderBy('titulo')->get();
+        return view('admin.cotizaciones.create', compact(
+            'productos', 'categorias', 'usuarios', 'roles', 'rubros', 'emisores', 'logos', 'condiciones', 'origen'
+        ));
     }
 
     public function print(Cotizacion $cotizacione)
@@ -267,6 +310,7 @@ class CotizacionController extends Controller
             'apellidos' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255|unique:users,email',
             'telefono' => 'nullable|string|max:20',
+            'detalle' => 'nullable|string|max:1000',
         ]);
 
         $password = substr(md5(uniqid()), 0, 10);
@@ -284,6 +328,7 @@ class CotizacionController extends Controller
         UserProfile::create([
             'user_id' => $user->id,
             'telefono' => $validated['telefono'] ?? '',
+            'detalle' => $validated['detalle'] ?? '',
         ]);
 
         UserScore::create([

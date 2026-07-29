@@ -12,6 +12,7 @@ class EmpresaLogo extends Model
         'nombre',
         'ruta',
         'por_defecto',
+        'negocio_id',
     ];
 
     protected function casts(): array
@@ -24,5 +25,10 @@ class EmpresaLogo extends Model
     public function cotizaciones()
     {
         return $this->hasMany(Cotizacion::class, 'logo_id');
+    }
+
+    public function negocio()
+    {
+        return $this->belongsTo(Negocio::class);
     }
 }

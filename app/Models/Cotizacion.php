@@ -19,6 +19,7 @@ class Cotizacion extends Model
         'precio_unitario',
         'subtotal',
         'impuesto',
+        'tipo_cambio',
         'descuento_porcentaje',
         'descuento_monto',
         'total',
@@ -30,7 +31,13 @@ class Cotizacion extends Model
         'logo_id',
         'condicion_id',
         'cliente_id',
+        'imagen_referencia',
     ];
+
+    public function getTipoCambioAttribute($value)
+    {
+        return $value ?? 3.75;
+    }
 
     protected function casts(): array
     {
@@ -40,6 +47,7 @@ class Cotizacion extends Model
             'precio_unitario' => 'decimal:2',
             'subtotal' => 'decimal:2',
             'impuesto' => 'decimal:2',
+            'tipo_cambio' => 'decimal:3',
             'descuento_porcentaje' => 'decimal:2',
             'descuento_monto' => 'decimal:2',
             'total' => 'decimal:2',

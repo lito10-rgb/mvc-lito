@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmpresaLogo;
+use App\Models\Negocio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,7 +18,8 @@ class EmpresaLogoController extends Controller
 
     public function create()
     {
-        return view('admin.logos.create');
+        $negocios = Negocio::orderBy('nombre')->get();
+        return view('admin.logos.create', compact('negocios'));
     }
 
     public function store(Request $request)
@@ -26,6 +28,7 @@ class EmpresaLogoController extends Controller
             'nombre' => 'required|string|max:255',
             'logo' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
             'por_defecto' => 'nullable|boolean',
+            'negocio_id' => 'nullable|exists:negocios,id',
         ]);
 
         $ruta = $request->file('logo')->store('logos', 'public');
@@ -38,6 +41,7 @@ class EmpresaLogoController extends Controller
             'nombre' => $validated['nombre'],
             'ruta' => $ruta,
             'por_defecto' => $request->boolean('por_defecto'),
+            'negocio_id' => $request->negocio_id ?: null,
         ]);
 
         return redirect()->route('admin.logos.index')
@@ -46,7 +50,8 @@ class EmpresaLogoController extends Controller
 
     public function edit(EmpresaLogo $logo)
     {
-        return view('admin.logos.edit', compact('logo'));
+        $negocios = Negocio::orderBy('nombre')->get();
+        return view('admin.logos.edit', compact('logo', 'negocios'));
     }
 
     public function update(Request $request, EmpresaLogo $logo)
@@ -55,6 +60,7 @@ class EmpresaLogoController extends Controller
             'nombre' => 'required|string|max:255',
             'logo' => 'nullable|image|mimes:png,jpg,jpeg,webp|max:2048',
             'por_defecto' => 'nullable|boolean',
+            'negocio_id' => 'nullable|exists:negocios,id',
         ]);
 
         if ($request->boolean('por_defecto')) {
@@ -64,6 +70,7 @@ class EmpresaLogoController extends Controller
         $data = [
             'nombre' => $validated['nombre'],
             'por_defecto' => $request->boolean('por_defecto'),
+            'negocio_id' => $request->negocio_id ?: null,
         ];
 
         if ($request->hasFile('logo')) {

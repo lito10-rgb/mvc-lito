@@ -32,7 +32,8 @@ public function show($id)
         ->findOrFail($id);
     $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
     $marcas = Marca::all();
-    return view('categoria.show', compact('categoria', 'categorias', 'marcas'));
+    $subcategorias = Subcategoria::all();
+    return view('categoria.show', compact('categoria', 'categorias', 'subcategorias', 'marcas'));
 }
 
     /**

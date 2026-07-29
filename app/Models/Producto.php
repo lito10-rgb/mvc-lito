@@ -43,7 +43,7 @@ class Producto extends Model
         'proveedor_id',
         'fecha',
         'stock',
-          // 'palabras_claves', // Esto es lo que necesitas agregar
+        'costo_envio',
     ];
 
      // `id``tipo``ruta``estado``titulo``titular``descripcion``multimedia``detalles``precio``portada``vistas``ventas``vistasGratis``ventasGratis``ofertadoPorCategoria``ofertadoPorSubCategoria``oferta``precioOferta``descuentoOferta``imgOferta``finOferta``peso``entrega``categoria_id``subcategoria_id``marca_id``proveedor_id``fecha`

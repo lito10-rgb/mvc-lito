@@ -17,6 +17,13 @@ class CarritoController extends Controller
 {
     $producto = Producto::findOrFail($id);
 
+    if ($producto->tipo === 'servicio' && $producto->precio == 0) {
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Este servicio requiere cotización.']);
+        }
+        return redirect()->back()->with('error', 'Este servicio requiere cotización. Haz clic en "Solicitar cotización".');
+    }
+
     $carrito = session()->get('carrito', []);
 
     if (isset($carrito[$id])) {

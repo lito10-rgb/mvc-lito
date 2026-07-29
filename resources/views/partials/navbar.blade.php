@@ -1,10 +1,10 @@
-<nav class="navbar navbar-dark bg-dark fixed-top">
+<nav class="navbar navbar-dark bg-theme-dark fixed-top">
   <div class="container-fluid">
     <button class="btn btn-outline-light d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
       <i class="fas fa-bars"></i>
     </button>
     <a class="navbar-brand ms-2" href="{{ route('admin.dashboard') }}">
-      <i class="fas fa-crown text-warning me-2"></i>Admin Panel
+      <i class="fas fa-crown text-theme-accent me-2"></i>Admin Panel
     </a>
 
     <div class="dropdown ms-auto me-2">

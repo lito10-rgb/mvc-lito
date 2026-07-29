@@ -12,10 +12,14 @@
                         </span>
                         <!-- Bloque flotante en hover -->
                         <div class="absolute z-20 top-0 left-0 w-full hidden group-hover:block bg-white rounded shadow p-2 mt-8">
+                            @if($producto->tipo === 'servicio' && $producto->precio == 0)
+                                <a href="{{ route('cotizacion.solicitar', $producto->id) }}" class="block text-sm hover:text-warning"><i class="fa-solid fa-file-invoice-dollar me-1"></i> Solicitar cotización</a>
+                            @else
                             <form method="POST" action="{{ route('carrito.agregar', $producto->id) }}">
                                 @csrf
                                 <button type="submit" class="w-full text-left text-sm hover:text-green-600"><i class="fa-solid fa-cart-plus me-1"></i> Agregar al carrito</button>
                             </form>
+                            @endif
                             <a href="#" class="block text-sm hover:text-blue-600 mt-1"><i class="fa-solid fa-eye me-1"></i> Vista rápida</a>
                             <form method="POST" action="{{ route('favoritos.agregar', $producto->id) }}">
                                 @csrf

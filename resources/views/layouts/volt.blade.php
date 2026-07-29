@@ -12,15 +12,15 @@
   @stack('styles')
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 
-  <style>
-    :root {
-      --theme-primary: {{ config('theme.colors.primary') }};
-      --theme-secondary: {{ config('theme.colors.secondary') }};
-      --theme-accent: {{ config('theme.colors.accent') }};
-      --theme-accent-light: {{ config('theme.colors.accent_light') }};
-      --theme-sidebar-bg: {{ config('theme.colors.sidebar_bg') }};
-      --theme-sidebar-hover: {{ config('theme.colors.sidebar_hover') }};
-    }
+    <style>
+      :root {
+        --theme-primary: {{ negocio_color('primary', config('theme.colors.primary')) }};
+        --theme-secondary: {{ negocio_color('secondary', config('theme.colors.secondary')) }};
+        --theme-accent: {{ negocio_color('accent', config('theme.colors.accent')) }};
+        --theme-accent-light: {{ negocio_color('accent_light', config('theme.colors.accent_light')) }};
+        --theme-sidebar-bg: {{ config('theme.colors.sidebar_bg') }};
+        --theme-sidebar-hover: {{ config('theme.colors.sidebar_hover') }};
+      }
 
     body {
       overflow-x: hidden;
@@ -30,13 +30,22 @@
       background-color: var(--theme-sidebar-bg);
       color: white;
       padding-top: 4.5rem;
+      height: 100vh;
+      overflow-y: scroll;
+      scrollbar-width: thin;
+      scrollbar-color: #f59e0b #212529;
     }
+    #sidebar::-webkit-scrollbar { width: 12px; }
+    #sidebar::-webkit-scrollbar-track { background: #212529; }
+    #sidebar::-webkit-scrollbar-thumb { background: #f59e0b; border: 2px solid #212529; border-radius: 6px; }
 
     .sidebar-link {
       color: white;
       display: block;
-      padding: 10px 20px;
+      padding: 7px 20px;
       text-decoration: none;
+      white-space: nowrap;
+      font-size: 13.5px;
     }
 
     .sidebar-link:hover {

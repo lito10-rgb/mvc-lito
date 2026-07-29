@@ -30,6 +30,15 @@
                     <input type="checkbox" name="por_defecto" value="1" class="form-check-input" id="por_defecto">
                     <label class="form-check-label" for="por_defecto">Logo por defecto</label>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Negocio</label>
+                    <select name="negocio_id" class="form-select">
+                        <option value="">— Sin negocio —</option>
+                        @foreach ($negocios as $n)
+                            <option value="{{ $n->id }}" {{ old('negocio_id') == $n->id ? 'selected' : '' }}>{{ $n->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-save me-1"></i> Guardar
                 </button>

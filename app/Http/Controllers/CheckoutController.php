@@ -68,7 +68,19 @@ class CheckoutController extends Controller
         $envio = $this->calcularEnvio($subtotal);
         $total = round($subtotal + $envio, 2);
 
-        return view('checkout.index', compact('carrito', 'subtotal', 'envio', 'total'));
+        // Determinar composición del carrito (físico, no-físico, mixto)
+        $productIds = array_keys($carrito);
+        $soloNoFisico = false;
+        $mixto = false;
+        if (!empty($productIds)) {
+            $productCount = count($productIds);
+            $fisicos = Producto::whereIn('id', $productIds)->where('tipo', 'fisico')->count();
+            $noFisicos = Producto::whereIn('id', $productIds)->whereIn('tipo', ['no_fisico', 'digital', 'planos', 'servicio'])->count();
+            $soloNoFisico = $fisicos === 0 && $noFisicos === $productCount;
+            $mixto = $fisicos > 0 && $noFisicos > 0;
+        }
+
+        return view('checkout.index', compact('carrito', 'subtotal', 'envio', 'total', 'soloNoFisico', 'mixto'));
     }
 
     /**
@@ -76,15 +88,39 @@ class CheckoutController extends Controller
      */
     public function pay(Request $request)
     {
-        $request->validate([
-            'metodo' => 'required|string|in:mercadopago,paypal,simulado',
-            'direccion' => 'required|string|max:255',
-            'telefono' => 'required|string|max:20',
-        ]);
-        $metodo = $request->input('metodo');
         $carrito = session('carrito', []);
+        $productIds = array_keys($carrito);
+        $productCount = count($productIds);
+        $fisicos = !empty($productIds) ? Producto::whereIn('id', $productIds)->where('tipo', 'fisico')->count() : 0;
+        $noFisicos = !empty($productIds) ? Producto::whereIn('id', $productIds)->whereIn('tipo', ['no_fisico', 'digital', 'planos', 'servicio'])->count() : 0;
+        $soloNoFisico = $fisicos === 0 && $noFisicos === $productCount;
+        $mixto = $fisicos > 0 && $noFisicos > 0;
 
-        session(['checkout_direccion' => $request->only(['direccion', 'ciudad', 'departamento', 'telefono'])]);
+        $rules = [
+            'metodo' => 'required|string|in:mercadopago,paypal,simulado',
+        ];
+        if ($mixto) {
+            $rules['direccion'] = 'required|string|max:255';
+            $rules['telefono'] = 'required|string|max:20';
+            $rules['email_envio'] = 'required|email|max:255';
+        } elseif ($soloNoFisico) {
+            $rules['email_envio'] = 'required|email|max:255';
+        } else {
+            $rules['direccion'] = 'required|string|max:255';
+            $rules['telefono'] = 'required|string|max:20';
+        }
+        $request->validate($rules);
+
+        $metodo = $request->input('metodo');
+
+        $checkoutData = [];
+        if ($mixto || !$soloNoFisico) {
+            $checkoutData = $request->only(['direccion', 'ciudad', 'departamento', 'telefono']);
+        }
+        if ($mixto || $soloNoFisico) {
+            $checkoutData['email'] = $request->input('email_envio');
+        }
+        session(['checkout_direccion' => $checkoutData]);
 
         if (empty($carrito)) {
             return redirect()->route('carrito.index')->with('error', 'Carrito vacío.');
@@ -605,9 +641,81 @@ public function mercadopagoNotification(Request $request)
         return round($sum, 2);
     }
 
-    protected function calcularEnvio(float $subtotal): float
+    protected function calcularEnvio(float $subtotalIgnored = 0): float
     {
-        return $subtotal >= 100 ? 0.0 : 5.00;
+        $carrito = session('carrito', []);
+        $productIds = array_keys($carrito);
+        if (empty($productIds)) return 0.0;
+
+        // Cargar productos con su categoría
+        $productos = Producto::with('categoria')->whereIn('id', $productIds)->get()->keyBy('id');
+
+        // Separar productos con costo_envio específico
+        $envioEspecifico = 0.0;
+        $idsSinEnvio = [];
+        $subtotalSinEnvio = 0.0;
+
+        foreach ($carrito as $id => $item) {
+            $prod = $productos->get($id);
+            $qty = (int) ($item['cantidad'] ?? 1);
+            if ($prod && $prod->costo_envio !== null && $prod->costo_envio > 0) {
+                $envioEspecifico += $prod->costo_envio * $qty;
+            } else {
+                $idsSinEnvio[] = $id;
+                $subtotalSinEnvio += ($item['precio'] ?? 0) * $qty;
+            }
+        }
+
+        // Si todos tienen costo específico, retornar solo eso
+        if (empty($idsSinEnvio)) {
+            return round($envioEspecifico, 2);
+        }
+
+        // Aplicar lógica normal sobre productos sin costo_envio específico
+        // No-físicos → envío 0 (no suman al envío normal)
+        $fisicos = Producto::whereIn('id', $idsSinEnvio)->where('tipo', 'fisico')->count();
+        if ($fisicos === 0) {
+            return round($envioEspecifico, 2);
+        }
+
+        $negocioId = negocio_actual_id();
+        $cafeNombres = ['CAFE ORGANICO', 'CHOCOLATE ORGANICO', 'CAFETERAS Y ACCESORIOS'];
+
+        if ($negocioId == 2) {
+            // Muestras de café (fisico + precio 0) — envío progresivo
+            $muestraIds = Producto::whereIn('id', $idsSinEnvio)
+                ->where('tipo', 'fisico')->where('precio', 0)
+                ->whereHas('categoria', fn($q) => $q->whereIn('nombre', $cafeNombres))
+                ->pluck('id')->toArray();
+
+            if (count($muestraIds) === count($idsSinEnvio)) {
+                $qty = (int) array_sum(array_map(fn($id) => (int)($carrito[$id]['cantidad'] ?? 1), $idsSinEnvio));
+                $envioNormal = 6.0 * (1 + ($qty - 1) * 0.5);
+                return round($envioEspecifico + $envioNormal, 2);
+            }
+
+            // Café en general
+            $enCafe = Producto::whereIn('id', $idsSinEnvio)
+                ->whereHas('categoria', fn($q) => $q->whereIn('nombre', $cafeNombres))
+                ->count();
+            if ($enCafe === count($idsSinEnvio)) {
+                $envioNormal = $subtotalSinEnvio >= 100 ? 5.0 : 15.0;
+                return round($envioEspecifico + $envioNormal, 2);
+            }
+        }
+
+        // Tarifario general sobre el subtotal de productos sin costo_envio
+        $envioNormal = match (true) {
+            $subtotalSinEnvio < 100    => 25.0,
+            $subtotalSinEnvio < 1000   => 25.0,
+            $subtotalSinEnvio < 1500   => 40.0,
+            $subtotalSinEnvio < 3000   => 45.0,
+            $subtotalSinEnvio < 5000   => 95.0,
+            $subtotalSinEnvio < 9000   => 220.0,
+            $subtotalSinEnvio < 15000  => 290.0,
+            default                    => 590.0,
+        };
+        return round($envioEspecifico + $envioNormal, 2);
     }
     ////////////////lito aqui del paypal
     /* Ruta genérica de éxito (usada por simulate y por algunos retornos)

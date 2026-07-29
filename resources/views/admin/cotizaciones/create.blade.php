@@ -1,19 +1,33 @@
 @extends('layouts.admin')
 
-@section('title', 'Nueva Cotización')
+@section('title', isset($origen) ? 'Generar Cotización' : 'Nueva Cotización')
 
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fw-bold">Nueva Cotización</h3>
+        <h3 class="fw-bold">
+            @if(isset($origen))
+                <i class="fas fa-copy me-2 text-success"></i>Generar Cotización (desde #{{ $origen->id }})
+            @else
+                Nueva Cotización
+            @endif
+        </h3>
         <a href="{{ route('admin.cotizaciones.index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left me-1"></i> Volver
         </a>
     </div>
 
+    @if(isset($origen))
+    <div class="alert alert-success mb-4">
+        <i class="fas fa-info-circle me-1"></i>
+        Se creará una <strong>nueva cotización</strong> con los datos de la cotización <strong>#{{ $origen->id }}</strong> del cliente <strong>{{ $origen->cliente }}</strong>.
+        La fecha será hoy y el estado será <strong>Pendiente</strong>.
+    </div>
+    @endif
+
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form action="{{ route('admin.cotizaciones.store') }}" method="POST" id="formCotizacion">
+            <form action="{{ route('admin.cotizaciones.store') }}" method="POST" id="formCotizacion" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row g-3">
@@ -28,7 +42,7 @@
                         <label class="form-label">Cliente</label>
                         <div class="input-group">
                             <input type="text" name="cliente" class="form-control @error('cliente') is-invalid @enderror"
-                                   value="{{ old('cliente') }}" required>
+                                   value="{{ old('cliente', isset($origen) ? $origen->cliente : '') }}" required>
                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#clienteModal">
                                 <i class="fas fa-search"></i>
                             </button>
@@ -39,16 +53,31 @@
                     <div class="col-md-2">
                         <label class="form-label">Teléfono</label>
                         <input type="text" name="telefono" class="form-control @error('telefono') is-invalid @enderror"
-                               value="{{ old('telefono') }}">
+                               value="{{ old('telefono', isset($origen) ? $origen->telefono : '') }}">
                         @error('telefono') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-2">
                         <label class="form-label">Correo</label>
-                        <input type="hidden" name="cliente_id" value="{{ old('cliente_id') }}">
+                        <input type="hidden" name="cliente_id" value="{{ old('cliente_id', isset($origen) ? $origen->cliente_id : '') }}">
                         <input type="email" name="correo" class="form-control @error('correo') is-invalid @enderror"
-                               value="{{ old('correo') }}">
+                               value="{{ old('correo', isset($origen) ? ($origen->cliente?->email ?? $origen->correo) : '') }}">
                         @error('correo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-2 d-flex align-items-center">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="mostrarDolares" onchange="toggleDolares()" {{ old('mostrar_dolares', isset($origen) && $origen->tipo_cambio ? 'checked' : '') }}>
+                            <label class="form-check-label" for="mostrarDolares">Mostrar en Dólares</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2" id="tipoCambioGroup" style="display: none;">
+                        <label class="form-label">Tipo de Cambio</label>
+                        <input type="number" step="0.001" name="tipo_cambio" class="form-control @error('tipo_cambio') is-invalid @enderror"
+                               value="{{ old('tipo_cambio', isset($origen) ? $origen->tipo_cambio : ($ultimoTipoCambio ?? '3.750')) }}" min="0" oninput="calcularTotales()">
+                        @error('tipo_cambio') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
@@ -60,7 +89,9 @@
                         <select name="emisor_id" class="form-select" id="emisorSelect">
                             <option value="">-- Seleccionar usuario admin --</option>
                             @foreach($emisores as $e)
-                                <option value="{{ $e->id }}" data-empresa="{{ $e->profile->empresa ?? '' }}"
+                                <option value="{{ $e->id }}"
+                                    {{ (isset($origen) && $origen->emisor_id == $e->id) ? 'selected' : '' }}
+                                    data-empresa="{{ $e->profile->empresa ?? '' }}"
                                     data-telefono="{{ $e->profile->telefono ?? '' }}"
                                     data-email="{{ $e->email }}"
                                     data-direccion="{{ $e->profile->direccion ?? '' }}">
@@ -74,17 +105,19 @@
                         <select name="logo_id" class="form-select">
                             <option value="">-- Sin logo --</option>
                             @foreach($logos as $l)
-                                <option value="{{ $l->id }}" {{ $l->por_defecto ? 'selected' : '' }}>
+                                <option value="{{ $l->id }}"
+                                    {{ (isset($origen) && $origen->logo_id == $l->id) ? 'selected' : ($l->por_defecto && !isset($origen) ? 'selected' : '') }}>
                                     {{ $l->nombre }}
                                 </option>
                             @endforeach
                         </select>
                         <div class="mt-1" id="logoPreview">
-                            @foreach($logos as $l)
-                                @if($l->por_defecto)
-                                    <img src="{{ asset('storage/' . $l->ruta) }}" alt="" style="max-height:40px;">
-                                @endif
-                            @endforeach
+                            @php
+                                $logoSel = isset($origen) ? $logos->firstWhere('id', $origen->logo_id) : $logos->firstWhere('por_defecto', true);
+                            @endphp
+                            @if($logoSel)
+                                <img src="{{ asset('storage/' . $logoSel->ruta) }}" alt="" style="max-height:40px;">
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -97,15 +130,51 @@
                         <thead class="table-dark">
                             <tr>
                                 <th style="width:5%;">Img</th>
-                                <th style="width:28%;">Producto</th>
-                                <th style="width:22%;">Descripción</th>
-                                <th style="width:8%;">Cant.</th>
-                                <th style="width:10%;">P. Unit.</th>
-                                <th style="width:10%;">Subtotal</th>
+                                <th style="width:25%;">Producto</th>
+                                <th style="width:19%;">Descripción</th>
+                                <th style="width:7%;">Cant.</th>
+                                <th style="width:8%;">P. Unit.</th>
+                                <th style="width:7%;">Moneda</th>
+                                <th style="width:9%;">Subtotal</th>
                                 <th style="width:3%;"></th>
                             </tr>
                         </thead>
                         <tbody>
+                            @if(isset($origen))
+                                @foreach($origen->items as $i => $item)
+                            <tr class="fila-producto">
+                                <td class="text-center align-middle">
+                                    <img class="producto-thumb" src="{{ !empty($item['portada']) ? asset('storage/' . $item['portada']) : '' }}"
+                                         alt="" style="max-width:40px;max-height:40px;{{ empty($item['portada']) ? 'display:none;' : '' }}border-radius:4px;">
+                                </td>
+                                <td>
+                                    <input type="hidden" name="productos[{{ $i }}][producto_id]" class="producto-id" value="{{ $item['producto_id'] ?? '' }}">
+                                    <div class="input-group">
+                                        <input type="text" name="productos[{{ $i }}][producto]" class="form-control form-control-sm"
+                                               value="{{ $item['producto'] }}" required>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirModalProducto(this)">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td><textarea name="productos[{{ $i }}][descripcion]" class="form-control form-control-sm" rows="1">{{ $item['descripcion'] ?? '' }}</textarea></td>
+                                <td><input type="number" name="productos[{{ $i }}][cantidad]" class="form-control form-control-sm cantidad" value="{{ $item['cantidad'] }}" min="1" required></td>
+                                <td><input type="number" step="0.01" name="productos[{{ $i }}][precio_unitario]" class="form-control form-control-sm precio-unitario" value="{{ $item['precio_unitario'] }}" min="0" required></td>
+                                <td>
+                                    <select name="productos[{{ $i }}][moneda]" class="form-select form-select-sm moneda">
+                                        <option value="PEN" {{ ($item['moneda'] ?? 'PEN') == 'PEN' ? 'selected' : '' }}>S/.</option>
+                                        <option value="USD" {{ ($item['moneda'] ?? 'PEN') == 'USD' ? 'selected' : '' }}>$</option>
+                                    </select>
+                                </td>
+                                <td class="subtotal-cell text-end fw-bold">{{ number_format($item['cantidad'] * $item['precio_unitario'], 2) }}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); calcularTotales();">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                                @endforeach
+                            @else
                             <tr class="fila-producto">
                                 <td class="text-center align-middle">
                                     <img class="producto-thumb" src="" alt="" style="max-width:40px;max-height:40px;display:none;border-radius:4px;">
@@ -122,6 +191,12 @@
                                 <td><textarea name="productos[0][descripcion]" class="form-control form-control-sm" rows="1"></textarea></td>
                                 <td><input type="number" name="productos[0][cantidad]" class="form-control form-control-sm cantidad" value="1" min="1" required></td>
                                 <td><input type="number" step="0.01" name="productos[0][precio_unitario]" class="form-control form-control-sm precio-unitario" value="0" min="0" required></td>
+                                <td>
+                                    <select name="productos[0][moneda]" class="form-select form-select-sm moneda">
+                                        <option value="PEN">S/.</option>
+                                        <option value="USD">$</option>
+                                    </select>
+                                </td>
                                 <td class="subtotal-cell text-end fw-bold">0.00</td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-danger btn-sm eliminar-fila" onclick="this.closest('tr').remove(); calcularTotales();">
@@ -129,6 +204,7 @@
                                     </button>
                                 </td>
                             </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -152,53 +228,64 @@
                             </button>
                         </div>
                         <textarea name="condiciones" class="form-control @error('condiciones') is-invalid @enderror"
-                                  rows="3" placeholder="Tiempo de entrega, forma de pago, validez de la oferta, etc.">{{ old('condiciones') }}</textarea>
+                                  rows="3" placeholder="Tiempo de entrega, forma de pago, validez de la oferta, etc.">{{ old('condiciones', isset($origen) ? str_replace(['<br>', '<br/>', '<br />'], "\n", $origen->condiciones ?? '') : '') }}</textarea>
                         @error('condiciones') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label">Subtotal</label>
-                        <input type="text" class="form-control" id="displaySubtotal" readonly value="0.00">
+                        <input type="text" class="form-control" id="displaySubtotal" readonly value="{{ isset($origen) ? number_format($origen->subtotal, 2) : '0.00' }}">
                     </div>
 
                     <div class="col-md-2">
                         <label class="form-label">Impuesto (S/)</label>
                         <input type="number" step="0.01" name="impuesto" class="form-control @error('impuesto') is-invalid @enderror"
-                               value="{{ old('impuesto', 0) }}" min="0" oninput="calcularTotales()">
+                               value="{{ old('impuesto', isset($origen) ? $origen->impuesto : 0) }}" min="0" oninput="calcularTotales()">
                         @error('impuesto') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-2">
                         <label class="form-label">Descuento (%)</label>
                         <input type="number" step="0.01" name="descuento_porcentaje" class="form-control @error('descuento_porcentaje') is-invalid @enderror"
-                               value="{{ old('descuento_porcentaje', 0) }}" min="0" max="100" oninput="calcularTotales()">
+                               value="{{ old('descuento_porcentaje', isset($origen) ? $origen->descuento_porcentaje : 0) }}" min="0" max="100" oninput="calcularTotales()">
                         @error('descuento_porcentaje') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-2">
                         <label class="form-label">Dscto. (S/)</label>
-                        <input type="text" class="form-control" id="displayDescuentoMonto" readonly value="0.00">
+                        <input type="text" class="form-control" id="displayDescuentoMonto" readonly value="{{ isset($origen) ? number_format($origen->descuento_monto ?? 0, 2) : '0.00' }}">
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label">Total</label>
-                        <input type="text" class="form-control fw-bold fs-5" id="displayTotal" readonly value="0.00">
+                        <input type="text" class="form-control fw-bold fs-5" id="displayTotal" readonly value="{{ isset($origen) ? number_format($origen->total, 2) : '0.00' }}">
+                    </div>
+
+                    <div class="col-md-2" id="totalDolaresGroup" style="display: none;">
+                        <label class="form-label">Total (USD)</label>
+                        <input type="text" class="form-control fw-bold fs-5 text-success" id="displayTotalDolares" readonly value="0.00">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Estado</label>
                         <select name="estado" class="form-select @error('estado') is-invalid @enderror" required>
-                            <option value="pendiente" {{ old('estado') === 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                            <option value="aprobada" {{ old('estado') === 'aprobada' ? 'selected' : '' }}>Aprobada</option>
-                            <option value="rechazada" {{ old('estado') === 'rechazada' ? 'selected' : '' }}>Rechazada</option>
-                            <option value="completada" {{ old('estado') === 'completada' ? 'selected' : '' }}>Completada</option>
+                            <option value="pendiente" selected>Pendiente</option>
+                            <option value="aprobada">Aprobada</option>
+                            <option value="rechazada">Rechazada</option>
+                            <option value="completada">Completada</option>
                         </select>
                         @error('estado') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Imagen de Referencia (opcional)</label>
+                        <input type="file" name="imagen_referencia" class="form-control" accept="image/*">
+                        <small class="text-muted">Imagen que se mostrará al final de la cotización impresa.</small>
                     </div>
                 </div>
 
                 <button type="submit" class="btn btn-success mt-4">
-                    <i class="fas fa-save me-1"></i> Guardar
+                    <i class="fas fa-save me-1"></i> {{ isset($origen) ? 'Generar Cotización' : 'Guardar' }}
                 </button>
             </form>
         </div>
@@ -211,7 +298,7 @@
 
 @push('scripts')
 <script>
-let filaIndex = 1;
+let filaIndex = {{ isset($origen) ? count($origen->items) : 1 }};
 
 function agregarFila() {
     const tbody = document.querySelector('#tablaProductos tbody');
@@ -233,6 +320,12 @@ function agregarFila() {
         <td><textarea name="productos[${filaIndex}][descripcion]" class="form-control form-control-sm" rows="1"></textarea></td>
         <td><input type="number" name="productos[${filaIndex}][cantidad]" class="form-control form-control-sm cantidad" value="1" min="1" required></td>
         <td><input type="number" step="0.01" name="productos[${filaIndex}][precio_unitario]" class="form-control form-control-sm precio-unitario" value="0" min="0" required></td>
+        <td>
+            <select name="productos[${filaIndex}][moneda]" class="form-select form-select-sm moneda">
+                <option value="PEN">S/.</option>
+                <option value="USD">$</option>
+            </select>
+        </td>
         <td class="subtotal-cell text-end fw-bold">0.00</td>
         <td class="text-center">
             <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); calcularTotales();">
@@ -243,6 +336,8 @@ function agregarFila() {
     row.querySelectorAll('.cantidad, .precio-unitario').forEach(el => {
         el.addEventListener('input', () => calcularFila(row));
     });
+    const monedaSel = row.querySelector('.moneda');
+    if (monedaSel) monedaSel.addEventListener('change', () => calcularTotales());
     tbody.appendChild(row);
     filaIndex++;
 }
@@ -266,6 +361,16 @@ function calcularTotales() {
     document.getElementById('displaySubtotal').value = subtotal.toFixed(2);
     document.getElementById('displayDescuentoMonto').value = descMonto.toFixed(2);
     document.getElementById('displayTotal').value = total.toFixed(2);
+
+    const tc = parseFloat(document.querySelector('[name="tipo_cambio"]').value) || 1;
+    document.getElementById('displayTotalDolares').value = (total / tc).toFixed(2);
+}
+
+function toggleDolares() {
+    const checked = document.getElementById('mostrarDolares').checked;
+    document.getElementById('tipoCambioGroup').style.display = checked ? 'block' : 'none';
+    document.getElementById('totalDolaresGroup').style.display = checked ? 'block' : 'none';
+    if (checked) calcularTotales();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -274,6 +379,10 @@ document.addEventListener('DOMContentLoaded', () => {
             calcularFila(this.closest('tr'));
         });
     });
+    document.querySelectorAll('.fila-producto .moneda').forEach(el => {
+        el.addEventListener('change', () => calcularTotales());
+    });
+    toggleDolares();
     calcularTotales();
 });
 

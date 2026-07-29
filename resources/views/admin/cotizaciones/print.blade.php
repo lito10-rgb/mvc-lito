@@ -85,9 +85,10 @@
             <tr>
                 <th style="width:40px;">Img</th>
                 <th style="width:4%;">#</th>
-                <th style="width:30%;">Producto</th>
-                <th style="width:20%;">Descripción</th>
-                <th style="width:8%;text-align:center;">Cant.</th>
+                <th style="width:28%;">Producto</th>
+                <th style="width:18%;">Descripción</th>
+                <th style="width:7%;text-align:center;">Cant.</th>
+                <th style="width:6%;text-align:center;">Moneda</th>
                 <th style="width:10%;text-align:right;">P. Unit.</th>
                 <th style="width:12%;text-align:right;">Subtotal</th>
             </tr>
@@ -104,8 +105,10 @@
                 <td>{{ $item['producto'] }}</td>
                 <td>{{ $item['descripcion'] ?? '' }}</td>
                 <td class="text-center">{{ $item['cantidad'] }}</td>
-                <td class="text-right">S/ {{ number_format($item['precio_unitario'], 2) }}</td>
-                <td class="text-right">S/ {{ number_format($item['cantidad'] * $item['precio_unitario'], 2) }}</td>
+                @php $moneda = $item['moneda'] ?? 'PEN'; @endphp
+                <td class="text-center">{{ $moneda === 'USD' ? '$' : 'S/.' }}</td>
+                <td class="text-right">{{ $moneda === 'USD' ? '$' : 'S/' }} {{ number_format($item['precio_unitario'], 2) }}</td>
+                <td class="text-right">{{ $moneda === 'USD' ? '$' : 'S/' }} {{ number_format($item['cantidad'] * $item['precio_unitario'], 2) }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -118,6 +121,10 @@
         @endif
         <tr><td>Impuesto</td><td class="text-right">S/ {{ number_format($cotizacione->impuesto, 2) }}</td></tr>
         <tr class="final"><td>Total</td><td class="text-right">S/ {{ number_format($cotizacione->total, 2) }}</td></tr>
+        @if($cotizacione->tipo_cambio)
+        <tr><td>Tipo de Cambio</td><td class="text-right">{{ number_format($cotizacione->tipo_cambio, 3) }}</td></tr>
+        <tr><td>Total (USD)</td><td class="text-right">$ {{ number_format($cotizacione->total / $cotizacione->tipo_cambio, 2) }}</td></tr>
+        @endif
     </table>
 
     @if($cotizacione->condiciones)
@@ -127,7 +134,22 @@
     </div>
     @endif
 
+    @if($cotizacione->imagen_referencia)
+    <div style="margin-top:30px;text-align:center;">
+        <h3 style="font-size:14px;color:#6b7280;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Imagen de Referencia</h3>
+        <img src="{{ asset('storage/' . $cotizacione->imagen_referencia) }}" alt="Referencia" style="max-width:100%;max-height:400px;border-radius:6px;border:1px solid #e5e7eb;">
+    </div>
+    @endif
+
     <div class="footer">
+        @php $_negPrint = negocio_actual(); @endphp
+        @if($_negPrint && $_negPrint->footer_address)
+            <p style="margin-bottom:4px;"><strong>Ubicación:</strong> {{ $_negPrint->footer_address }}
+                @if($_negPrint->map_lat && $_negPrint->map_lng)
+                    &mdash; <a href="https://www.google.com/maps?q={{ $_negPrint->map_lat }},{{ $_negPrint->map_lng }}" style="color:#3b82f6;">Ver en Google Maps</a>
+                @endif
+            </p>
+        @endif
         Documento generado el {{ now()->format('d/m/Y H:i') }} &mdash; {{ $cotizacione->emisor_data['empresa'] ?? ($cotizacione->emisor_data['nombre'] ?? 'Sistema de Cotizaciones') }}
     </div>
 </body>

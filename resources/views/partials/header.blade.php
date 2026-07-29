@@ -1,11 +1,15 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark header-main">
+@php($navClass = negocio_theme('nav_tipo', 'boton') == 'boton' ? 'nav-btn' : 'nav-link text-theme-accent')
+<nav class="navbar navbar-expand-lg navbar-dark bg-theme-dark header-main">
     <div class="container">
 
         <!-- Logo -->
         <a class="navbar-brand" href="{{ url('/') }}">
-            <img src="{{ asset('images/dcondor-peru.png') }}" 
-                 alt="Mono Tingales"
-                 style="height:70px;">
+            @php($logo = negocio_theme('logo'))
+            @if($logo)
+                <img src="{{ asset('storage/' . $logo) }}" alt="{{ negocio_actual_nombre() }}" class="logo-negocio">
+            @else
+                <img src="{{ asset('images/dcondor-peru.png') }}" alt="Mono Tingales" class="logo-negocio">
+            @endif
         </a>
 
         <!-- Botón mobile -->
@@ -21,7 +25,7 @@
 
                 <!-- Inicio -->
                 <li class="nav-item">
-                    <a class="nav-link text-warning hover-bg" href="{{ url('/') }}">
+                    <a class="{{ $navClass }}" href="{{ url('/') }}">
                         Inicio
                     </a>
                 </li>
@@ -29,7 +33,7 @@
                 <!-- MEGAMENU CATEGORIAS -->
                 <li class="nav-item mega-wrapper">
 
-                    <a class="nav-link text-warning hover-bg" href="#">
+                    <a class="{{ $navClass }}" href="#">
                         Categorías
                     </a>
 
@@ -82,14 +86,14 @@
 
                 <!-- Ofertas -->
                 <li class="nav-item">
-                    <a class="nav-link text-warning hover-bg" href="{{ url('/ofertas') }}">
+                    <a class="{{ $navClass }}" href="{{ url('/ofertas') }}">
                         Ofertas
                     </a>
                 </li>
 
                 <!-- Contacto -->
                 <li class="nav-item">
-                    <a class="nav-link text-warning hover-bg" href="{{ route('contacto.index') }}">
+                    <a class="{{ $navClass }}" href="{{ route('contacto.index') }}">
                         Contacto
                     </a>
                 </li>
@@ -97,13 +101,13 @@
                 <!-- LOGIN -->
                 @guest
                     <li class="nav-item">
-                        <a class="nav-link text-warning" href="{{ route('login') }}">
+                        <a class="{{ $navClass }}" href="{{ route('login') }}">
                             Iniciar sesión
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-warning" href="{{ route('register') }}">
+                        <a class="{{ $navClass }}" href="{{ route('register') }}">
                             Registrarse
                         </a>
                     </li>
@@ -113,7 +117,7 @@
                 @auth
                     <li class="nav-item dropdown">
 
-                        <a class="nav-link dropdown-toggle text-warning"
+                        <a class="{{ $navClass }} dropdown-toggle"
                            data-bs-toggle="dropdown">
                            {{ Auth::user()->nombre }}
                         </a>
@@ -153,7 +157,7 @@
         <!-- SELECTOR NEGOCIO (local) -->
         @if(app()->environment('local'))
         <div class="dropdown me-2">
-            <button class="btn btn-sm btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <button class="btn btn-sm btn-outline-theme-accent dropdown-toggle" type="button" data-bs-toggle="dropdown">
                 {{ negocio_actual_nombre() }}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">

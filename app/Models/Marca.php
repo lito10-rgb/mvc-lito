@@ -54,4 +54,9 @@ class Marca extends Model
     {
         return $this->hasMany(Producto::class);
     }
+
+    public function negocios()
+    {
+        return $this->belongsToMany(Negocio::class, 'marca_negocio');
+    }
 }

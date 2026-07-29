@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Categoria;
 use App\Models\Producto;
 use App\Models\Marca;
+use App\Models\Subcategoria;
 
 class HomeController extends Controller
 {
@@ -26,7 +27,8 @@ class HomeController extends Controller
             });
 
         $marcas = Marca::all();
+        $subcategorias = Subcategoria::all();
 
-        return view('home', compact('categorias', 'productos', 'marcas'));
+        return view('home', compact('categorias', 'productos', 'marcas', 'subcategorias'));
     }
 }

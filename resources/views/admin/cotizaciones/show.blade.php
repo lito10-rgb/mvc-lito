@@ -16,6 +16,9 @@
             <a href="{{ route('admin.cotizaciones.edit', $cotizacione) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-1"></i> Editar
             </a>
+            <a href="{{ route('admin.cotizaciones.duplicar', $cotizacione) }}" class="btn btn-success">
+                <i class="fas fa-copy me-1"></i> Generar cotización
+            </a>
             <a href="{{ route('admin.cotizaciones.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Volver
             </a>
@@ -72,7 +75,7 @@
                         </tr>
                         <tr>
                             <th class="ps-0">Emisor</th>
-                            <td>{{ $cotizacione->emisor_data['empresa'] ?: ($cotizacione->emisor_data['nombre'] ?? '—') }}</td>
+                            <td>{{ ($cotizacione->emisor_data['empresa'] ?? $cotizacione->emisor_data['nombre'] ?? null) ?: '—' }}</td>
                         </tr>
                         @if($cotizacione->logo)
                         <tr>
@@ -103,6 +106,7 @@
                         <th>Producto</th>
                         <th>Descripción</th>
                         <th class="text-center">Cant.</th>
+                        <th class="text-center">Moneda</th>
                         <th class="text-end">P. Unit.</th>
                         <th class="text-end">Subtotal</th>
                     </tr>
@@ -121,30 +125,48 @@
                         <td>{{ $item['producto'] }}</td>
                         <td>{{ $item['descripcion'] ?? '' }}</td>
                         <td class="text-center">{{ $item['cantidad'] }}</td>
-                        <td class="text-end">S/ {{ number_format($item['precio_unitario'], 2) }}</td>
-                        <td class="text-end">S/ {{ number_format($item['cantidad'] * $item['precio_unitario'], 2) }}</td>
+                        <td class="text-center">
+                            @php $moneda = $item['moneda'] ?? 'PEN'; @endphp
+                            @if($moneda === 'USD') $ @else S/. @endif
+                        </td>
+                        <td class="text-end">
+                            @if($moneda === 'USD') $ @else S/ @endif {{ number_format($item['precio_unitario'], 2) }}
+                        </td>
+                        <td class="text-end">
+                            @if($moneda === 'USD') $ @else S/ @endif {{ number_format($item['cantidad'] * $item['precio_unitario'], 2) }}
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
                 <tfoot class="table-group-divider">
                     @if(($cotizacione->descuento_monto ?? 0) > 0)
                     <tr>
-                        <th colspan="6" class="text-end">Descuento ({{ $cotizacione->descuento_porcentaje }}%)</th>
+                        <th colspan="7" class="text-end">Descuento ({{ $cotizacione->descuento_porcentaje }}%)</th>
                         <td class="text-end">- S/ {{ number_format($cotizacione->descuento_monto, 2) }}</td>
                     </tr>
                     @endif
                     <tr>
-                        <th colspan="6" class="text-end">Subtotal</th>
+                        <th colspan="7" class="text-end">Subtotal</th>
                         <td class="text-end">S/ {{ number_format($cotizacione->subtotal, 2) }}</td>
                     </tr>
                     <tr>
-                        <th colspan="6" class="text-end">Impuesto</th>
+                        <th colspan="7" class="text-end">Impuesto</th>
                         <td class="text-end">S/ {{ number_format($cotizacione->impuesto, 2) }}</td>
                     </tr>
                     <tr class="table-active">
-                        <th colspan="6" class="text-end">Total</th>
+                        <th colspan="7" class="text-end">Total</th>
                         <td class="text-end"><strong>S/ {{ number_format($cotizacione->total, 2) }}</strong></td>
                     </tr>
+                    @if($cotizacione->tipo_cambio)
+                    <tr>
+                        <th colspan="7" class="text-end">Tipo de Cambio</th>
+                        <td class="text-end">{{ number_format($cotizacione->tipo_cambio, 3) }}</td>
+                    </tr>
+                    <tr class="table-success">
+                        <th colspan="7" class="text-end">Total (USD)</th>
+                        <td class="text-end"><strong>$ {{ number_format($cotizacione->total / $cotizacione->tipo_cambio, 2) }}</strong></td>
+                    </tr>
+                    @endif
                 </tfoot>
             </table>
         </div>

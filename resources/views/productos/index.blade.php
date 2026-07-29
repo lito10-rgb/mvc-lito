@@ -31,9 +31,22 @@
                         </h5>
 
                         {{-- Precio --}}
-                        <p class="fw-bold fs-5">
-                            S/ {{ number_format($producto->precio, 2) }}
-                        </p>
+                        @if($producto->tipo === 'servicio' && $producto->precio == 0)
+                            <p class="fw-bold fs-5 text-theme-accent">Consultar precio</p>
+                        @else
+                            <p class="fw-bold fs-5">S/ {{ number_format($producto->precio, 2) }}</p>
+                        @endif
+
+                        @php($dias = $producto->entrega ?? '2')
+                        @if($producto->tipo === 'servicio')
+                            <small class="text-info d-block mb-1"><i class="fa-solid fa-gear"></i> Servicio — {{ $dias == 0 ? 'Entrega inmediata' : 'Coordinar en ' . $dias . ' días' }}</small>
+                        @elseif($producto->tipo === 'digital' || $producto->tipo === 'planos')
+                            <small class="text-success d-block mb-1"><i class="fa-solid fa-download"></i> Descarga digital</small>
+                        @elseif($producto->stock > 0)
+                            <small class="text-success d-block mb-1"><i class="fa-solid fa-check-circle"></i> {{ $dias == 0 ? 'Entrega inmediata' : 'En stock — ' . $dias . ' días' }}</small>
+                        @else
+                            <small class="text-warning d-block mb-1"><i class="fa-solid fa-clock"></i> {{ $dias == 0 ? 'Disponibilidad — Entrega inmediata' : 'Por encargo — ' . $dias . ' días (aprox)' }}</small>
+                        @endif
 
                         {{-- Ventas --}}
                         <small class="text-success mb-2">
@@ -49,13 +62,16 @@
                                 Ver detalle
                             </a>
 
-                            {{-- Agregar carrito --}}
+                            @if($producto->tipo === 'servicio' && $producto->precio == 0)
+                            <a href="{{ route('cotizacion.solicitar', $producto->id) }}" class="btn btn-outline-warning w-100"><i class="fa-solid fa-file-invoice-dollar"></i> Solicitar cotización</a>
+                        @else
                             <form action="{{ route('carrito.agregar', $producto->id) }}" method="POST">
                                 @csrf
                                 <button class="btn btn-dark w-100">
                                     Agregar al carrito
                                 </button>
                             </form>
+                        @endif
 
                         </div>
 
@@ -67,6 +83,6 @@
         @endforelse
     </div>
 
-    {{ $productos->links() }}
+    {{ $productos->withQueryString()->links() }}
 </div>
 @endsection

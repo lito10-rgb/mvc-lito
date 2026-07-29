@@ -36,3 +36,28 @@ if (!function_exists('negocios_disponibles')) {
         return \App\Models\Negocio::all();
     }
 }
+
+if (!function_exists('negocio_actual')) {
+    function negocio_actual(): ?\App\Models\Negocio
+    {
+        return \App\Models\Negocio::find(negocio_actual_id());
+    }
+}
+
+if (!function_exists('negocio_color')) {
+    function negocio_color(string $key, string $default = ''): string
+    {
+        $negocio = negocio_actual();
+        $color = $negocio?->{'color_' . $key} ?? '';
+        return $color ?: config('theme.colors.' . $key, $default);
+    }
+}
+
+if (!function_exists('negocio_theme')) {
+    function negocio_theme(string $key, string $default = ''): string
+    {
+        $negocio = negocio_actual();
+        $value = $negocio?->$key ?? '';
+        return $value ?: $default;
+    }
+}

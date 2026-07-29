@@ -148,11 +148,15 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email <span class="text-danger">*</span></label>
-                        <input type="email" name="email" class="form-control" required>
+                        <input type="email" name="email" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Teléfono</label>
                         <input type="text" name="telefono" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Detalle</label>
+                        <textarea name="detalle" class="form-control" rows="2" placeholder="Notas sobre el cliente..."></textarea>
                     </div>
                     <div id="nuevoClienteError" class="alert alert-danger d-none"></div>
                 </div>
@@ -323,6 +327,7 @@
                     apellidos: formNuevo.apellidos.value,
                     email: formNuevo.email.value,
                     telefono: formNuevo.telefono.value,
+                    detalle: formNuevo.detalle.value,
                 }),
             });
 

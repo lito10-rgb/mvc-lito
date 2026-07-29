@@ -1,16 +1,19 @@
 <div class="d-flex flex-column">
-    <div class="px-3 py-3 text-center border-bottom border-secondary">
+    <div class="px-3 py-2 text-center border-bottom border-secondary">
         <i class="fas fa-crown fa-2x text-warning"></i>
         <span class="d-block text-white fw-bold mt-1">Admin Panel</span>
     </div>
 
-    <nav class="mt-2">
+    <nav class="mt-1 pb-3">
+        <a href="/mvc-lito/public/admin/negocios" class="sidebar-link" style="background:#dc3545;color:#fff!important;">
+            <i class="fas fa-store me-2"></i> ⚡ NEGOCIOS (prueba)
+        </a>
         <div class="px-3 py-2 text-secondary small text-uppercase fw-bold">Principal</div>
         <a href="{{ route('admin.dashboard') }}" class="sidebar-link">
             <i class="fas fa-gauge-high me-2"></i> Dashboard
         </a>
 
-        <div class="px-3 py-2 text-secondary small text-uppercase fw-bold mt-2">Gestión</div>
+        <div class="px-3 py-1 text-secondary small text-uppercase fw-bold mt-2">Gestión</div>
         <a href="{{ route('admin.pedidos.index') }}" class="sidebar-link">
             <i class="fas fa-shopping-cart me-2"></i> Pedidos
         </a>
@@ -25,6 +28,9 @@
         </a>
         <a href="{{ route('admin.marcas.index') }}" class="sidebar-link">
             <i class="fas fa-copyright me-2"></i> Marcas
+        </a>
+        <a href="{{ route('admin.catalogos.index') }}" class="sidebar-link">
+            <i class="fas fa-book me-2"></i> Catálogo PDF
         </a>
         <a href="{{ route('admin.proveedores.index') }}" class="sidebar-link">
             <i class="fas fa-truck me-2"></i> Proveedores
@@ -50,6 +56,12 @@
         <a href="{{ route('admin.suscripciones.index') }}" class="sidebar-link">
             <i class="fas fa-envelope me-2"></i> Boletín / Suscripciones
         </a>
+        <a href="{{ route('admin.concursos.index') }}" class="sidebar-link">
+            <i class="fas fa-trophy me-2"></i> Concursos / Sorteos
+        </a>
+        <a href="{{ route('admin.concursos.sorteo') }}" class="sidebar-link" target="_blank" style="background:#7c3aed;color:#fff!important;">
+            <i class="fas fa-star me-2"></i> SORTEO EN VIVO
+        </a>
 
         <div class="px-3 py-2 text-secondary small text-uppercase fw-bold mt-2">Usuarios</div>
         <a href="{{ route('admin.usuarios.index') }}" class="sidebar-link">
@@ -68,6 +80,9 @@
         </a>
 
         <div class="px-3 py-2 text-secondary small text-uppercase fw-bold mt-2">Sistema</div>
+        <a href="/mvc-lito/public/admin/negocios" class="sidebar-link">
+            <i class="fas fa-store me-2"></i> Negocios / Sitios
+        </a>
         <a href="{{ route('admin.mi-perfil') }}" class="sidebar-link">
             <i class="fas fa-user-pen me-2"></i> Modificar Perfil
         </a>

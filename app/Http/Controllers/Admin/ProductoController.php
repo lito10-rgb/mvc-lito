@@ -71,7 +71,8 @@ class ProductoController extends Controller
     $categorias = Categoria::orderBy('nombre')->get();
     $subcategorias = Subcategoria::orderBy('subcategoria')->get();
     $negocios = Negocio::orderBy('nombre')->get();
-    return view('admin.productos.index', compact('productos', 'categorias', 'subcategorias', 'negocios'));
+    $marcas = Marca::orderBy('nombre')->get();
+    return view('admin.productos.index', compact('productos', 'categorias', 'subcategorias', 'negocios', 'marcas'));
 }
 
     public function create()
@@ -123,19 +124,41 @@ class ProductoController extends Controller
         $producto->delete();
         return redirect()->route('admin.productos.index')->with('success', 'Producto eliminado');
     }
+
+    public function duplicar(Producto $producto)
+    {
+        $categorias = Categoria::all();
+        $subcategorias = Subcategoria::where('id_categoria', $producto->categoria_id)->get();
+        $marcas = Marca::all();
+        $proveedores = Proveedor::all();
+        $cabecera = null;
+        $negocios = Negocio::all();
+        $productoNegocioIds = $producto->negocios->pluck('id')->toArray();
+
+        $origen = clone $producto;
+        $origen->titulo = $producto->titulo . ' (copia)';
+        $origen->ruta = '';
+        $origen->estado = 1;
+        $origen->vistas = rand(10, 500);
+        $origen->ventas = rand(1, 100);
+        $origen->vistasGratis = rand(0, 50);
+        $origen->ventasGratis = rand(0, 20);
+
+        return view('admin.productos.create', compact('categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds', 'origen'));
+    }
     ////////////lito store
    public function store(Request $request)
-{
-    $request->validate([
-        'tipo' => 'required|in:fisico,servicio',
+ {
+     $request->validate([
+         'tipo' => 'required|in:fisico,no_fisico,servicio',
         'titulo' => 'required|string|max:255',
         'titular' => 'required|string|max:255',
         'descripcion' => 'nullable|string',
         'multimedia' => 'nullable|array',
-        'multimedia.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'multimedia.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         'detalles' => 'nullable|string',
         'precio' => 'required|numeric|min:0',
-        'portada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'portada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         'vistas' => 'nullable|integer|min:0',
         'ventas' => 'nullable|integer|min:0',
         'vistasGratis' => 'nullable|integer|min:0',
@@ -145,10 +168,11 @@ class ProductoController extends Controller
         'oferta' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
         'precioOferta' => 'nullable|numeric|min:0',
         'descuentoOferta' => 'nullable|numeric|min:0|max:100',
-        'imgOferta' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'imgOferta' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         'finOferta' => 'nullable|date',
         'peso' => 'nullable|string|max:50',
         'entrega' => 'nullable|string|max:255',
+        'costo_envio' => 'nullable|numeric|min:0',
         'categoria_id' => 'required|exists:categorias,id',
         'subcategoria_id' => 'required|exists:subcategorias,id',
         'marca_id' => 'required|exists:marcas,id',
@@ -159,7 +183,7 @@ class ProductoController extends Controller
         'palabras_claves' => 'required|string|max:255',
     ]);
 
-    $data = $request->except(['multimedia', 'palabras_claves']);
+    $data = $request->except(['multimedia', 'palabras_claves', 'titulo_seo', 'descripcion_seo']);
 
     // Valores por defecto
     $data['categoria_id'] = $request->input('categoria_id', 1);
@@ -211,8 +235,8 @@ class ProductoController extends Controller
     // Cabecera
     Cabecera::create([
         'ruta' => $producto->ruta,
-        'titulo' => $producto->titulo,
-        'descripcion' => $producto->descripcion,
+        'titulo' => $request->input('titulo_seo', $producto->titulo),
+        'descripcion' => $request->input('descripcion_seo', $producto->descripcion),
         'palabras_claves' => $request->input('palabras_claves'),
         'portada' => $producto->portada,
         'fecha' => now(),
@@ -265,7 +289,7 @@ public function eliminarMultiple(Request $request)
 public function update(Request $request, Producto $producto)
 {
     $request->validate([
-        'tipo' => 'required|in:fisico,servicio',
+        'tipo' => 'required|in:fisico,no_fisico,servicio',
         'titulo' => 'required|string|max:255',
         'titular' => 'required|string|max:255',
         'descripcion' => 'nullable|string',
@@ -274,7 +298,7 @@ public function update(Request $request, Producto $producto)
         'imagenes_actuales' => 'nullable|json',
         'detalles' => 'nullable|string',
         'precio' => 'required|numeric|min:0',
-        'portada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'portada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         'vistas' => 'nullable|integer|min:0',
         'ventas' => 'nullable|integer|min:0',
         'vistasGratis' => 'nullable|integer|min:0',
@@ -284,10 +308,11 @@ public function update(Request $request, Producto $producto)
         'oferta' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
         'precioOferta' => 'nullable|numeric|min:0',
         'descuentoOferta' => 'nullable|numeric|min:0|max:100',
-        'imgOferta' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'imgOferta' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
         'finOferta' => 'nullable|date',
         'peso' => 'nullable|string|max:50',
         'entrega' => 'nullable|string|max:255',
+        'costo_envio' => 'nullable|numeric|min:0',
         'categoria_id' => 'required|exists:categorias,id',
         'subcategoria_id' => 'required|exists:subcategorias,id',
         'marca_id' => 'required|exists:marcas,id',
@@ -298,7 +323,7 @@ public function update(Request $request, Producto $producto)
         'palabras_claves' => 'required|string|max:255',
     ]);
 
-    $data = $request->except(['multimedia', 'imagenes_actuales', 'palabras_claves']);
+    $data = $request->except(['multimedia', 'imagenes_actuales', 'palabras_claves', 'titulo_seo', 'descripcion_seo']);
 
     $data['ofertadoPorCategoria'] = $request->input('ofertadoPorCategoria', 0);
     $data['ofertadoPorSubCategoria'] = $request->input('ofertadoPorSubCategoria', 0);
@@ -363,8 +388,8 @@ public function update(Request $request, Producto $producto)
     Cabecera::updateOrCreate(
         ['ruta' => $producto->ruta],
         [
-            'titulo' => $producto->titulo,
-            'descripcion' => $producto->descripcion,
+            'titulo' => $request->input('titulo_seo', $producto->titulo),
+            'descripcion' => $request->input('descripcion_seo', $producto->descripcion),
             'palabras_claves' => $request->input('palabras_claves'),
             'portada' => $producto->portada,
             'fecha' => now(),
@@ -381,18 +406,24 @@ public function update(Request $request, Producto $producto)
             'precio'          => 'required|numeric|min:0',
             'categoria_id'    => 'required|exists:categorias,id',
             'subcategoria_id' => 'required|exists:subcategorias,id',
-            'portada'         => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'portada'         => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'ruta'            => 'nullable|string|max:255',
             'palabras_claves' => 'nullable|string|max:255',
             'descripcion'     => 'nullable|string',
             'detalles'        => 'nullable|string',
+            'stock'           => 'nullable|integer|min:0',
+            'entrega'         => 'nullable|numeric|min:0',
+            'costo_envio'     => 'nullable|numeric|min:0',
             'multimedia'      => 'nullable|array',
-            'multimedia.*'    => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'multimedia.*'    => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'imagenes_actuales' => 'nullable|json',
         ]);
 
         $data = $request->only(['titulo', 'titular', 'precio', 'categoria_id', 'subcategoria_id', 'ruta', 'palabras_claves', 'descripcion']);
         $data['detalles'] = $request->input('detalles', '');
+        $data['stock'] = $request->filled('stock') ? $request->integer('stock') : 0;
+        $data['entrega'] = $request->filled('entrega') ? $request->input('entrega') : 2;
+        $data['costo_envio'] = $request->filled('costo_envio') ? $request->input('costo_envio') : null;
 
         if ($request->hasFile('portada')) {
             if ($producto->portada && \Storage::disk('public')->exists($producto->portada)) {
@@ -428,6 +459,128 @@ public function update(Request $request, Producto $producto)
             'producto' => $producto,
         ]);
     }
+
+    public function inlineUpdate(Request $request, $id)
+    {
+        $producto = Producto::findOrFail($id);
+
+        $request->validate([
+            'field' => 'required|in:precio,costo_envio,entrega,estado',
+            'value' => 'nullable|numeric',
+        ]);
+
+        $field = $request->input('field');
+        $value = $request->input('value');
+
+        if ($value === '' || $value === null) {
+            $value = match($field) {
+                'precio' => 0,
+                'costo_envio' => null,
+                'entrega' => null,
+                'estado' => 0,
+                default => $value,
+            };
+        }
+
+        $producto->$field = $value;
+        $producto->save();
+
+        $display = match($field) {
+            'precio' => 'S/. ' . number_format($producto->precio, 2),
+            'costo_envio' => $producto->costo_envio !== null ? 'S/. ' . number_format($producto->costo_envio, 2) : '—',
+            'entrega' => $producto->entrega !== null ? $producto->entrega . ' días' : '—',
+            'estado' => '<span class="badge bg-' . ($producto->estado ? 'success' : 'secondary') . '">' . ($producto->estado ? 'Activo' : 'Inactivo') . '</span>',
+            default => $producto->$field,
+        };
+
+        return response()->json([
+            'success' => true,
+            'value' => $producto->$field,
+            'display' => $display,
+        ]);
+    }
+
+    public function bulkUpdatePrecio(Request $request)
+    {
+        $precios = $request->input('precios');
+        if (!is_array($precios)) {
+            return response()->json(['success' => false, 'message' => 'Formato inválido.'], 422);
+        }
+
+        $ids = array_keys($precios);
+        $errores = 0;
+        foreach ($precios as $id => $precio) {
+            if (!is_numeric($precio) || $precio < 0) continue;
+            Producto::where('id', $id)->update(['precio' => $precio]);
+            $errores++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Precio actualizado en {$errores} producto(s).",
+        ]);
+    }
+
+    public function bulkUpdateCostoEnvio(Request $request)
+    {
+        $costos = $request->input('costos_envio');
+        if (!is_array($costos)) {
+            return response()->json(['success' => false, 'message' => 'Formato inválido.'], 422);
+        }
+
+        $errores = 0;
+        foreach ($costos as $id => $costo) {
+            $valor = ($costo === '' || $costo === null) ? null : $costo;
+            if ($valor !== null && (!is_numeric($valor) || $valor < 0)) continue;
+            Producto::where('id', $id)->update(['costo_envio' => $valor]);
+            $errores++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Costo de envío actualizado en {$errores} producto(s).",
+        ]);
+    }
+
+    public function bulkUpdateEntrega(Request $request)
+    {
+        $entregas = $request->input('entregas');
+        if (!is_array($entregas)) {
+            return response()->json(['success' => false, 'message' => 'Formato inválido.'], 422);
+        }
+
+        $errores = 0;
+        foreach ($entregas as $id => $entrega) {
+            if ($entrega === '' || $entrega === null) continue;
+            if (!is_numeric($entrega) || $entrega < 0) continue;
+            Producto::where('id', $id)->update(['entrega' => $entrega]);
+            $errores++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Entrega actualizada en {$errores} producto(s).",
+        ]);
+    }
+
+    public function bulkUpdateMarca(Request $request)
+    {
+        $marcas = $request->input('marcas');
+        if (!is_array($marcas)) {
+            return response()->json(['success' => false, 'message' => 'Formato inválido.'], 422);
+        }
+
+        $actualizados = 0;
+        foreach ($marcas as $id => $marcaId) {
+            if ($marcaId === '' || $marcaId === null || $marcaId === '0') continue;
+            if (!is_numeric($marcaId)) continue;
+            Producto::where('id', $id)->update(['marca_id' => $marcaId]);
+            $actualizados++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Marca actualizada en {$actualizados} producto(s).",
+        ]);
+    }
 }
-////////////////////////update
-// }

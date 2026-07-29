@@ -69,21 +69,54 @@
                         </div>
 
                         <div class="mt-4">
-                            <h5>Dirección de envío</h5>
-                            <div class="row g-2">
-                                <div class="col-12">
-                                    <input type="text" name="direccion" class="form-control form-control-sm" placeholder="Dirección" value="{{ old('direccion', auth()->user()->direccion ?? '') }}" required>
+                            @if($mixto)
+                                <h5>Dirección de envío y correo</h5>
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <input type="email" name="email_envio" class="form-control form-control-sm"
+                                               placeholder="Correo electrónico (para productos digitales)"
+                                               value="{{ old('email_envio', auth()->user()->email ?? '') }}" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="text" name="direccion" class="form-control form-control-sm" placeholder="Dirección (para productos físicos)" value="{{ old('direccion', auth()->user()->direccion ?? '') }}" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" name="ciudad" class="form-control form-control-sm" placeholder="Ciudad" value="{{ old('ciudad') }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" name="departamento" class="form-control form-control-sm" placeholder="Estado / Provincia / Región" value="{{ old('departamento') }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="text" name="telefono" class="form-control form-control-sm" placeholder="Teléfono" value="{{ old('telefono', auth()->user()->telefono ?? '') }}" required>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <input type="text" name="ciudad" class="form-control form-control-sm" placeholder="Ciudad" value="{{ old('ciudad') }}">
+                            @elseif($soloNoFisico)
+                                <h5>Correo para recibir tu pedido</h5>
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <input type="email" name="email_envio" class="form-control form-control-sm"
+                                               placeholder="Correo electrónico"
+                                               value="{{ old('email_envio', auth()->user()->email ?? '') }}" required>
+                                        <small class="text-muted">Te enviaremos el enlace de descarga o el archivo a este correo.</small>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <input type="text" name="departamento" class="form-control form-control-sm" placeholder="Departamento" value="{{ old('departamento') }}">
+                            @else
+                                <h5>Dirección de envío</h5>
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <input type="text" name="direccion" class="form-control form-control-sm" placeholder="Dirección" value="{{ old('direccion', auth()->user()->direccion ?? '') }}" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" name="ciudad" class="form-control form-control-sm" placeholder="Ciudad" value="{{ old('ciudad') }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" name="departamento" class="form-control form-control-sm" placeholder="Estado / Provincia / Región" value="{{ old('departamento') }}">
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="text" name="telefono" class="form-control form-control-sm" placeholder="Teléfono" value="{{ old('telefono', auth()->user()->telefono ?? '') }}" required>
+                                    </div>
                                 </div>
-                                <div class="col-12">
-                                    <input type="text" name="telefono" class="form-control form-control-sm" placeholder="Teléfono" value="{{ old('telefono', auth()->user()->telefono ?? '') }}" required>
-                                </div>
-                            </div>
+                            @endif
                         </div>
 
                     </div>
@@ -138,7 +171,7 @@
 
     {{-- Alternativa: botones directos por pasarela --}}
     <div class="d-grid gap-2 mt-3">
-        <button type="button" id="btnMP" class="btn btn-outline-warning">
+        <button type="button" id="btnMP" class="btn btn-outline-theme-accent">
             <i class="fab fa-mercado-pago me-2"></i> Pagar con Mercado Pago
         </button>
 

@@ -7,6 +7,7 @@ use App\Models\Cabecera;
 use Illuminate\Http\Request;
 use App\Models\Categoria;
 use App\Models\Marca;
+use App\Models\Subcategoria;
 
 class ProductosController extends Controller
 {
@@ -182,11 +183,28 @@ public function buscar(Request $request)
     // Paginación (puedes ajustar la cantidad)
     $productos = $query->paginate(8);
 	$categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+	$subcategorias = Subcategoria::all();
 	$marcas = Marca::all();
 
-	return view('productos.index', compact('productos', 'categorias', 'marcas'));
+	return view('productos.index', compact('productos', 'categorias', 'subcategorias', 'marcas'));
 }
 
+
+public function autocomplete(Request $request)
+{
+    $negocioId = negocio_actual_id();
+    $q = $request->input('q', '');
+
+    $productos = Producto::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+        ->where(function ($builder) use ($q) {
+            $builder->where('titulo', 'like', "%{$q}%")
+                    ->orWhere('descripcion', 'like', "%{$q}%");
+        })
+        ->limit(8)
+        ->get(['id', 'titulo', 'precio', 'portada', 'ruta', 'slug', 'tipo']);
+
+    return response()->json($productos);
+}
 
 // lito
 // public function mostrarProducto($ruta)

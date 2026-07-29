@@ -20,6 +20,7 @@
     <select name="tipo" id="tipo" class="form-select" required>
         <option value="">-- Seleccione --</option>
         <option value="fisico" {{ old('tipo', $producto->tipo ?? 'fisico') == 'fisico' ? 'selected' : '' }}>Físico</option>
+        <option value="no_fisico" {{ old('tipo', $producto->tipo ?? '') == 'no_fisico' ? 'selected' : '' }}>No físico</option>
         <option value="servicio" {{ old('tipo', $producto->tipo ?? '') == 'servicio' ? 'selected' : '' }}>Servicio</option>
     </select>
 </div>
@@ -39,12 +40,29 @@
     <input type="text" name="ruta" id="ruta" class="form-control" value="{{ old('ruta', $producto->ruta ?? '') }}">
     <small class="form-text text-muted">Puedes editar la URL si lo deseas. Si la dejas vacía se generará automáticamente.</small>
 </div>
+<div class="d-flex align-items-center gap-2 mb-2">
+    <strong>SEO</strong>
+    <button type="button" class="btn btn-sm btn-outline-warning" id="btn-generar-seo" title="Generar campos SEO desde el título">
+        <i class="fas fa-magic"></i> Generar desde título
+    </button>
+</div>
 {{-- Campos para SEO (se usarán en la tabla cabeceras) value="{{ old('palabrasClaves', $producto->palabrasClaves ?? '') }}">--}}
 <div class="mb-3">
     <label for="palabras_claves" class="form-label">Palabras Clave (SEO)</label>
     <input type="text" name="palabras_claves" id="palabras_claves" class="form-control" 
     value="{{ old('palabras_claves', $producto->cabecera?->palabras_claves ?? '') }}">
     <small class="form-text text-muted">Separadas por comas, ejemplo: café, especialidad, orgánico</small>
+</div>
+<div class="mb-3">
+    <label for="titulo_seo" class="form-label">Título SEO (para Google)</label>
+    <input type="text" name="titulo_seo" id="titulo_seo" class="form-control"
+    value="{{ old('titulo_seo', $producto->cabecera?->titulo ?? '') }}">
+    <small class="form-text text-muted">Si se deja vacío, se usará el título del producto.</small>
+</div>
+<div class="mb-3">
+    <label for="descripcion_seo" class="form-label">Descripción SEO (meta description)</label>
+    <textarea name="descripcion_seo" id="descripcion_seo" class="form-control" rows="2">{{ old('descripcion_seo', $producto->cabecera?->descripcion ?? '') }}</textarea>
+    <small class="form-text text-muted">Si se deja vacío, se usará la descripción del producto.</small>
 </div>
 <!-- {{-- Campos para SEO (se usarán en la tabla cabeceras) --}}
 <div class="mb-3">
@@ -272,8 +290,20 @@
 </div>
 
 <div class="mb-3">
-    <label for="entrega" class="form-label">Entrega</label>
+    <label for="entrega" class="form-label">Entrega (días)</label>
     <input type="text" name="entrega" id="entrega" class="form-control" value="{{ old('entrega', $producto->entrega ?? 2) }}">
+</div>
+
+<div class="mb-3">
+    <label for="costo_envio" class="form-label">Costo de envío específico (opcional)</label>
+    <input type="number" step="0.01" name="costo_envio" id="costo_envio" class="form-control" value="{{ old('costo_envio', $producto->costo_envio ?? '') }}" min="0" placeholder="Dejar vacío = usa tarifario general">
+    <small class="text-muted">Si se asigna, este costo se multiplica por la cantidad comprada. Si se deja vacío, aplica el tarifario por negocio/subtotal.</small>
+</div>
+
+<div class="mb-3">
+    <label for="stock" class="form-label">Stock (0 = por encargo)</label>
+    <input type="number" name="stock" id="stock" class="form-control" value="{{ old('stock', $producto->stock ?? 0) }}" min="0">
+    <small class="text-muted">0 = producto bajo pedido, >0 = disponible en inventario</small>
 </div>
 
 <!-- <div class="mb-3">
@@ -385,6 +415,16 @@
         let texto = this.value.toLowerCase().trim()
             .replace(/[\s\W-]+/g, '-');
         document.getElementById('ruta').value = texto;
+});
+
+    // Boton generar SEO desde titulo
+    document.getElementById('btn-generar-seo')?.addEventListener('click', function () {
+        var title = document.getElementById('titulo').value.trim();
+        if (!title) { alert('Primero escribe un titulo.'); return; }
+        ['titular','palabras_claves','titulo_seo','descripcion_seo'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && !el.value.trim()) el.value = title;
+        });
     });
 
     // Botones + y - para precio
@@ -400,6 +440,56 @@
  -->
  <script>
    document.addEventListener('DOMContentLoaded', function () {
+
+    // ======== Redimensionar imágenes antes de subir ========
+    function resizeImage(file, maxWidth, maxHeight, quality) {
+        maxWidth = maxWidth || 1200;
+        maxHeight = maxHeight || 1200;
+        quality = quality || 0.8;
+        return new Promise(function(resolve) {
+            if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+                resolve(file); return;
+            }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = new Image();
+                img.onload = function() {
+                    var w = img.width, h = img.height;
+                    if (w <= maxWidth && h <= maxHeight) { resolve(file); return; }
+                    var ratio = Math.min(maxWidth / w, maxHeight / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                    var canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    canvas.toBlob(function(blob) {
+                        resolve(new File([blob], file.name, { type: file.type, lastModified: Date.now() }));
+                    }, file.type, quality);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function hookResizeInput(inputId) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+        input.addEventListener('change', async function() {
+            if (!this.files.length) return;
+            var dt = new DataTransfer();
+            for (var i = 0; i < this.files.length; i++) {
+                dt.items.add(await resizeImage(this.files[i]));
+            }
+            this.files = dt.files;
+        });
+    }
+
+    hookResizeInput('multimedia');
+    hookResizeInput('portada');
+    hookResizeInput('imgOferta');
+
     const nombreInput = document.getElementById('titulo');
     const rutaInput = document.getElementById('ruta');
     const categoriaSelect = document.getElementById('categoria_id');
@@ -409,9 +499,13 @@
     let rutaEditadaManualmente = false;
     let titularEditadoManualmente = false;
     let palabrasEditadoManualmente = false;
+    let tituloSeoEditadoManualmente = false;
+    let descripcionSeoEditadoManualmente = false;
 
     const titularInput = document.getElementById('titular');
     const palabrasInput = document.getElementById('palabras_claves');
+    const tituloSeoInput = document.getElementById('titulo_seo');
+    const descripcionSeoInput = document.getElementById('descripcion_seo');
 
     rutaInput.addEventListener('input', function () {
         rutaEditadaManualmente = true;
@@ -421,6 +515,12 @@
     });
     palabrasInput.addEventListener('input', function () {
         palabrasEditadoManualmente = true;
+    });
+    tituloSeoInput.addEventListener('input', function () {
+        tituloSeoEditadoManualmente = true;
+    });
+    descripcionSeoInput.addEventListener('input', function () {
+        descripcionSeoEditadoManualmente = true;
     });
 
     const esCreacion = {{ $producto ? 'false' : 'true' }};
@@ -438,9 +538,26 @@
         if (esCreacion && !palabrasEditadoManualmente) {
             palabrasInput.value = title;
         }
+        if (esCreacion && !tituloSeoEditadoManualmente) {
+            tituloSeoInput.value = title;
+        }
     }
 
     nombreInput.addEventListener('input', autoCompletar);
+
+    // ======== Botón "Generar desde título" ========
+    document.getElementById('btn-generar-seo')?.addEventListener('click', function () {
+        const title = nombreInput.value.trim();
+        if (!title) { alert('Primero escribe un título.'); return; }
+        titularInput.value = title;
+        palabrasInput.value = title;
+        tituloSeoInput.value = title;
+        if (!descripcionSeoInput.value.trim()) {
+            descripcionSeoInput.value = title;
+        }
+        const slug = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        rutaInput.value = slug;
+    });
 
     // ======== Evento al cambiar categoría ========
     categoriaSelect.addEventListener('change', function () {

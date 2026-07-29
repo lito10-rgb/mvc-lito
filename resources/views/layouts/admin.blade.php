@@ -16,20 +16,36 @@
 
     <style>
         body { overflow-x: hidden; }
+
         #sidebar {
-            background-color: #343a40;
-            color: white;
-            padding-top: 4.5rem;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 250px !important;
+            height: 100vh !important;
+            overflow-y: scroll !important;
+            background-color: #343a40 !important;
+            color: white !important;
+            z-index: 1040 !important;
+            scrollbar-width: thin !important;
+            scrollbar-color: #f59e0b #212529 !important;
         }
+        #sidebar::-webkit-scrollbar { width: 12px !important; }
+        #sidebar::-webkit-scrollbar-track { background: #212529 !important; }
+        #sidebar::-webkit-scrollbar-thumb { background: #f59e0b !important; border: 2px solid #212529 !important; border-radius: 6px !important; }
+
         .sidebar-link {
-            color: white;
-            display: block;
-            padding: 10px 20px;
-            text-decoration: none;
+            color: white !important;
+            display: block !important;
+            padding: 7px 20px !important;
+            text-decoration: none !important;
+            white-space: nowrap !important;
+            font-size: 13.5px !important;
         }
         .sidebar-link:hover {
-            background-color: #495057;
+            background-color: #495057 !important;
         }
+
         .main-content {
             margin-left: 250px;
             padding-top: 4.5rem;
@@ -40,7 +56,7 @@
     </style>
 </head>
 <body>
-    <div class="d-none d-md-block position-fixed top-0 start-0 h-100" style="width: 250px;" id="sidebar">
+    <div id="sidebar">
         @include('partials.sidebar')
     </div>
 
@@ -63,6 +79,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sb = document.getElementById('sidebar');
+            if (sb) {
+                sb.scrollTop = 1;
+                setTimeout(function() { sb.scrollTop = 0; }, 100);
+            }
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>

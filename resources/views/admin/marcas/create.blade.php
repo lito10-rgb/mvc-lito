@@ -25,6 +25,22 @@
                     @enderror
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Negocios</label>
+                    <p class="text-muted small">Selecciona los negocios donde estará disponible esta marca.</p>
+                    @foreach ($negocios as $n)
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="negocios[]" value="{{ $n->id }}"
+                                id="neg_{{ $n->id }}"
+                                {{ in_array($n->id, old('negocios', [])) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="neg_{{ $n->id }}">{{ $n->nombre }}</label>
+                        </div>
+                    @endforeach
+                    @error('negocios')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <button type="submit" class="btn btn-success">
                     <i class="fas fa-save me-1"></i> Guardar
                 </button>

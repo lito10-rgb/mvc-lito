@@ -81,6 +81,9 @@
                                 <a href="{{ route('admin.cotizaciones.edit', $c) }}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                <a href="{{ route('admin.cotizaciones.duplicar', $c) }}" class="btn btn-success btn-sm" title="Generar cotización">
+                                    <i class="fas fa-copy"></i>
+                                </a>
                                 <form action="{{ route('admin.cotizaciones.destroy', $c) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')

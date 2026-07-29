@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Marca;
+use App\Models\Negocio;
 use Illuminate\Http\Request;
 
 class MarcaController extends Controller
@@ -16,16 +17,19 @@ class MarcaController extends Controller
 
     public function create()
     {
-        return view('admin.marcas.create');
+        $negocios = Negocio::orderBy('nombre')->get();
+        return view('admin.marcas.create', compact('negocios'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255'
+            'nombre' => 'required|string|max:255',
+            'negocios' => 'nullable|array',
+            'negocios.*' => 'exists:negocios,id',
         ]);
 
-        Marca::create([
+        $marca = Marca::create([
             'nombre' => $request->nombre,
             'ruta' => \Str::slug($request->nombre),
             'descripcion' => $request->nombre,
@@ -35,19 +39,27 @@ class MarcaController extends Controller
             'fecha' => now(),
         ]);
 
+        if ($request->negocios) {
+            $marca->negocios()->sync($request->negocios);
+        }
+
         return redirect()->route('admin.marcas.index')
                          ->with('success', 'Marca creada correctamente.');
     }
 
     public function edit(Marca $marca)
     {
-        return view('admin.marcas.edit', compact('marca'));
+        $negocios = Negocio::orderBy('nombre')->get();
+        $marca->load('negocios');
+        return view('admin.marcas.edit', compact('marca', 'negocios'));
     }
 
     public function update(Request $request, Marca $marca)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255'
+            'nombre' => 'required|string|max:255',
+            'negocios' => 'nullable|array',
+            'negocios.*' => 'exists:negocios,id',
         ]);
 
         $marca->update([
@@ -55,18 +67,20 @@ class MarcaController extends Controller
             'ruta' => \Str::slug($request->nombre),
         ]);
 
+        $marca->negocios()->sync($request->negocios ?? []);
+
         return redirect()->route('admin.marcas.index')
                          ->with('success', 'Marca actualizada.');
     }
 
     public function destroy(Marca $marca)
     {
+        $marca->negocios()->detach();
         $marca->delete();
         return redirect()->route('admin.marcas.index')
                          ->with('success', 'Marca eliminada.');
     }
 
-    // 🔥 Eliminación múltiple
     public function eliminarMultiple(Request $request)
     {
         $ids = $request->ids ?? [];
@@ -75,6 +89,7 @@ class MarcaController extends Controller
             return response()->json(['error' => 'No se enviaron IDs'], 400);
         }
 
+        Marca::whereIn('id', $ids)->each(fn($m) => $m->negocios()->detach());
         Marca::whereIn('id', $ids)->delete();
 
         return response()->json([

@@ -13,7 +13,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form action="{{ route('admin.cotizaciones.update', $cotizacione) }}" method="POST" id="formCotizacion">
+            <form action="{{ route('admin.cotizaciones.update', $cotizacione) }}" method="POST" id="formCotizacion" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -50,6 +50,21 @@
                         <input type="email" name="correo" class="form-control @error('correo') is-invalid @enderror"
                                value="{{ old('correo', $cotizacione->cliente?->email ?? $cotizacione->correo) }}">
                         @error('correo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-2 d-flex align-items-center">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="mostrarDolares" onchange="toggleDolares()" {{ $cotizacione->tipo_cambio ? 'checked' : '' }}>
+                            <label class="form-check-label" for="mostrarDolares">Mostrar en Dólares</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2" id="tipoCambioGroup" style="display: none;">
+                        <label class="form-label">Tipo de Cambio</label>
+                        <input type="number" step="0.001" name="tipo_cambio" class="form-control @error('tipo_cambio') is-invalid @enderror"
+                               value="{{ old('tipo_cambio', $cotizacione->tipo_cambio) }}" min="0" oninput="calcularTotales()">
+                        @error('tipo_cambio') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
@@ -98,11 +113,12 @@
                         <thead class="table-dark">
                             <tr>
                                 <th style="width:5%;">Img</th>
-                                <th style="width:28%;">Producto</th>
-                                <th style="width:22%;">Descripción</th>
-                                <th style="width:8%;">Cant.</th>
-                                <th style="width:10%;">P. Unit.</th>
-                                <th style="width:10%;">Subtotal</th>
+                                <th style="width:25%;">Producto</th>
+                                <th style="width:19%;">Descripción</th>
+                                <th style="width:7%;">Cant.</th>
+                                <th style="width:8%;">P. Unit.</th>
+                                <th style="width:7%;">Moneda</th>
+                                <th style="width:9%;">Subtotal</th>
                                 <th style="width:3%;"></th>
                             </tr>
                         </thead>
@@ -126,6 +142,12 @@
                                 <td><textarea name="productos[{{ $i }}][descripcion]" class="form-control form-control-sm" rows="1">{{ $item['descripcion'] ?? '' }}</textarea></td>
                                 <td><input type="number" name="productos[{{ $i }}][cantidad]" class="form-control form-control-sm cantidad" value="{{ $item['cantidad'] }}" min="1" required></td>
                                 <td><input type="number" step="0.01" name="productos[{{ $i }}][precio_unitario]" class="form-control form-control-sm precio-unitario" value="{{ $item['precio_unitario'] }}" min="0" required></td>
+                                <td>
+                                    <select name="productos[{{ $i }}][moneda]" class="form-select form-select-sm moneda">
+                                        <option value="PEN" {{ ($item['moneda'] ?? 'PEN') == 'PEN' ? 'selected' : '' }}>S/.</option>
+                                        <option value="USD" {{ ($item['moneda'] ?? 'PEN') == 'USD' ? 'selected' : '' }}>$</option>
+                                    </select>
+                                </td>
                                 <td class="subtotal-cell text-end fw-bold">{{ number_format($item['cantidad'] * $item['precio_unitario'], 2) }}</td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); calcularTotales();">
@@ -190,6 +212,11 @@
                         <input type="text" class="form-control fw-bold fs-5" id="displayTotal" readonly value="{{ number_format($cotizacione->total, 2) }}">
                     </div>
 
+                    <div class="col-md-2" id="totalDolaresGroup" style="display: none;">
+                        <label class="form-label">Total (USD)</label>
+                        <input type="text" class="form-control fw-bold fs-5 text-success" id="displayTotalDolares" readonly value="0.00">
+                    </div>
+
                     <div class="col-md-4">
                         <label class="form-label">Estado</label>
                         <select name="estado" class="form-select @error('estado') is-invalid @enderror" required>
@@ -199,6 +226,18 @@
                             <option value="completada" {{ old('estado', $cotizacione->estado) === 'completada' ? 'selected' : '' }}>Completada</option>
                         </select>
                         @error('estado') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Imagen de Referencia (opcional)</label>
+                        <input type="file" name="imagen_referencia" class="form-control" accept="image/*">
+                        @if($cotizacione->imagen_referencia)
+                            <div class="mt-2">
+                                <img src="{{ asset('storage/' . $cotizacione->imagen_referencia) }}" alt="Ref" style="max-height:80px;border-radius:4px;">
+                                <small class="text-muted ms-2">Imagen actual</small>
+                            </div>
+                        @endif
+                        <small class="text-muted">Imagen que se mostrará al final de la cotización impresa.</small>
                     </div>
                 </div>
 
@@ -238,6 +277,12 @@ function agregarFila() {
         <td><textarea name="productos[${filaIndex}][descripcion]" class="form-control form-control-sm" rows="1"></textarea></td>
         <td><input type="number" name="productos[${filaIndex}][cantidad]" class="form-control form-control-sm cantidad" value="1" min="1" required></td>
         <td><input type="number" step="0.01" name="productos[${filaIndex}][precio_unitario]" class="form-control form-control-sm precio-unitario" value="0" min="0" required></td>
+        <td>
+            <select name="productos[${filaIndex}][moneda]" class="form-select form-select-sm moneda">
+                <option value="PEN">S/.</option>
+                <option value="USD">$</option>
+            </select>
+        </td>
         <td class="subtotal-cell text-end fw-bold">0.00</td>
         <td class="text-center">
             <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); calcularTotales();">
@@ -248,6 +293,8 @@ function agregarFila() {
     row.querySelectorAll('.cantidad, .precio-unitario').forEach(el => {
         el.addEventListener('input', () => calcularFila(row));
     });
+    const monedaSel = row.querySelector('.moneda');
+    if (monedaSel) monedaSel.addEventListener('change', () => calcularTotales());
     tbody.appendChild(row);
     filaIndex++;
 }
@@ -271,6 +318,16 @@ function calcularTotales() {
     document.getElementById('displaySubtotal').value = subtotal.toFixed(2);
     document.getElementById('displayDescuentoMonto').value = descMonto.toFixed(2);
     document.getElementById('displayTotal').value = total.toFixed(2);
+
+    const tc = parseFloat(document.querySelector('[name="tipo_cambio"]').value) || 1;
+    document.getElementById('displayTotalDolares').value = (total / tc).toFixed(2);
+}
+
+function toggleDolares() {
+    const checked = document.getElementById('mostrarDolares').checked;
+    document.getElementById('tipoCambioGroup').style.display = checked ? 'block' : 'none';
+    document.getElementById('totalDolaresGroup').style.display = checked ? 'block' : 'none';
+    if (checked) calcularTotales();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -279,6 +336,10 @@ document.addEventListener('DOMContentLoaded', () => {
             calcularFila(this.closest('tr'));
         });
     });
+    document.querySelectorAll('.fila-producto .moneda').forEach(el => {
+        el.addEventListener('change', () => calcularTotales());
+    });
+    toggleDolares();
     calcularTotales();
 });
 

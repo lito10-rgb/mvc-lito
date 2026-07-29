@@ -1,0 +1,55 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches: [ master, main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Remove dev files
+        run: |
+          rm -rf .git node_modules tests .github
+          rm -f .env.example
+
+      - name: Create .env from secrets
+        run: |
+          cat > .env << EOF
+          APP_NAME=mvc-lito
+          APP_ENV=production
+          APP_DEBUG=false
+          APP_URL=\${{ secrets.APP_URL }}
+          APP_LOCALE=es
+          DB_CONNECTION=mysql
+          DB_HOST=\${{ secrets.DB_HOST }}
+          DB_PORT=3306
+          DB_DATABASE=\${{ secrets.DB_DATABASE }}
+          DB_USERNAME=\${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=\${{ secrets.DB_PASSWORD }}
+          EOF
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: ${{ secrets.FTP_TARGET_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            node_modules/**
+            tests/**
+            .env.example

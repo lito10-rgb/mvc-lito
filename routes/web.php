@@ -41,6 +41,7 @@ Route::get('/', [HomeController::class, 'menu'])->name('home');
 /* Productos */
 Route::get('/productos', [ProductosController::class, 'index'])->name('productos.index');
 Route::get('/productos/buscar', [ProductosController::class, 'buscar'])->name('productos.buscar');
+Route::get('/productos/autocomplete', [ProductosController::class, 'autocomplete'])->name('productos.autocomplete');
 Route::get('/producto/{ruta}', [ProductosController::class, 'mostrarProducto'])->name('producto.mostrar');
 
 /* Categorías / Subcategorías */
@@ -83,6 +84,12 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('productos', AdminProductoController::class);
     Route::post('productos/eliminar-multiple', [AdminProductoController::class, 'eliminarMultiple'])->name('productos.eliminarMultiple');
     Route::post('productos/quick-update/{producto}', [AdminProductoController::class, 'quickUpdate'])->name('productos.quickUpdate');
+    Route::post('productos/inline-update/{id}', [AdminProductoController::class, 'inlineUpdate'])->name('productos.inlineUpdate');
+    Route::post('productos/bulk-update-precio', [AdminProductoController::class, 'bulkUpdatePrecio'])->name('productos.bulkUpdatePrecio');
+    Route::post('productos/bulk-update-costo-envio', [AdminProductoController::class, 'bulkUpdateCostoEnvio'])->name('productos.bulkUpdateCostoEnvio');
+    Route::post('productos/bulk-update-entrega', [AdminProductoController::class, 'bulkUpdateEntrega'])->name('productos.bulkUpdateEntrega');
+    Route::post('productos/bulk-update-marca', [AdminProductoController::class, 'bulkUpdateMarca'])->name('productos.bulkUpdateMarca');
+    Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'duplicar'])->name('productos.duplicar');
 
     Route::resource('categorias', \App\Http\Controllers\Admin\CategoriaController::class);
     Route::resource('subcategorias', \App\Http\Controllers\Admin\SubcategoriaController::class);
@@ -93,6 +100,9 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
     Route::resource('marcas', AdminMarcaController::class);
     Route::post('marcas/eliminar-multiple', [AdminMarcaController::class, 'eliminarMultiple'])->name('marcas.eliminarMultiple');
+
+    Route::get('catalogos', [\App\Http\Controllers\Admin\CatalogoController::class, 'index'])->name('catalogos.index');
+    Route::get('catalogos/print', [\App\Http\Controllers\Admin\CatalogoController::class, 'print'])->name('catalogos.print');
 
     Route::resource('usuarios', UserAdminController::class);
     Route::put('usuarios/negocio/bulk', [UserAdminController::class, 'negocioBulk'])->name('usuarios.negocio.bulk');
@@ -108,9 +118,23 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('suscripciones', \App\Http\Controllers\Admin\SuscripcionController::class)->only(['index', 'destroy']);
     Route::resource('pedidos', \App\Http\Controllers\Admin\PedidoController::class)->only(['index', 'show', 'edit', 'update']);
     Route::resource('condiciones', \App\Http\Controllers\Admin\CondicionesComercialeController::class)->parameters(['condiciones' => 'condicionesComerciale']);
+    Route::resource('negocios', \App\Http\Controllers\Admin\NegocioController::class)->only(['index', 'edit', 'update']);
+    Route::resource('negocios.slides', \App\Http\Controllers\Admin\BannerSlideController::class)->except(['show']);
     Route::resource('logos', \App\Http\Controllers\Admin\EmpresaLogoController::class);
     Route::resource('plantillas', \App\Http\Controllers\Admin\PlantillaCorreoController::class)->except(['show']);
     Route::post('cotizaciones/{cotizacione}/enviar-correo', [\App\Http\Controllers\Admin\CotizacionController::class, 'enviarCorreo'])->name('cotizaciones.enviarCorreo');
+    Route::get('cotizaciones/{cotizacione}/duplicar', [\App\Http\Controllers\Admin\CotizacionController::class, 'duplicar'])->name('cotizaciones.duplicar');
+
+    Route::resource('concursos', \App\Http\Controllers\Admin\ConcursoController::class)->except(['edit', 'update']);
+    Route::post('concursos/{concurso}/activar', [\App\Http\Controllers\Admin\ConcursoController::class, 'activar'])->name('concursos.activar');
+    Route::post('concursos/{concurso}/finalizar', [\App\Http\Controllers\Admin\ConcursoController::class, 'finalizar'])->name('concursos.finalizar');
+    Route::post('concursos/{concurso}/generar-participantes', [\App\Http\Controllers\Admin\ConcursoController::class, 'generarParticipantes'])->name('concursos.generarParticipantes');
+    Route::post('concursos/{concurso}/enviar-correos', [\App\Http\Controllers\Admin\ConcursoController::class, 'enviarCorreos'])->name('concursos.enviarCorreos');
+    Route::post('concursos/{concurso}/reenviar-correos', [\App\Http\Controllers\Admin\ConcursoController::class, 'reenviarCorreos'])->name('concursos.reenviarCorreos');
+    Route::post('concursos/{concurso}/declarar-ganador/{participante}', [\App\Http\Controllers\Admin\ConcursoController::class, 'declararGanador'])->name('concursos.declararGanador');
+    Route::post('concursos/{concurso}/sorteo-automatico', [\App\Http\Controllers\Admin\ConcursoController::class, 'sorteoAutomatico'])->name('concursos.sorteoAutomatico');
+    Route::get('concursos/sorteo/vivo', [\App\Http\Controllers\Admin\ConcursoController::class, 'sorteo'])->name('concursos.sorteo');
+    Route::post('concursos/sorteo/validar', [\App\Http\Controllers\Admin\ConcursoController::class, 'validarCodigo'])->name('concursos.validarCodigo');
 
     Route::prefix('exim')->name('exim.')->group(function () {
         Route::get('dashboard', [\App\Http\Controllers\Admin\Exim\DashboardController::class, 'index'])->name('dashboard');
@@ -226,6 +250,46 @@ Route::get('/categoria/{id}/subcategorias', [CategoriaController::class, 'subcat
 Route::get('/paypal/capture', [CheckoutController::class, 'capturePaypal'])
     ->name('paypal.capture');
 
+/*
+|--------------------------------------------------------------------------
+| Rutas SEO-friendly (compatibilidad con URLs viejas de cafe-peruano.com)
+| Se colocan al FINAL para no interferir con rutas existentes.
+| Ejemplo: /cafe-tostado-molido-mono-tingales-500gr
+|--------------------------------------------------------------------------
+*/
+Route::get('/empresa-cafe-peruano', function () {
+    return redirect()->route('home');
+});
+Route::get('/tienda', function () {
+    return redirect()->route('productos.index');
+});
+Route::get('/contactenos', function () {
+    return redirect()->route('contacto.index');
+});
+Route::get('/{ruta}', function ($ruta) {
+    $negocioId = session('negocio_id');
 
+    // Buscar producto por ruta
+    $producto = \App\Models\Producto::where('ruta', $ruta)
+        ->when($negocioId, fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId)))
+        ->first();
+    if ($producto) {
+        return app(\App\Http\Controllers\ProductosController::class)->mostrarProducto($ruta);
+    }
+
+    // Buscar categoría por ruta
+    $categoria = \App\Models\Categoria::where('ruta', $ruta)->first();
+    if ($categoria) {
+        return app(\App\Http\Controllers\CategoriaController::class)->show($categoria->id);
+    }
+
+    // Buscar subcategoría por ruta
+    $subcategoria = \App\Models\Subcategoria::where('ruta', $ruta)->first();
+    if ($subcategoria) {
+        return app(\App\Http\Controllers\SubcategoriasController::class)->show($ruta);
+    }
+
+    abort(404);
+})->where('ruta', '^[a-zA-Z0-9\-]+$');
 
 

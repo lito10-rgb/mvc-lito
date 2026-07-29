@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-5">
-    <h2 class="text-center text-warning mb-4">Contáctanos</h2>
+    <h2 class="text-center text-theme-accent mb-4">Contáctanos</h2>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -29,7 +29,7 @@
         </div>
 
         <div class="text-center">
-            <button type="submit" class="btn btn-warning px-5">Enviar</button>
+            <button type="submit" class="btn btn-theme-accent px-5">Enviar</button>
         </div>
     </form>
 </div>
