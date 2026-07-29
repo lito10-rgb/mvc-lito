@@ -28,4 +28,7 @@ return [
         'instagram' => env('THEME_INSTAGRAM', 'https://instagram.com'),
         'linkedin' => env('THEME_LINKEDIN', 'https://linkedin.com'),
     ],
+
+    'meta_description' => env('META_DESCRIPTION', ''),
+    'meta_keywords' => env('META_KEYWORDS', ''),
 ];

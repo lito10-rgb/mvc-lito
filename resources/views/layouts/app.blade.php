@@ -1,12 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    @if(negocio_actual_nombre() == 'Cafe Peruano' && app()->environment('production'))
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5T4WBZVL');</script>
+    <!-- End Google Tag Manager -->
+    @endif
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Equipos Industriales')</title>
-    <meta name="description" content="@yield('description', '')">
-    <meta name="keywords" content="@yield('keywords', '')">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@yield('title', negocio_actual_nombre() . ' - ' . config('theme.site_slogan', 'Equipos Industriales'))</title>
+    <meta name="description" content="@yield('description', negocio_actual_nombre() . ' - ' . config('theme.meta_description', 'Venta de maquinaria industrial, equipos y accesorios'))">
+    <meta name="keywords" content="@yield('keywords', config('theme.meta_keywords', 'maquinaria industrial, equipos'))">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <meta name="robots" content="index, follow">
     @yield('meta')
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="@yield('og_title', negocio_actual_nombre())">
+    <meta property="og:description" content="@yield('og_description', config('theme.meta_description', negocio_actual_nombre() . ' - ' . config('theme.site_slogan')))">
+    <meta property="og:url" content="@yield('og_url', url()->current())">
+    <meta property="og:image" content="@yield('og_image', asset('img/logo.svg'))">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:site_name" content="{{ negocio_actual_nombre() }}">
+    <meta property="og:locale" content="es_PE">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('tw_title', negocio_actual_nombre())">
+    <meta name="twitter:description" content="@yield('tw_description', config('theme.meta_description', negocio_actual_nombre() . ' - ' . config('theme.site_slogan')))">
+    <meta name="twitter:image" content="@yield('tw_image', asset('img/logo.svg'))">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "{{ negocio_actual_nombre() }}",
+        "url": "{{ url('/') }}",
+        "logo": "{{ negocio_theme('logo') ? asset('storage/' . negocio_theme('logo')) : asset('img/logo.svg') }}",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "{{ negocio_actual()?->footer_phone }}",
+            "contactType": "customer service"
+        }
+    }
+    </script>
     <!-- Token CSRF para peticiones AJAX -->
     <!-- <meta name="app-base" content="{{ url('') }}/public"> -->
     <!-- <meta name="app-base" content="{{ url('') }}/public">
@@ -99,6 +142,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css">
 </head>
 <body>
+    @if(negocio_actual_nombre() == 'Cafe Peruano' && app()->environment('production'))
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5T4WBZVL"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    @endif
     <!-- IMPORTANTE: El contenedor #app-vue envuelve el header y el contenido donde usarás componentes Vue -->
     <div id="app-vue">
         @include('partials.header')

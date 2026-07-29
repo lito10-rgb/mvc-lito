@@ -30,12 +30,31 @@
             </div>
 
             <div class="col-md-6 col-lg-3">
-                <h5 class="fw-bold mb-3 text-theme-accent">Catálogo</h5>
-                <ul class="list-unstyled small">
-                    <li class="mb-2"><a href="{{ route('productos.index') }}" class="nav-btn d-inline-block">Productos</a></li>
-                    <li class="mb-2"><a href="{{ route('categoria.index') }}" class="nav-btn d-inline-block">Categorías</a></li>
-                    <li class="mb-2"><a href="{{ url('/ofertas') }}" class="nav-btn d-inline-block">Ofertas</a></li>
-                </ul>
+                @if (negocio_actual_nombre() == 'Cafe Peruano')
+                    <h5 class="fw-bold mb-3 text-theme-accent">Café Orgánico</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{{ url('/cafe-organico') }}" class="nav-btn d-inline-block">Café Orgánico</a></li>
+                        <li class="mb-2"><a href="{{ url('/cafe-pergamino') }}" class="nav-btn d-inline-block">Café Pergamino</a></li>
+                        <li class="mb-2"><a href="{{ url('/cafe-verde') }}" class="nav-btn d-inline-block">Café Verde</a></li>
+                        <li class="mb-2"><a href="{{ url('/cafe-tostado-en-grano') }}" class="nav-btn d-inline-block">Café Tostado en Grano</a></li>
+                        <li class="mb-2"><a href="{{ url('/cafe-tostado-molido') }}" class="nav-btn d-inline-block">Café Tostado Molido</a></li>
+                        <li class="mb-2"><a href="{{ url('/capsulas-de-cafe') }}" class="nav-btn d-inline-block">Cápsulas de Café</a></li>
+                        <li class="mb-2"><a href="{{ url('/cafe-gourmet') }}" class="nav-btn d-inline-block">Café Gourmet</a></li>
+                    </ul>
+                    <h5 class="fw-bold mb-3 mt-3 text-theme-accent">Información</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{{ url('/cursos') }}" class="nav-btn d-inline-block">Cursos de Café</a></li>
+                        <li class="mb-2"><a href="{{ url('/manuales') }}" class="nav-btn d-inline-block">Manuales</a></li>
+                        <li class="mb-2"><a href="{{ url('/nuestros-servicios') }}" class="nav-btn d-inline-block">Nuestros Servicios</a></li>
+                    </ul>
+                @else
+                    <h5 class="fw-bold mb-3 text-theme-accent">Catálogo</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{{ route('productos.index') }}" class="nav-btn d-inline-block">Productos</a></li>
+                        <li class="mb-2"><a href="{{ route('categoria.index') }}" class="nav-btn d-inline-block">Categorías</a></li>
+                        <li class="mb-2"><a href="{{ url('/ofertas') }}" class="nav-btn d-inline-block">Ofertas</a></li>
+                    </ul>
+                @endif
             </div>
 
             <div class="col-md-6 col-lg-3">

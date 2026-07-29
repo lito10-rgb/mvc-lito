@@ -1,5 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Inicio - ' . negocio_actual_nombre())
+@section('title', negocio_actual_nombre() . ' - ' . (negocio_actual_nombre() == 'Cafe Peruano' ? 'Café Orgánico de Especialidad del Perú' : config('theme.site_slogan')))
+@section('description', negocio_actual_nombre() == 'Cafe Peruano' ? 'Café Peruano. Café orgánico de especialidad, café en grano, café molido, café pergamino, café verde. Compra café peruano online en Lima Perú. Envíos a todo el Perú.' : (config('theme.meta_description') ?: 'Equipos y Máquinas - Venta de maquinaria industrial'))
+@section('keywords', negocio_actual_nombre() == 'Cafe Peruano' ? 'café peruano, café orgánico, café de especialidad, café en grano, café molido, café pergamino, café verde, comprar café peruano' : 'maquinaria industrial, equipos')
 
 @section('content')
 
@@ -77,7 +79,28 @@
 <!-- {{-- Testimonios --}} -->
 <section class="bg-light py-5">
     <div class="container">
-        <h2 class="mb-4">Lo que dicen nuestros clientes</h2>
+    @if (negocio_actual_nombre() == 'Cafe Peruano')
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <p>“El mejor café orgánico que he probado. Calidad excepcional y sabor inigualable.”</p>
+                    <strong>- María G., Cliente frecuente</strong>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <p>“Excelente atención y productos de primera calidad. Recomiendo sus cafés de especialidad.”</p>
+                    <strong>- Carlos R., Barista profesional</strong>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <p>“El café peruano más auténtico. Gran variedad de granos y moliendas.”</p>
+                    <strong>- Ana L., Propietaria de cafetería</strong>
+                </div>
+            </div>
+        </div>
+    @else
         <div class="row">
             <div class="col-md-4">
                 <div class="card p-3">
@@ -98,15 +121,18 @@
                 </div>
             </div>
         </div>
+    @endif
     </div>
 </section>
 <!-- CTA -->
 <section class="cta text-center bg-theme-dark text-white py-5">
-    <h2>Contáctanos para una cotización</h2>
     @if (negocio_actual_nombre() == 'Cafe Peruano')
+        <h2>Descubre el auténtico café peruano</h2>
+        <p class="lead">Café orgánico de especialidad directamente de las mejores regiones del Perú</p>
         <a href="{{ route('visita-tecnica.create') }}" class="btn btn-cta-accent mt-3"><i class="fa-solid fa-calendar-check me-2"></i> Cotiza ahora</a>
         <a href="{{ route('visita-tecnica.create') }}" class="btn btn-cta-accent mt-3 ms-2"><i class="fa-solid fa-truck me-2"></i> Agenda una visita técnica</a>
     @else
+        <h2>Contáctanos para una cotización</h2>
         <a href="{{ route('visita-tecnica.create') }}" class="btn btn-cta-accent mt-3"><i class="fa-solid fa-calendar-check me-2"></i> Agenda una visita técnica</a>
     @endif
 </section>
