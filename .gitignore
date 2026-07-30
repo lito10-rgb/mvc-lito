@@ -9,6 +9,9 @@
 .env
 .env.backup
 .env.production
+.env3
+.env-sdo
+sdoenv
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -38,3 +41,8 @@ Thumbs.db
 /.env-sdo
 *~*.bak
 *-sdo*
+/sdo
+/prueba
+''
+null)
+pruebaenv
