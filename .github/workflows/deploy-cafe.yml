@@ -93,27 +93,38 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Zip vendor/ for fast upload
+      - name: Upload .env + helper scripts via FTP (small files)
+        run: |
+          curl -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure
+          curl -T deploy/clear-cache.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure 2>&1 || true
+          curl -T public/deploy.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/public/deploy.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
+          curl -T deploy/extract-vendor.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
+
+      - name: Try HTTP deploy (fallback)
+        run: |
+          DEPLOY_SECRET=cafe-peruano-2025-deploy
+          echo "sending env..."
+          ENV_B64=$(base64 -w0 .env)
+          curl -s -o /dev/null -w "%{http_code}\n" -X POST "https://cafe-peruano.com/public/deploy.php" -d "action=env&secret=$DEPLOY_SECRET&env=$ENV_B64" 2>&1 || echo "HTTP deploy not available yet"
+
+      - name: Zip vendor/ for upload
         run: |
           cd vendor && zip -r -q ../vendor.zip . && cd ..
           ls -lh vendor.zip
 
-      - name: Upload vendor.zip + extract + pre-deploy files
+      - name: Upload vendor.zip via FTP
+        continue-on-error: true
         run: |
-          curl -T vendor.zip "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --retry 3 --insecure 2>&1
-          curl -T deploy/extract-vendor.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
-          curl -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure
-          curl -T deploy/clear-cache.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
+          curl -T vendor.zip "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 120 --retry 2 --insecure 2>&1
 
-      - name: Extract vendor.zip + clear cache
+      - name: Extract vendor.zip on server
         run: |
-          sleep 5
+          sleep 3
           curl -s https://cafe-peruano.com/deploy/extract-vendor.php
           echo ""
-          sleep 3
           curl -s https://cafe-peruano.com/public/clear-cache.php
 
-      - name: Deploy via FTP (excluding vendor/)
+      - name: Deploy remaining files via FTP (excluding vendor/)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.CAFE_FTP_HOST }}
