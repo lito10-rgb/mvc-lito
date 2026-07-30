@@ -91,6 +91,11 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
+      - name: Deploy root bootstrap files
+        run: |
+          cp deploy/cafe-root-index.php index.php
+          cp deploy/cafe-root-htaccess .htaccess
+
       - name: Clear Laravel cache via HTTP script
         env:
           CLEAN_DIR: ${{ secrets.FTP_TARGET_DIR }}
@@ -101,7 +106,7 @@ jobs:
           curl -T deploy/clear-cache.php "ftp://${{ secrets.FTP_HOST }}/$CLEAN_DIR/public/clear-cache.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
           sleep 5
           echo "--- Cache clear result ---"
-          curl -s https://equiposymaquinas.com/clear-cache.php
+          curl -s -D - https://equiposymaquinas.com/public/clear-cache.php 2>&1
           echo ""
           curl -s -o /dev/null -w "Status after: %{http_code}\n" https://equiposymaquinas.com
 
