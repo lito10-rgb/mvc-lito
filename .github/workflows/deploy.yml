@@ -96,21 +96,42 @@ jobs:
           cp deploy/cafe-root-index.php index.php
           cp deploy/cafe-root-htaccess .htaccess
 
-      - name: Clear Laravel cache via HTTP script
+      - name: Zip vendor/ for fast upload
+        run: |
+          cd vendor && zip -r -q ../vendor.zip . && cd ..
+          ls -lh vendor.zip
+
+      - name: Upload vendor.zip + extract script
         env:
           CLEAN_DIR: ${{ secrets.FTP_TARGET_DIR }}
         run: |
-          # Strip leading/trailing slashes
           CLEAN_DIR="${CLEAN_DIR#/}"
           CLEAN_DIR="${CLEAN_DIR%/}"
-          curl -T deploy/clear-cache.php "ftp://${{ secrets.FTP_HOST }}/$CLEAN_DIR/public/clear-cache.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
-          sleep 5
-          echo "--- Cache clear result ---"
-          curl -s -D - https://equiposymaquinas.com/public/clear-cache.php 2>&1
-          echo ""
-          curl -s -o /dev/null -w "Status after: %{http_code}\n" https://equiposymaquinas.com
+          curl -T vendor.zip "ftp://${{ secrets.FTP_HOST }}/$CLEAN_DIR/vendor.zip" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/extract-vendor.php "ftp://${{ secrets.FTP_HOST }}/$CLEAN_DIR/extract-vendor.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
 
-      - name: Deploy via FTP
+      - name: Extract vendor.zip on server
+        run: |
+          sleep 5
+          echo "--- Extract result ---"
+          curl -s https://equiposymaquinas.com/extract-vendor.php
+
+      - name: Upload .env via curl (pre-deploy)
+        env:
+          CLEAN_DIR: ${{ secrets.FTP_TARGET_DIR }}
+        run: |
+          CLEAN_DIR="${CLEAN_DIR#/}"
+          CLEAN_DIR="${CLEAN_DIR%/}"
+          curl -T .env "ftp://${{ secrets.FTP_HOST }}/$CLEAN_DIR/.env" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" --ftp-create-dirs
+          curl -T deploy/clear-cache.php "ftp://${{ secrets.FTP_HOST }}/$CLEAN_DIR/public/clear-cache.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
+
+      - name: Clear Laravel config cache
+        run: |
+          sleep 3
+          echo "--- Cache clear ---"
+          curl -s https://equiposymaquinas.com/public/clear-cache.php
+
+      - name: Deploy via FTP (excluding vendor/)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
@@ -125,7 +146,14 @@ jobs:
             node_modules/**
             tests/**
             .env.example
+            vendor/**
 
       - name: Upload .env via curl (backup)
         run: |
           curl -T .env "ftp://${{ secrets.FTP_HOST }}/${{ secrets.FTP_TARGET_DIR }}.env" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" --ftp-create-dirs
+
+      - name: Final cache clear
+        run: |
+          sleep 5
+          echo "--- Final cache clear ---"
+          curl -s https://equiposymaquinas.com/public/clear-cache.php
