@@ -25,7 +25,7 @@ jobs:
 
       - name: Remove dev files
         run: |
-          rm -rf .git node_modules tests .github
+          rm -rf .git node_modules tests
           rm -f .gitignore .env.example
 
       - name: Create .env from secrets
@@ -88,39 +88,35 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Upload .env + clear-cache.php (pre-deploy)
+      - name: Zip project for upload
         run: |
+          zip -r -q project.zip . -x "*.git*" "node_modules/*" "tests/*" ".github/*"
+          ls -lh project.zip
+
+      - name: Upload zip + extract + root files
+        run: |
+          curl -T project.zip "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/project.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
+          curl -T deploy/extract-vendor.php -o /dev/null "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
-          curl -T deploy/clear-cache.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
 
-      - name: Clear cache (pre-deploy)
+      - name: Extract project on server + clear cache
         run: |
-          sleep 3
+          sleep 10
+          echo "--- Extract ---"
+          curl -s https://cafe-peruano.com/deploy/extract-vendor.php
+          echo ""
+          echo "--- Cache clear ---"
           curl -s https://cafe-peruano.com/public/clear-cache.php
+          echo ""
+          sleep 3
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.CAFE_FTP_HOST }}
-          username: ${{ secrets.CAFE_FTP_USERNAME }}
-          password: ${{ secrets.CAFE_FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: ${{ secrets.CAFE_FTP_TARGET_DIR }}
-          dangerous-dangerous-allow-hidden-files: true
-          exclude: |
-            **/.git*
-            **/.git*/**
-            node_modules/**
-            tests/**
-            .env.example
-
-      - name: Upload root + .env backup
+      - name: Upload root .htaccess + index.php + .env backup
         run: |
           curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
 
-      - name: Clear cache (post-deploy)
+      - name: Final cache clear
         run: |
           sleep 5
           curl -s https://cafe-peruano.com/public/clear-cache.php
