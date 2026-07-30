@@ -63,3 +63,7 @@ jobs:
             node_modules/**
             tests/**
             .env.example
+
+      - name: Upload .env (gitignored, upload separately)
+        run: |
+          curl -T .env "ftp://${{ secrets.FTP_HOST }}${{ secrets.FTP_TARGET_DIR }}.env" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" --ftp-create-dirs
