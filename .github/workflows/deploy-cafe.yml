@@ -84,6 +84,19 @@ jobs:
           curl -s https://cafe-peruano.com/check.php
           echo ""
 
+      - name: Upload Laravel check file
+        run: |
+          curl -T deploy/check-laravel.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/check-laravel.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
+
+      - name: Test Laravel status on server
+        run: |
+          echo "--- HTTP Status ---"
+          curl -so /dev/null -w "%{http_code}" https://cafe-peruano.com/check-laravel.php
+          echo ""
+          echo "--- Laravel Check ---"
+          curl -s https://cafe-peruano.com/check-laravel.php
+          echo ""
+
       - name: Debug URLs (without password)
         run: |
           echo "Env URL: ftp://${{ secrets.CAFE_FTP_HOST }}/${{ secrets.CAFE_FTP_TARGET_DIR }}.env"
