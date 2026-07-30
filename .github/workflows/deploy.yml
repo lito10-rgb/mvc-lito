@@ -92,12 +92,18 @@ jobs:
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
       - name: Clear Laravel cache via HTTP script
+        env:
+          CLEAN_DIR: ${{ secrets.FTP_TARGET_DIR }}
         run: |
-          curl -T deploy/clear-cache.php "ftp://${{ secrets.FTP_HOST }}/${{ secrets.FTP_TARGET_DIR }}public/clear-cache.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
+          # Strip leading/trailing slashes
+          CLEAN_DIR="${CLEAN_DIR#/}"
+          CLEAN_DIR="${CLEAN_DIR%/}"
+          curl -T deploy/clear-cache.php "ftp://${{ secrets.FTP_HOST }}/$CLEAN_DIR/public/clear-cache.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
           sleep 5
+          echo "--- Cache clear result ---"
           curl -s https://equiposymaquinas.com/clear-cache.php
           echo ""
-          curl -s -o /dev/null -w "Status after cache clear: %{http_code}\n" https://equiposymaquinas.com
+          curl -s -o /dev/null -w "Status after: %{http_code}\n" https://equiposymaquinas.com
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
