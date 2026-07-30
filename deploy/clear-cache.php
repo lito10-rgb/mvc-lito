@@ -1,16 +1,15 @@
 <?php
 $base = __DIR__;
-// Go up from public/ if needed
 for ($i = 0; $i < 3; $i++) {
-    if (file_exists($base . '/bootstrap/cache/config.php') || file_exists($base . '/artisan')) {
+    if (file_exists($base . '/artisan') || is_dir($base . '/bootstrap')) {
         break;
     }
     $base = dirname($base);
 }
 $cacheDir = $base . '/bootstrap/cache';
 if (!is_dir($cacheDir)) {
-    echo "CACHE DIR NOT FOUND: $cacheDir\n";
-    exit(1);
+    mkdir($cacheDir, 0755, true);
+    echo "CREATED: $cacheDir\n";
 }
 $files = glob($cacheDir . '/*.php');
 $deleted = 0;

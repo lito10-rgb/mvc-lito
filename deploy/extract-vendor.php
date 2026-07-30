@@ -22,3 +22,8 @@ if ($extracted) {
     echo "Extraction failed\n";
     exit(1);
 }
+$cacheDir = $base . '/bootstrap/cache';
+if (!is_dir($cacheDir)) {
+    mkdir($cacheDir, 0755, true);
+    echo "CREATED: $cacheDir\n";
+}
