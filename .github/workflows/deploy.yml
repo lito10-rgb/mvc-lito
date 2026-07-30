@@ -124,6 +124,7 @@ jobs:
           local-dir: ./
           server-dir: ${{ secrets.FTP_TARGET_DIR }}
           dangerous-dangerous-allow-hidden-files: true
+          security: loose
           exclude: |
             **/.git*
             **/.git*/**

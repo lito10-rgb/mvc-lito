@@ -100,10 +100,10 @@ jobs:
 
       - name: Upload vendor.zip + extract + pre-deploy files
         run: |
-          curl -T vendor.zip "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 60 --retry 3
-          curl -T deploy/extract-vendor.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 60 2>&1 || true
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 60
-          curl -T deploy/clear-cache.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 60 2>&1 || true
+          curl -T vendor.zip "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --retry 3 --insecure 2>&1
+          curl -T deploy/extract-vendor.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
+          curl -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure
+          curl -T deploy/clear-cache.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
 
       - name: Extract vendor.zip + clear cache
         run: |
@@ -122,6 +122,7 @@ jobs:
           local-dir: ./
           server-dir: ${{ secrets.CAFE_FTP_TARGET_DIR }}
           dangerous-dangerous-allow-hidden-files: true
+          security: loose
           exclude: |
             **/.git*
             **/.git*/**
@@ -132,9 +133,9 @@ jobs:
 
       - name: Upload root files + .env backup
         run: |
-          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 60 2>&1 || true
-          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 60 2>&1 || true
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 60
+          curl -T deploy/cafe-root-index.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure 2>&1 || true
+          curl -T deploy/cafe-root-htaccess "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure 2>&1 || true
+          curl -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure
 
       - name: Final cache clear
         run: |
