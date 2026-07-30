@@ -22,8 +22,17 @@ if ($extracted) {
     echo "Extraction failed\n";
     exit(1);
 }
-$cacheDir = $base . '/bootstrap/cache';
-if (!is_dir($cacheDir)) {
-    mkdir($cacheDir, 0755, true);
-    echo "CREATED: $cacheDir\n";
+$dirs = [
+    $base . '/bootstrap/cache',
+    $base . '/storage/framework/cache/data',
+    $base . '/storage/framework/sessions',
+    $base . '/storage/framework/testing',
+    $base . '/storage/framework/views',
+    $base . '/storage/logs',
+];
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+        echo "CREATED: $dir\n";
+    }
 }
