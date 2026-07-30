@@ -100,6 +100,12 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
+      - name: Clear Laravel cache on server
+        run: |
+          echo "Deleting bootstrap/cache/config.php..."
+          curl --quote "DELE ${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/config.php" "ftp://${{ secrets.FTP_HOST }}/" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || echo "(file may not exist, continuing)"
+          curl --quote "DELE ${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/services.php" "ftp://${{ secrets.FTP_HOST }}/" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || echo "(file may not exist, continuing)"
+
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
