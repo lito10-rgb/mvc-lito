@@ -58,6 +58,7 @@ jobs:
           password: ${{ secrets.CAFE_FTP_PASSWORD }}
           local-dir: ./
           server-dir: ${{ secrets.CAFE_FTP_TARGET_DIR }}
+          dangerous-dangerous-allow-hidden-files: true
           exclude: |
             **/.git*
             **/.git*/**
@@ -89,7 +90,13 @@ jobs:
           echo "Root URL: ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php"
           echo "Target dir raw: '${{ secrets.CAFE_FTP_TARGET_DIR }}'"
 
-      - name: Upload .env to public_html/
+      - name: Test upload simple file (no dots, no --ftp-create-dirs)
         continue-on-error: true
         run: |
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/${{ secrets.CAFE_FTP_TARGET_DIR }}.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
+          echo "envtest" > envtest.txt
+          curl -T envtest.txt "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/envtest.txt" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
+
+      - name: Upload .env to public_html/ (without --ftp-create-dirs)
+        continue-on-error: true
+        run: |
+          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
