@@ -70,6 +70,19 @@ jobs:
           curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
           curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
 
+      - name: Upload PHP check file
+        run: |
+          curl -T deploy/check.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/check.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
+
+      - name: Test PHP on server
+        run: |
+          echo "--- HTTP Status ---"
+          curl -so /dev/null -w "%{http_code}" https://cafe-peruano.com/check.php
+          echo ""
+          echo "--- PHP Info ---"
+          curl -s https://cafe-peruano.com/check.php
+          echo ""
+
       - name: Debug URLs (without password)
         run: |
           echo "Env URL: ftp://${{ secrets.CAFE_FTP_HOST }}/${{ secrets.CAFE_FTP_TARGET_DIR }}.env"
