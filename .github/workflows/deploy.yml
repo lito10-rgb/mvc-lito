@@ -100,11 +100,14 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Clear Laravel cache on server
+      - name: Clear Laravel cache (overwrite with empty files)
         run: |
-          echo "Deleting bootstrap/cache/config.php..."
-          curl --quote "DELE ${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/config.php" "ftp://${{ secrets.FTP_HOST }}/" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || echo "(file may not exist, continuing)"
-          curl --quote "DELE ${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/services.php" "ftp://${{ secrets.FTP_HOST }}/" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || echo "(file may not exist, continuing)"
+          touch /tmp/empty
+          curl -T /tmp/empty "ftp://${{ secrets.FTP_HOST }}/${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/config.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
+          curl -T /tmp/empty "ftp://${{ secrets.FTP_HOST }}/${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/services.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
+          curl -T /tmp/empty "ftp://${{ secrets.FTP_HOST }}/${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/events.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
+          curl -T /tmp/empty "ftp://${{ secrets.FTP_HOST }}/${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/packages.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
+          curl -T /tmp/empty "ftp://${{ secrets.FTP_HOST }}/${{ secrets.FTP_TARGET_DIR }}bootstrap/cache/routes.php" --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}" 2>&1 || true
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

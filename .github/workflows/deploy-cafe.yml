@@ -97,10 +97,12 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Clear Laravel cache on server
+      - name: Clear Laravel cache (overwrite with empty files)
         run: |
-          curl --quote "DELE public_html/bootstrap/cache/config.php" "ftp://${{ secrets.CAFE_FTP_HOST }}/" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
-          curl --quote "DELE public_html/bootstrap/cache/services.php" "ftp://${{ secrets.CAFE_FTP_HOST }}/" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          touch /tmp/empty
+          curl -T /tmp/empty "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/bootstrap/cache/config.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T /tmp/empty "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/bootstrap/cache/services.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T /tmp/empty "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/bootstrap/cache/events.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
