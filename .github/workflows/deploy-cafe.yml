@@ -70,6 +70,12 @@ jobs:
           curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
           curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
 
+      - name: Debug URLs (without password)
+        run: |
+          echo "Env URL: ftp://${{ secrets.CAFE_FTP_HOST }}/${{ secrets.CAFE_FTP_TARGET_DIR }}.env"
+          echo "Root URL: ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php"
+          echo "Target dir raw: '${{ secrets.CAFE_FTP_TARGET_DIR }}'"
+
       - name: Upload .env to public_html/
         continue-on-error: true
         run: |
