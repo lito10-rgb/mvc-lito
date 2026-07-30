@@ -25,7 +25,7 @@ jobs:
       - name: Remove dev files
         run: |
           rm -rf .git node_modules tests .github
-          rm -f .env.example
+          rm -f .gitignore .env.example
 
       - name: Create .env from secrets
         run: |
@@ -63,5 +63,3 @@ jobs:
             node_modules/**
             tests/**
             .env.example
-          include: |
-            .env
