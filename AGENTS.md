@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Key Context
-- PHP 8.1 Laravel 10 app (mvc-lito) on XAMPP, deployed to cPanel
+- PHP 8.3 Laravel 12 app (mvc-lito) on XAMPP, deployed to cPanel
 - Database: MariaDB on XAMPP (`mysql -u root mqyeq`), InnoDB crash recovery via `Start-Process mysqld.exe`
 - Spanish UI throughout
 - cPanel hosting (no Git) — deploy via GitHub Actions + FTP
