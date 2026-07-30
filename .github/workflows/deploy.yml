@@ -45,7 +45,9 @@ jobs:
           EOF
 
       - name: Generate APP_KEY
-        run: php artisan key:generate --force
+        run: |
+          KEY="base64:$(openssl rand -base64 32)"
+          sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
