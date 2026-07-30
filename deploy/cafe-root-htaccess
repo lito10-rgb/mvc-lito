@@ -1,9 +1,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Serve static assets from cafe-peruano/public/ if they exist
-    RewriteCond %{DOCUMENT_ROOT}/cafe-peruano/public%{REQUEST_URI} -f
-    RewriteRule ^(.*)$ cafe-peruano/public/$1 [L]
+    # Serve static assets from public/ if they exist
+    RewriteCond %{DOCUMENT_ROOT}/public%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ public/$1 [L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
