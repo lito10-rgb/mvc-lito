@@ -93,60 +93,45 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Upload .env + helper scripts via FTP (small files)
+      - name: Test FTP connection
+        continue-on-error: true
         run: |
-          curl -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure
-          curl -T deploy/clear-cache.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure 2>&1 || true
-          curl -T public/deploy.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/public/deploy.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
-          curl -T deploy/extract-vendor.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure 2>&1 || true
+          echo "=== Testing ftp:// ==="
+          curl -v -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env.test" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 15 2>&1 || echo "PLAIN FTP FAILED"
+          echo ""
+          echo "=== Testing ftps:// ==="
+          curl -v -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env.test" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 15 --insecure 2>&1 || echo "FTPS FAILED"
+          echo ""
+          echo "=== Download test ==="
+          curl -s -o /dev/null -w "HTTP: %{http_code}\n" https://cafe-peruano.com/.env.test 2>&1 || echo "HTTP FAILED"
 
-      - name: Try HTTP deploy (fallback)
+      - name: Upload .env + helper scripts via FTP
+        continue-on-error: true
         run: |
-          DEPLOY_SECRET=cafe-peruano-2025-deploy
-          echo "sending env..."
-          ENV_B64=$(base64 -w0 .env)
-          curl -s -o /dev/null -w "%{http_code}\n" -X POST "https://cafe-peruano.com/public/deploy.php" -d "action=env&secret=$DEPLOY_SECRET&env=$ENV_B64" 2>&1 || echo "HTTP deploy not available yet"
+          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1
+          curl -T deploy/clear-cache.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1 || true
+          curl -T deploy/extract-vendor.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 30 2>&1 || true
 
       - name: Zip vendor/ for upload
         run: |
           cd vendor && zip -r -q ../vendor.zip . && cd ..
           ls -lh vendor.zip
 
-      - name: Upload vendor.zip via FTP
+      - name: Upload vendor.zip + root files via FTP
         continue-on-error: true
         run: |
-          curl -T vendor.zip "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 120 --retry 2 --insecure 2>&1
+          curl -T vendor.zip "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 120 --retry 2 2>&1 || true
+          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1 || true
+          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1 || true
+          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 30 2>&1
 
-      - name: Extract vendor.zip on server
+      - name: Extract vendor.zip + clear cache
         run: |
-          sleep 3
+          sleep 5
           curl -s https://cafe-peruano.com/deploy/extract-vendor.php
           echo ""
+          sleep 3
           curl -s https://cafe-peruano.com/public/clear-cache.php
-
-      - name: Deploy remaining files via FTP (excluding vendor/)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.CAFE_FTP_HOST }}
-          username: ${{ secrets.CAFE_FTP_USERNAME }}
-          password: ${{ secrets.CAFE_FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: ${{ secrets.CAFE_FTP_TARGET_DIR }}
-          dangerous-dangerous-allow-hidden-files: true
-          security: loose
-          exclude: |
-            **/.git*
-            **/.git*/**
-            node_modules/**
-            tests/**
-            .env.example
-            vendor/**
-
-      - name: Upload root files + .env backup
-        run: |
-          curl -T deploy/cafe-root-index.php "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure 2>&1 || true
-          curl -T deploy/cafe-root-htaccess "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 60 --insecure 2>&1 || true
-          curl -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --ftp-create-dirs --connect-timeout 60 --insecure
 
       - name: Final cache clear
         run: |
