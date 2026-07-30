@@ -64,9 +64,10 @@ jobs:
             node_modules/**
             tests/**
             .env.example
+          include: |
+            .env
 
-      - name: Upload .env + root files to public_html/
+      - name: Upload root files to public_html/
         run: |
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}${{ secrets.CAFE_FTP_TARGET_DIR }}.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
-          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
+          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
           curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
