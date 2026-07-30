@@ -33,7 +33,7 @@ jobs:
           APP_NAME=mvc-lito
           APP_ENV=production
           APP_DEBUG=true
-          APP_URL=__APP_URL__
+          APP_URL=${{ secrets.APP_URL }}
           APP_LOCALE=es
           APP_FAKER_LOCALE=es_PE
           APP_KEY=
@@ -45,11 +45,11 @@ jobs:
           LOG_DEPRECATIONS_CHANNEL=null
           LOG_LEVEL=debug
           DB_CONNECTION=mysql
-          DB_HOST=__DB_HOST__
+          DB_HOST=${{ secrets.DB_HOST }}
           DB_PORT=3306
-          DB_DATABASE=__DB_DATABASE__
-          DB_USERNAME=__DB_USERNAME__
-          DB_PASSWORD=__DB_PASSWORD__
+          DB_DATABASE=${{ secrets.DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           SESSION_DRIVER=database
           SESSION_LIFETIME=120
           SESSION_ENCRYPT=false
@@ -78,22 +78,13 @@ jobs:
           AWS_BUCKET=
           AWS_USE_PATH_STYLE_ENDPOINT=false
           VITE_APP_NAME="${APP_NAME}"
-          MERCADOPAGO_ACCESS_TOKEN=__MP_TOKEN__
-          MERCADOPAGO_PUBLIC_KEY=__MP_KEY__
+          MERCADOPAGO_ACCESS_TOKEN=${{ secrets.MERCADOPAGO_ACCESS_TOKEN }}
+          MERCADOPAGO_PUBLIC_KEY=${{ secrets.MERCADOPAGO_PUBLIC_KEY }}
           MERCADOPAGO_ENV=sandbox
-          PAYPAL_CLIENT_ID=__PP_ID__
-          PAYPAL_CLIENT_SECRET=__PP_SECRET__
+          PAYPAL_CLIENT_ID=${{ secrets.PAYPAL_CLIENT_ID }}
+          PAYPAL_CLIENT_SECRET=${{ secrets.PAYPAL_CLIENT_SECRET }}
           CHECKOUT_CURRENCY=USD
           ENVEOF
-          sed -i "s|__APP_URL__|${{ secrets.APP_URL }}|g" .env
-          sed -i "s|__DB_HOST__|${{ secrets.DB_HOST }}|g" .env
-          sed -i "s|__DB_DATABASE__|${{ secrets.DB_DATABASE }}|g" .env
-          sed -i "s|__DB_USERNAME__|${{ secrets.DB_USERNAME }}|g" .env
-          sed -i "s|__DB_PASSWORD__|${{ secrets.DB_PASSWORD }}|g" .env
-          sed -i "s|__MP_TOKEN__|${{ secrets.MERCADOPAGO_ACCESS_TOKEN }}|g" .env
-          sed -i "s|__MP_KEY__|${{ secrets.MERCADOPAGO_PUBLIC_KEY }}|g" .env
-          sed -i "s|__PP_ID__|${{ secrets.PAYPAL_CLIENT_ID }}|g" .env
-          sed -i "s|__PP_SECRET__|${{ secrets.PAYPAL_CLIENT_SECRET }}|g" .env
 
       - name: Generate APP_KEY
         run: |

@@ -34,7 +34,7 @@ jobs:
           APP_NAME=Cafe Peruano
           APP_ENV=production
           APP_DEBUG=true
-          APP_URL=__APP_URL__
+          APP_URL=${{ secrets.CAFE_APP_URL }}
           APP_LOCALE=es
           APP_FAKER_LOCALE=es_PE
           APP_KEY=
@@ -46,11 +46,11 @@ jobs:
           LOG_DEPRECATIONS_CHANNEL=null
           LOG_LEVEL=debug
           DB_CONNECTION=mysql
-          DB_HOST=__DB_HOST__
+          DB_HOST=${{ secrets.CAFE_DB_HOST }}
           DB_PORT=3306
-          DB_DATABASE=__DB_DATABASE__
-          DB_USERNAME=__DB_USERNAME__
-          DB_PASSWORD=__DB_PASSWORD__
+          DB_DATABASE=${{ secrets.CAFE_DB_DATABASE }}
+          DB_USERNAME=${{ secrets.CAFE_DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.CAFE_DB_PASSWORD }}
           SESSION_DRIVER=database
           SESSION_LIFETIME=120
           SESSION_ENCRYPT=false
@@ -79,18 +79,9 @@ jobs:
           AWS_BUCKET=
           AWS_USE_PATH_STYLE_ENDPOINT=false
           VITE_APP_NAME="${APP_NAME}"
-          MERCADOPAGO_ACCESS_TOKEN=__MP_TOKEN__
-          MERCADOPAGO_PUBLIC_KEY=__MP_KEY__
           MERCADOPAGO_ENV=sandbox
-          PAYPAL_CLIENT_ID=__PP_ID__
-          PAYPAL_CLIENT_SECRET=__PP_SECRET__
           CHECKOUT_CURRENCY=USD
           ENVEOF
-          sed -i "s|__APP_URL__|${{ secrets.CAFE_APP_URL }}|g" .env
-          sed -i "s|__DB_HOST__|${{ secrets.CAFE_DB_HOST }}|g" .env
-          sed -i "s|__DB_DATABASE__|${{ secrets.CAFE_DB_DATABASE }}|g" .env
-          sed -i "s|__DB_USERNAME__|${{ secrets.CAFE_DB_USERNAME }}|g" .env
-          sed -i "s|__DB_PASSWORD__|${{ secrets.CAFE_DB_PASSWORD }}|g" .env
 
       - name: Generate APP_KEY
         run: |
