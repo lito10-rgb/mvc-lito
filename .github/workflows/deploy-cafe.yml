@@ -97,12 +97,13 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Clear Laravel cache (overwrite with empty files)
+      - name: Clear Laravel cache via HTTP script
         run: |
-          touch /tmp/empty
-          curl -T /tmp/empty "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/bootstrap/cache/config.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
-          curl -T /tmp/empty "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/bootstrap/cache/services.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
-          curl -T /tmp/empty "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/bootstrap/cache/events.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/clear-cache.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          sleep 5
+          curl -s https://cafe-peruano.com/clear-cache.php
+          echo ""
+          curl -s -o /dev/null -w "Status after cache clear: %{http_code}\n" https://cafe-peruano.com
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
