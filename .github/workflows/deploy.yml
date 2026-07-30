@@ -22,6 +22,11 @@ jobs:
         env:
           COMPOSER_MEMORY_LIMIT: -1
 
+      - name: Setup Node & build assets
+        run: |
+          npm ci
+          npm run build
+
       - name: Remove dev files
         run: |
           rm -rf .git node_modules tests .github
