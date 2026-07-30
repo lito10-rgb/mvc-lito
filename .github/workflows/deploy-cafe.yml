@@ -88,34 +88,17 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Zip vendor/ for fast upload
-        run: |
-          cd vendor && zip -r -q ../vendor.zip . && cd ..
-          ls -lh vendor.zip
-
-      - name: Upload vendor.zip + extract script
-        run: |
-          curl -T vendor.zip "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
-          curl -T deploy/extract-vendor.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
-
-      - name: Extract vendor.zip on server
-        run: |
-          sleep 5
-          echo "--- Extract result ---"
-          curl -s https://cafe-peruano.com/extract-vendor.php
-
-      - name: Upload .env (pre-deploy) + clear-cache.php
+      - name: Upload .env + clear-cache.php (pre-deploy)
         run: |
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
           curl -T deploy/clear-cache.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
 
-      - name: Clear Laravel config cache
+      - name: Clear cache (pre-deploy)
         run: |
           sleep 3
-          echo "--- Cache clear ---"
           curl -s https://cafe-peruano.com/public/clear-cache.php
 
-      - name: Deploy via FTP (excluding vendor/)
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.CAFE_FTP_HOST }}
@@ -130,16 +113,16 @@ jobs:
             node_modules/**
             tests/**
             .env.example
-            vendor/**
 
-      - name: Upload root files + .env backup
+      - name: Upload root + .env backup
         run: |
-          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
-          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
+          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}"
 
-      - name: Final cache clear
+      - name: Clear cache (post-deploy)
         run: |
           sleep 5
-          echo "--- Final cache clear ---"
           curl -s https://cafe-peruano.com/public/clear-cache.php
+          echo ""
+          curl -s -o /dev/null -w "Site: %{http_code}\n" https://cafe-peruano.com
