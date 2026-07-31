@@ -10,11 +10,10 @@ try {
     
     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
     
-    Illuminate\Support\Facades\DB::connection()->getPdo();
-    echo "Laravel DB Connection: OK\n";
+    $app->boot();
     
     $status = $kernel->call('migrate', ['--force' => true]);
-    echo "Migration exit code: $status\n";
+    echo "MIGRATION COMPLETED WITH STATUS: $status\n";
     echo $kernel->output();
 } catch (\Throwable $e) {
     echo "EXCEPTION: " . $e->getMessage() . "\n";
