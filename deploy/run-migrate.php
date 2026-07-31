@@ -9,9 +9,15 @@ try {
     $app = require_once $base . '/bootstrap/app.php';
     
     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+    
+    Illuminate\Support\Facades\DB::connection()->getPdo();
+    echo "Laravel DB Connection: OK\n";
+    
     $status = $kernel->call('migrate', ['--force' => true]);
-    echo "MIGRATION COMPLETED WITH STATUS: $status\n";
+    echo "Migration exit code: $status\n";
     echo $kernel->output();
 } catch (\Throwable $e) {
-    echo "ERROR: " . $e->getMessage() . "\n" . $e->getTraceAsString();
+    echo "EXCEPTION: " . $e->getMessage() . "\n";
+    echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
+    echo $e->getTraceAsString();
 }
