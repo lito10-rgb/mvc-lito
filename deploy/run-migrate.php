@@ -10,10 +10,12 @@ try {
     
     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
     
-    $app->boot();
+    $status = $kernel->handle(
+        new Symfony\Component\Console\Input\ArrayInput(['command' => 'migrate', '--force' => true]),
+        new Symfony\Component\Console\Output\BufferedOutput()
+    );
     
-    $status = $kernel->call('migrate', ['--force' => true]);
-    echo "MIGRATION COMPLETED WITH STATUS: $status\n";
+    echo "MIGRATION STATUS: $status\n";
     echo $kernel->output();
 } catch (\Throwable $e) {
     echo "EXCEPTION: " . $e->getMessage() . "\n";
