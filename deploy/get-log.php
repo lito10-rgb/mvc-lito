@@ -1,5 +1,8 @@
 <?php
 header('Content-Type: text/plain');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 $base = __DIR__;
 for ($i = 0; $i < 3; $i++) {
     if (file_exists($base . '/artisan') || is_dir($base . '/bootstrap')) {
@@ -7,21 +10,12 @@ for ($i = 0; $i < 3; $i++) {
     }
     $base = dirname($base);
 }
+
+echo "Base: $base\n";
 $logFile = $base . '/storage/logs/laravel.log';
 if (file_exists($logFile)) {
     echo "--- LAST LOG FILE ---\n";
-    $lines = file($logFile);
-    $last = array_slice($lines, -60);
-    foreach ($last as $l) {
-        echo $l;
-    }
+    echo file_get_contents($logFile);
 } else {
-    echo "No laravel.log found at $logFile\n";
-    $logsDir = $base . '/storage/logs';
-    if (is_dir($logsDir)) {
-        echo "Files in storage/logs:\n";
-        print_r(scandir($logsDir));
-    } else {
-        echo "storage/logs directory does not exist.\n";
-    }
+    echo "Log file not found at: $logFile\n";
 }
