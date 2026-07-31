@@ -123,6 +123,7 @@ jobs:
           curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/check-laravel.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public/check-laravel.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/test.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public/test.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
 
       - name: Clear cache (post-deploy)
