@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -18,7 +18,6 @@ jobs:
           extensions: mbstring, bcmath, curl, gd, json, mbstring, openssl, pdo, pdo_mysql, tokenbank, xml, ctype, dom, fileinfo, filter, hash, intl, json, session, simplexml, xmlreader, xmlwriter, zip
 
       - name: Install Composer dependencies
-        continue-on-error: true
         run: composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
         env:
           COMPOSER_MEMORY_LIMIT: -1
@@ -93,47 +92,39 @@ jobs:
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
 
-      - name: Test FTP connection
-        continue-on-error: true
+      - name: Deploy root bootstrap files
         run: |
-          echo "=== Testing ftp:// ==="
-          curl -v -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env.test" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 15 2>&1 || echo "PLAIN FTP FAILED"
-          echo ""
-          echo "=== Testing ftps:// ==="
-          curl -v -T .env "ftps://${{ secrets.CAFE_FTP_HOST }}/public_html/.env.test" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ssl-reqd --connect-timeout 15 --insecure 2>&1 || echo "FTPS FAILED"
-          echo ""
-          echo "=== Download test ==="
-          curl -s -o /dev/null -w "HTTP: %{http_code}\n" https://cafe-peruano.com/.env.test 2>&1 || echo "HTTP FAILED"
+          cp deploy/cafe-root-index.php index.php
+          cp deploy/cafe-root-htaccess .htaccess
 
-      - name: Upload .env + helper scripts via FTP
-        continue-on-error: true
+      - name: Upload .env (pre-deploy)
         run: |
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1
-          curl -T deploy/clear-cache.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/clear-cache.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1 || true
-          curl -T deploy/extract-vendor.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/deploy/extract-vendor.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 30 2>&1 || true
+          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
 
-      - name: Zip vendor/ for upload
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.CAFE_FTP_HOST }}
+          username: ${{ secrets.CAFE_FTP_USERNAME }}
+          password: ${{ secrets.CAFE_FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: public_html/
+          dangerous-dangerous-allow-hidden-files: true
+          security: loose
+          exclude: |
+            **/.git*
+            **/.git*/**
+            node_modules/**
+            tests/**
+            .env.example
+
+      - name: Upload root + .env backup
         run: |
-          cd vendor && zip -r -q ../vendor.zip . && cd ..
-          ls -lh vendor.zip
+          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
 
-      - name: Upload vendor.zip + root files via FTP
-        continue-on-error: true
-        run: |
-          curl -T vendor.zip "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/vendor.zip" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 120 --retry 2 2>&1 || true
-          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1 || true
-          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --connect-timeout 30 2>&1 || true
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs --connect-timeout 30 2>&1
-
-      - name: Extract vendor.zip + clear cache
-        run: |
-          sleep 5
-          curl -s https://cafe-peruano.com/deploy/extract-vendor.php
-          echo ""
-          sleep 3
-          curl -s https://cafe-peruano.com/public/clear-cache.php
-
-      - name: Final cache clear
+      - name: Clear cache (post-deploy)
         run: |
           sleep 5
           curl -s https://cafe-peruano.com/public/clear-cache.php
