@@ -128,6 +128,7 @@ jobs:
         run: |
           curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/run-migrate.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/run-migrate.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs || true
 
       - name: Clear cache (post-deploy)
