@@ -131,6 +131,7 @@ jobs:
           curl -T deploy/run-migrate.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/run-migrate.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/test-db.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/test-db.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/debug.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/debug.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/boot-test.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/boot-test.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/get-log.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/get-log.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs || true
 
