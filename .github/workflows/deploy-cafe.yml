@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload .env (pre-deploy)
         run: |
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
+          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -108,7 +108,7 @@ jobs:
           username: ${{ secrets.CAFE_FTP_USERNAME }}
           password: ${{ secrets.CAFE_FTP_PASSWORD }}
           local-dir: ./
-          server-dir: public_html/
+          server-dir: ./
           dangerous-dangerous-allow-hidden-files: true
           security: loose
           exclude: |
@@ -120,9 +120,9 @@ jobs:
 
       - name: Upload root + .env backup
         run: |
-          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
-          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
-          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
+          curl -T deploy/cafe-root-index.php "ftp://${{ secrets.CAFE_FTP_HOST }}/index.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/cafe-root-htaccess "ftp://${{ secrets.CAFE_FTP_HOST }}/.htaccess" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs
 
       - name: Clear cache (post-deploy)
         run: |
