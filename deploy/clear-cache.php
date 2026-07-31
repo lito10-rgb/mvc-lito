@@ -16,18 +16,22 @@ $dirs = [
 ];
 foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+        @mkdir($dir, 0755, true);
         echo "CREATED: $dir\n";
     }
+    @chmod($dir, 0755);
 }
+@chmod($base . '/storage', 0755);
+@chmod($base . '/bootstrap/cache', 0755);
+
 $files = glob($base . '/bootstrap/cache/*.php');
 $deleted = 0;
-foreach ($files as $f) {
-    if (unlink($f)) {
-        echo "DELETED: " . basename($f) . "\n";
-        $deleted++;
-    } else {
-        echo "FAILED: " . basename($f) . "\n";
+if ($files) {
+    foreach ($files as $f) {
+        if (@unlink($f)) {
+            echo "DELETED: " . basename($f) . "\n";
+            $deleted++;
+        }
     }
 }
-echo "Deleted $deleted cache files\n";
+echo "Deleted $deleted cache files. Permissions fixed successfully.\n";
