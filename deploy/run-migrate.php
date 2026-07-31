@@ -9,13 +9,10 @@ try {
     $app = require_once $base . '/bootstrap/app.php';
     
     $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+    $kernel->bootstrap();
     
-    $status = $kernel->handle(
-        new Symfony\Component\Console\Input\ArrayInput(['command' => 'migrate', '--force' => true]),
-        new Symfony\Component\Console\Output\BufferedOutput()
-    );
-    
-    echo "MIGRATION STATUS: $status\n";
+    $status = $kernel->call('migrate', ['--force' => true]);
+    echo "MIGRATION COMPLETED WITH STATUS: $status\n";
     echo $kernel->output();
 } catch (\Throwable $e) {
     echo "EXCEPTION: " . $e->getMessage() . "\n";
