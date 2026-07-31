@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/plain');
 $base = __DIR__;
 for ($i = 0; $i < 3; $i++) {
     if (file_exists($base . '/artisan') || is_dir($base . '/bootstrap')) {
