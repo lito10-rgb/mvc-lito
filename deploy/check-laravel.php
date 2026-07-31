@@ -1,26 +1,34 @@
 <?php
+$base = __DIR__;
+for ($i = 0; $i < 3; $i++) {
+    if (file_exists($base . '/artisan') || is_dir($base . '/bootstrap')) {
+        break;
+    }
+    $base = dirname($base);
+}
+
+echo "--- Base directory: $base ---\n";
 echo "--- Checking vendor/autoload.php ---\n";
-if (file_exists(__DIR__.'/vendor/autoload.php')) {
+if (file_exists($base.'/vendor/autoload.php')) {
     echo "vendor/autoload.php: EXISTS\n";
 } else {
     echo "vendor/autoload.php: MISSING\n";
 }
 
 echo "\n--- Checking bootstrap/app.php ---\n";
-if (file_exists(__DIR__.'/bootstrap/app.php')) {
+if (file_exists($base.'/bootstrap/app.php')) {
     echo "bootstrap/app.php: EXISTS\n";
 } else {
     echo "bootstrap/app.php: MISSING\n";
 }
 
 echo "\n--- Checking .env file ---\n";
-if (file_exists(__DIR__.'/.env')) {
+if (file_exists($base.'/.env')) {
     echo ".env: EXISTS\n";
-    $env = file_get_contents(__DIR__.'/.env');
+    $env = file_get_contents($base.'/.env');
     echo "Size: " . strlen($env) . " bytes\n";
-    // Check APP_KEY without revealing it
     if (preg_match('/^APP_KEY=(.+)$/m', $env, $m)) {
-        $key = $m[1];
+        $key = trim($m[1]);
         echo "APP_KEY: " . (empty($key) ? "EMPTY!" : "present (" . strlen($key) . " chars)") . "\n";
     } else {
         echo "APP_KEY: NOT FOUND\n";
@@ -30,7 +38,7 @@ if (file_exists(__DIR__.'/.env')) {
 }
 
 echo "\n--- Checking storage/logs ---\n";
-$logDir = __DIR__.'/storage/logs';
+$logDir = $base.'/storage/logs';
 if (is_dir($logDir)) {
     echo "storage/logs: EXISTS\n";
     $files = glob($logDir.'/*.log');
@@ -56,7 +64,7 @@ if (is_dir($logDir)) {
 }
 
 echo "\n--- Checking storage/framework ---\n";
-if (is_dir(__DIR__.'/storage/framework')) {
+if (is_dir($base.'/storage/framework')) {
     echo "storage/framework: EXISTS\n";
 } else {
     echo "storage/framework: MISSING\n";
