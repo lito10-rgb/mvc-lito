@@ -9,13 +9,15 @@ try {
     $base = dirname(__DIR__);
     require $base . '/vendor/autoload.php';
     $app = require_once $base . '/bootstrap/app.php';
-    
+
+    config(['session.driver' => 'file']);
+    config(['cache.default' => 'file']);
+
     $response = $app->handleRequest(Request::capture());
-    echo "HTTP Status: " . $response->getStatusCode() . "\n";
-    echo "Content Preview:\n" . substr($response->getContent(), 0, 1000);
+    echo "HTTP STATUS: " . $response->getStatusCode() . "\n";
+    echo "CONTENT:\n" . substr($response->getContent(), 0, 1000);
 } catch (\Throwable $e) {
-    echo "EXCEPTION DETECTED:\n";
+    echo "EXCEPTION CATCH:\n";
     echo "Message: " . $e->getMessage() . "\n";
     echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
-    echo "Trace:\n" . $e->getTraceAsString();
 }
