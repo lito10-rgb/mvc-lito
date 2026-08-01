@@ -140,6 +140,7 @@ jobs:
           curl -T deploy/get-log.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/get-log.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/trace-request.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/trace-request.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/cafe-db-check.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/cafe-db-check.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/cafe-db-fix.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/cafe-db-fix.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs || true
 
       - name: Clear cache (post-deploy)
