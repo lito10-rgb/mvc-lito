@@ -134,6 +134,7 @@ jobs:
           curl -T deploy/boot-test.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/boot-test.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/test-request.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/test-request.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T deploy/get-log.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/get-log.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
+          curl -T deploy/trace-request.php "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/public/trace-request.php" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" 2>&1 || true
           curl -T .env "ftp://${{ secrets.CAFE_FTP_HOST }}/public_html/.env" --user "${{ secrets.CAFE_FTP_USERNAME }}:${{ secrets.CAFE_FTP_PASSWORD }}" --ftp-create-dirs || true
 
       - name: Clear cache (post-deploy)
@@ -142,3 +143,5 @@ jobs:
           curl -s https://cafe-peruano.com/public/clear-cache.php || true
           echo ""
           curl -s -o /dev/null -w "Site: %{http_code}\n" https://cafe-peruano.com
+          echo "--- TRACE ---"
+          curl -s --max-time 60 https://cafe-peruano.com/public/trace-request.php || true
