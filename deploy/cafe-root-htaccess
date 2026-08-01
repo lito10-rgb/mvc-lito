@@ -14,6 +14,14 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # Serve Vite build assets from /public/build
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^build/(.*)$ public/build/$1 [L]
+
+    # Serve storage files from the public disk (/storage/app/public)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
