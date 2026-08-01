@@ -10,9 +10,6 @@ try {
     require $base . '/vendor/autoload.php';
     $app = require_once $base . '/bootstrap/app.php';
 
-    config(['session.driver' => 'file']);
-    config(['cache.default' => 'file']);
-
     $response = $app->handleRequest(Request::capture());
     echo "HTTP STATUS: " . $response->getStatusCode() . "\n";
     echo "CONTENT:\n" . substr($response->getContent(), 0, 1000);
@@ -20,4 +17,5 @@ try {
     echo "EXCEPTION CATCH:\n";
     echo "Message: " . $e->getMessage() . "\n";
     echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
+    echo "Trace:\n" . $e->getTraceAsString();
 }
