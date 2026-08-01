@@ -29,7 +29,41 @@ function fixEncoding($v) {
         if ($r === $v) break;
         $v = $r;
     }
+    if (preg_match('/[\x{2500}-\x{257F}]/u', $v)) {
+        $r = reverseBoxPairs($v);
+        if (mb_check_encoding($r, 'UTF-8')) {
+            $v = $r;
+            for ($i = 0; $i < 2; $i++) {
+                $r2 = @iconv('UTF-8', 'CP850', $v);
+                if ($r2 === false) break;
+                if (!mb_check_encoding($r2, 'UTF-8')) break;
+                if ($r2 === $v) break;
+                $v = $r2;
+            }
+        }
+    }
     return $v;
+}
+
+function reverseBoxPairs($s) {
+    $chars = preg_split('//u', $s, -1, PREG_SPLIT_NO_EMPTY);
+    $out = '';
+    $n = count($chars);
+    for ($i = 0; $i < $n; $i++) {
+        $cp = mb_ord($chars[$i], 'UTF-8');
+        if ($cp >= 0x2500 && $cp <= 0x257F) {
+            $b1 = @iconv('UTF-8', 'CP850', $chars[$i]);
+            if ($b1 === false || strlen($b1) !== 1) { $out .= $chars[$i]; continue; }
+            $out .= $b1;
+            if ($i + 1 < $n) {
+                $b2 = @iconv('UTF-8', 'CP850', $chars[$i + 1]);
+                if ($b2 !== false && strlen($b2) === 1) { $out .= $b2; $i++; }
+            }
+        } else {
+            $out .= $chars[$i];
+        }
+    }
+    return $out;
 }
 
 // marker patterns (HEX of stored bytes):
