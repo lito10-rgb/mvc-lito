@@ -35,7 +35,7 @@ jobs:
       - name: Create .env from secrets
         run: |
           cat > .env << 'ENVEOF'
-          APP_NAME=Cafe Peruano
+          APP_NAME="Cafe Peruano"
           APP_ENV=production
           APP_DEBUG=true
           APP_URL="${{ secrets.CAFE_APP_URL }}"
@@ -91,6 +91,10 @@ jobs:
         run: |
           KEY="base64:$(openssl rand -base64 32)"
           sed -i "s|^APP_KEY=$|APP_KEY=$KEY|" .env
+
+      - name: Validate .env parses with dotenv
+        run: |
+          php -r "require 'vendor/autoload.php'; \$r = \Dotenv\Repository\RepositoryBuilder::createWithDefaultAdapters()->immutable()->make(); \$d = \Dotenv\Dotenv::create(\$r, getcwd(), '.env'); \$d->safeLoad(); echo 'ENV OK: '.\$r->get('APP_NAME').PHP_EOL;"
 
       - name: Deploy root bootstrap files
         run: |
