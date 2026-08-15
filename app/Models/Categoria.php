@@ -30,6 +30,11 @@ class Categoria extends Model
         return $this->hasMany(Subcategoria::class, 'id_categoria');
     }
 
+    public function productos()
+    {
+        return $this->hasMany(Producto::class, 'categoria_id');
+    }
+
     public function negocios()
     {
         return $this->belongsToMany(Negocio::class, 'categoria_negocio');

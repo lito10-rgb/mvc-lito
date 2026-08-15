@@ -29,6 +29,7 @@ public function show($id)
     $negocioId = negocio_actual_id();
     $categoria = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
         ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+        ->with(['productos' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
         ->findOrFail($id);
     $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
     $marcas = Marca::all();
