@@ -11,7 +11,7 @@
         @foreach($subcategoria->productos as $producto)
             <div class="col">
                 <div class="card h-100" style="background-color: var(--theme-secondary); color: var(--theme-accent-light);">
-                    <img src="{{ asset('images/' . $producto->portada) }}" class="card-img-top" alt="{{ $producto->titulo }}">
+                    <img src="{{ asset('storage/' . $producto->portada) }}" class="card-img-top" alt="{{ $producto->titulo }}">
                     <div class="card-body">
                         <h5 class="card-title text-theme-accent">{{ $producto->titulo }}</h5>
                         <p class="card-text" style="color: var(--theme-accent-light);">{{ Str::limit($producto->descripcion, 60) }}</p>
