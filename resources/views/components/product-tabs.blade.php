@@ -8,11 +8,14 @@
   </ul>
   <div class="tab-content p-4 bg-white rounded-bottom shadow-sm">
     <div id="tab-desc" class="tab-pane fade show active">
-      {!! nl2br($producto->descripcion) !!}
+      {!! nl2br(html_entity_decode($producto->descripcion, ENT_QUOTES, 'UTF-8')) !!}
     </div>
     <div id="tab-det" class="tab-pane fade">
       @php
-        $detalles = json_decode($producto->detalles, true);
+        $detallesRaw = $producto->detalles ?? '';
+        // Decodificar entidades HTML primero
+        $detallesRaw = html_entity_decode($detallesRaw, ENT_QUOTES, 'UTF-8');
+        $detalles = json_decode($detallesRaw, true);
       @endphp
       @if (is_array($detalles) && count($detalles))
         <table class="table table-sm table-borderless mb-0">
@@ -29,7 +32,11 @@
           @endforeach
         </table>
       @else
-        {!! nl2br(e($producto->detalles)) !!}
+        @if($detallesRaw)
+          {!! nl2br(e($detallesRaw)) !!}
+        @else
+          <p class="text-muted">No hay detalles disponibles.</p>
+        @endif
       @endif
     </div>
     <div id="tab-com" class="tab-pane fade">

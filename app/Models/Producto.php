@@ -80,4 +80,24 @@ class Producto extends Model
     {
         return $this->belongsToMany(Negocio::class, 'producto_negocio');
     }
+
+    // Método para obtener titular con encoding correcto
+    public function getTitularDecodedAttribute()
+    {
+        return html_entity_decode($this->titular, ENT_QUOTES, 'UTF-8');
+    }
+
+    // Método para obtener descripción con encoding correcto
+    public function getDescripcionDecodedAttribute()
+    {
+        return html_entity_decode($this->descripcion, ENT_QUOTES, 'UTF-8');
+    }
+
+    // Método para obtener detalles decodificados como array
+    public function getDetallesDecodedAttribute()
+    {
+        $detallesRaw = $this->detalles ?? '';
+        $detallesRaw = html_entity_decode($detallesRaw, ENT_QUOTES, 'UTF-8');
+        return json_decode($detallesRaw, true);
+    }
 }

@@ -139,7 +139,7 @@
                     <button type="button" class="btn btn-sm btn-info text-white btn-quick-edit"
                             data-id="{{ $producto->id }}"
                             data-titulo="{{ $producto->titulo }}"
-                            data-titular="{{ $producto->titular }}"
+                            data-titular="{{ html_entity_decode($producto->titular, ENT_QUOTES, 'UTF-8') }}"
                             data-precio="{{ $producto->precio }}"
                             data-categoria="{{ $producto->categoria_id }}"
                             data-subcategoria="{{ $producto->subcategoria_id }}"
