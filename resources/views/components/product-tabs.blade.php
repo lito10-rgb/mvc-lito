@@ -15,7 +15,13 @@
         $detallesRaw = $producto->detalles ?? '';
         // Decodificar entidades HTML primero
         $detallesRaw = html_entity_decode($detallesRaw, ENT_QUOTES, 'UTF-8');
+        // Intentar decodificar JSON
         $detalles = json_decode($detallesRaw, true);
+        // Si falla, intentar con stripslashes
+        if (!is_array($detalles)) {
+            $detallesRaw = stripslashes($detallesRaw);
+            $detalles = json_decode($detallesRaw, true);
+        }
       @endphp
       @if (is_array($detalles) && count($detalles))
         <table class="table table-sm table-borderless mb-0">
@@ -33,7 +39,8 @@
         </table>
       @else
         @if($detallesRaw)
-          {!! nl2br(e($detallesRaw)) !!}
+          <p class="text-muted">Detalles: {{ $detallesRaw }}</p>
+          <p class="text-muted small">Formato JSON detectado, requiere procesamiento adicional.</p>
         @else
           <p class="text-muted">No hay detalles disponibles.</p>
         @endif
