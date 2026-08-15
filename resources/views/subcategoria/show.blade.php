@@ -11,8 +11,10 @@
         @foreach($subcategoria->productos as $producto)
             <div class="col">
                 <div class="card h-100" style="background-color: var(--theme-secondary); color: var(--theme-accent-light);">
-                    <img src="{{ asset('storage/' . $producto->portada) }}" class="card-img-top" alt="{{ $producto->titulo }}">
-                    <div class="card-body">
+                    <a href="{{ route('producto.mostrar', $producto->ruta) }}">
+                        <img src="{{ asset('storage/' . $producto->portada) }}" class="card-img-top" alt="{{ $producto->titulo }}" style="height:200px; object-fit:cover;">
+                    </a>
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-theme-accent">{{ $producto->titulo }}</h5>
                         <p class="card-text" style="color: var(--theme-accent-light);">{{ Str::limit($producto->descripcion, 60) }}</p>
                         @if($producto->tipo === 'servicio' && $producto->precio == 0)
@@ -20,6 +22,17 @@
                         @else
                             <span class="badge" style="background-color: var(--theme-accent); color: #000;">S/. {{ $producto->precio }}</span>
                         @endif
+                        <div class="mt-auto pt-3">
+                            <a href="{{ route('producto.mostrar', $producto->ruta) }}" class="btn btn-outline-light btn-sm w-100 mb-2">Ver detalle</a>
+                            @if($producto->tipo === 'servicio' && $producto->precio == 0)
+                                <a href="{{ route('cotizacion.solicitar', $producto->id) }}" class="btn btn-sm btn-outline-warning w-100">Solicitar cotización</a>
+                            @else
+                                <form action="{{ route('carrito.agregar', $producto->id) }}" method="POST">
+                                    @csrf
+                                    <button class="btn btn-sm btn-light w-100">Agregar al carrito</button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
