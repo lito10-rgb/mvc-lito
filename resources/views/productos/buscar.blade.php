@@ -26,9 +26,23 @@
                             $img = null;
                             if (!empty($producto->multimedia)) {
                                 $raw = $producto->multimedia;
+                                // Decodificar entidades HTML primero
+                                $raw = html_entity_decode($raw, ENT_QUOTES, 'UTF-8');
                                 $decoded = json_decode($raw, true);
-                                if (is_array($decoded) && count($decoded)) $img = $decoded[0];
-                                elseif (strpos($raw, ',') !== false) $img = explode(',', $raw)[0];
+                                if (!is_array($decoded)) {
+                                    $limpio = stripslashes($raw);
+                                    if ($limpio !== $raw) {
+                                        $decoded = json_decode($limpio, true);
+                                    }
+                                }
+                                if (is_array($decoded) && count($decoded)) {
+                                    $img = $decoded[0];
+                                    if (is_array($img)) $img = $img['foto'] ?? '';
+                                }
+                                elseif (strpos($raw, ',') !== false) {
+                                    $img = explode(',', $raw)[0];
+                                    $img = trim($img, "[]\"'\\ \t\n\r");
+                                }
                                 else $img = $raw;
                             }
                         @endphp

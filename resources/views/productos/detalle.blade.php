@@ -26,14 +26,32 @@
         $raw = $producto->multimedia ?? '';
 
         if (is_string($raw) && strlen($raw) > 0) {
+            // Decodificar entidades HTML primero para evitar &quot; en URLs
+            $raw = html_entity_decode($raw, ENT_QUOTES, 'UTF-8');
             $decoded = json_decode($raw, true);
-            if (is_array($decoded)) {
-                $imagenes = $decoded;
-            } elseif (strpos($raw, ',') !== false) {
-                $imagenes = explode(',', $raw);
-            } else {
-                $imagenes = [$raw];
+            if (!is_array($decoded)) {
+                $limpio = stripslashes($raw);
+                if ($limpio !== $raw) {
+                    $decoded = json_decode($limpio, true);
+                }
             }
+            if (is_array($decoded)) {
+                $imagenes = array_map(function ($img) {
+                    if (is_array($img)) {
+                        return trim($img['foto'] ?? '');
+                    }
+                    return trim($img);
+                }, $decoded);
+            } elseif (strpos($raw, ',') !== false) {
+                $imagenes = array_map(function ($img) {
+                    return trim($img, "[]\"'\\ \t\n\r");
+                }, explode(',', $raw));
+            } else {
+                $imagenes = [trim($raw)];
+            }
+            $imagenes = array_values(array_filter($imagenes, function ($img) {
+                return $img !== '';
+            }));
         }
     @endphp
 
