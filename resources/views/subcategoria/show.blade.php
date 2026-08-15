@@ -23,13 +23,19 @@
                             <span class="badge" style="background-color: var(--theme-accent); color: #000;">S/. {{ $producto->precio }}</span>
                         @endif
                         <div class="mt-auto pt-3">
-                            <a href="{{ route('producto.mostrar', $producto->ruta) }}" class="btn btn-outline-light btn-sm w-100 mb-2">Ver detalle</a>
+                            <a href="{{ route('producto.mostrar', $producto->ruta) }}" class="btn btn-outline-dark btn-sm w-100 mb-2">
+                                <i class="fa-solid fa-eye"></i> Ver detalle
+                            </a>
                             @if($producto->tipo === 'servicio' && $producto->precio == 0)
-                                <a href="{{ route('cotizacion.solicitar', $producto->id) }}" class="btn btn-sm btn-outline-warning w-100">Solicitar cotización</a>
+                                <a href="{{ route('cotizacion.solicitar', $producto->id) }}" class="btn btn-sm btn-outline-warning w-100">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> Solicitar cotización
+                                </a>
                             @else
                                 <form action="{{ route('carrito.agregar', $producto->id) }}" method="POST">
                                     @csrf
-                                    <button class="btn btn-sm btn-light w-100">Agregar al carrito</button>
+                                    <button class="btn btn-sm btn-dark w-100">
+                                        <i class="fa-solid fa-cart-plus"></i> Agregar al carrito
+                                    </button>
                                 </form>
                             @endif
                         </div>
