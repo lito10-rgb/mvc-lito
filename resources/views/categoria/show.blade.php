@@ -13,12 +13,14 @@
         <div class="row">
             @foreach($categoria->subcategorias as $sub)
                 <div class="col-md-4 mb-3">
-                    <div class="card shadow-sm h-100" style="background-color: var(--theme-secondary); color: var(--theme-accent-light);">
-                        <div class="card-body">
-                            <h5><a href="{{ route('subcategoria.show', $sub->ruta) }}" class="text-decoration-none text-theme-accent">{{ $sub->subcategoria }}</a></h5>
-                            <p class="small" style="color: var(--theme-accent-light);">{{ Str::limit($sub->detalle ?? '', 120) }}</p>
+                    <a href="{{ route('subcategoria.show', $sub->ruta) }}" class="text-decoration-none">
+                        <div class="card shadow-sm h-100" style="background-color: var(--theme-secondary); color: var(--theme-accent-light);">
+                            <div class="card-body">
+                                <h5 class="text-theme-accent">{{ $sub->subcategoria }}</h5>
+                                <p class="small" style="color: var(--theme-accent-light);">{{ Str::limit($sub->detalle ?? '', 120) }}</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             @endforeach
         </div>
