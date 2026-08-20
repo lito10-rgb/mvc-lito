@@ -29,12 +29,17 @@ public function show($id)
     $negocioId = negocio_actual_id();
     $categoria = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
         ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
-        ->with(['productos' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
         ->findOrFail($id);
+    
+    // Cargar productos con paginación
+    $productos = \App\Models\Producto::where('categoria_id', $id)
+        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+        ->paginate(12);
+    
     $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
     $marcas = Marca::all();
     $subcategorias = Subcategoria::all();
-    return view('categoria.show', compact('categoria', 'categorias', 'subcategorias', 'marcas'));
+    return view('categoria.show', compact('categoria', 'categorias', 'subcategorias', 'marcas', 'productos'));
 }
 
     /**

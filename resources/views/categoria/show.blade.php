@@ -29,11 +29,11 @@
     @endif
 
     {{-- Mostrar productos de la categoría --}}
-    @if($categoria->productos->count() > 0)
+    @if(isset($productos) && $productos->count() > 0)
         <div class="mt-5">
             <h4 class="fw-bold text-theme-accent mb-4">Productos de esta categoría</h4>
             <div class="row row-cols-1 row-cols-md-4 g-4">
-                @foreach($categoria->productos as $producto)
+                @foreach($productos as $producto)
                     <div class="col">
                         <div class="card h-100" style="background-color: var(--theme-secondary); color: var(--theme-accent-light);">
                             <a href="{{ route('producto.mostrar', $producto->ruta) }}">
@@ -68,6 +68,11 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
+            
+            {{-- Paginador --}}
+            <div class="mt-4">
+                {{ $productos->withQueryString()->links() }}
             </div>
         </div>
     @else
