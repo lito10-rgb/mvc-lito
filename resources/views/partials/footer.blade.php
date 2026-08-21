@@ -27,6 +27,34 @@
                 <h5 class="fw-bold mb-3 text-theme-accent">{{ $siteName }}</h5>
                 <p class="small text-theme-accent opacity-75">{{ $siteSlogan }}</p>
                 <a href="{{ route('visita-tecnica.create') }}" class="btn btn-cta-accent btn-sm"><i class="fa-solid fa-calendar-check me-1"></i> Agenda una visita técnica</a>
+                
+                {{-- Zona Cafetería destacada --}}
+                @if (negocio_actual_nombre() == 'Cafe Peruano')
+                <div class="mt-4 p-3 rounded" style="background: linear-gradient(135deg, var(--theme-accent) 0%, var(--theme-primary) 100%); border: 2px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <a href="{{ url('/zona-cafeteria') }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-mug-hot fa-2x me-3 text-white"></i>
+                            <div>
+                                <h6 class="mb-0 text-white fw-bold">Zona Cafetería</h6>
+                                <small class="text-white opacity-90">Experiencia de café en línea</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                {{-- Carta del Día --}}
+                <div class="mt-3 p-3 rounded" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); border: 2px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <a href="{{ url('/carta-del-dia') }}" class="text-decoration-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-calendar-day fa-2x me-3 text-white"></i>
+                            <div>
+                                <h6 class="mb-0 text-white fw-bold">Carta del Día</h6>
+                                <small class="text-white opacity-90">Productos destacados de hoy</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                @endif
             </div>
 
             <div class="col-md-6 col-lg-3">

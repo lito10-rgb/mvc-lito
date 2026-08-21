@@ -52,6 +52,15 @@ Route::prefix('categoria')->name('categoria.')->group(function () {
 Route::get('/subcategoria/{id_categoria}', [SubcategoriasController::class, 'porCategoria']);
 Route::get('/subcategoria/show/{ruta}', [SubcategoriasController::class, 'show'])->name('subcategoria.show');
 
+// Ruta específica para Zona Cafetería
+Route::get('/zona-cafeteria', function() {
+    return app('App\Http\Controllers\CategoriaController')->showByRuta('zona-cafeteria');
+})->name('categoria.zona-cafeteria');
+
+// Ruta para Carta del Día
+Route::get('/carta-del-dia', [\App\Http\Controllers\ProductosController::class, 'cartaDelDia'])->name('carta.del.dia');
+Route::get('/carta-del-dia/pdf', [\App\Http\Controllers\ProductosController::class, 'cartaDelDiaPdf'])->name('carta.del.dia.pdf');
+
 /* Carrito */
 Route::post('/carrito/agregar/{producto}', [CarritoController::class, 'agregar'])->name('carrito.agregar');
 Route::post('/carrito/actualizar/{id}', [CarritoController::class, 'actualizar'])->name('carrito.actualizar');

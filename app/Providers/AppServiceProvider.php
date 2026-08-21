@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\View;
 use App\Models\Categoria;
 
 require_once app_path('Helpers/negocio.php');
+require_once app_path('Helpers/multimedia.php');
 
 class AppServiceProvider extends ServiceProvider
 {

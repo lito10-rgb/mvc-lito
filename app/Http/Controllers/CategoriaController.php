@@ -42,6 +42,29 @@ public function show($id)
     return view('categoria.show', compact('categoria', 'categorias', 'subcategorias', 'marcas', 'productos'));
 }
 
+public function showByRuta($ruta)
+{
+    $negocioId = negocio_actual_id();
+    $categoria = Categoria::where('ruta', $ruta)
+        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+        ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+        ->first();
+    
+    if (!$categoria) {
+        abort(404, 'Categoría no encontrada');
+    }
+    
+    // Cargar productos con paginación
+    $productos = \App\Models\Producto::where('categoria_id', $categoria->id)
+        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+        ->paginate(12);
+    
+    $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+    $marcas = Marca::all();
+    $subcategorias = Subcategoria::all();
+    return view('categoria.show', compact('categoria', 'categorias', 'subcategorias', 'marcas', 'productos'));
+}
+
     /**
      * Show the form for creating a new resource.
      */

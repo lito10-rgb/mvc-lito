@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Producto;
 use App\Models\Cabecera;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Categoria;
 use App\Models\Marca;
+use App\Models\Negocio;
 use App\Models\Subcategoria;
 
 class ProductosController extends Controller
@@ -225,15 +229,176 @@ public function mostrarProducto($ruta)
 
     $cabecera = Cabecera::where('ruta', $ruta)->first();
 
-    $relacionados = Producto::where('categoria_id', $producto->categoria_id)
-        ->where('subcategoria_id', $producto->subcategoria_id)
-        ->where('id', '!=', $producto->id)
-        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
-        ->take(6)
-        ->get();
+    // Productos relacionados inteligentes: si es delivery, mostrar accesorios; si es venta, mostrar complementos
+    $relacionados = collect();
+    
+    if ($producto->tipo === 'fisico') {
+        // Para productos físicos, buscar complementos inteligentes
+        if (str_contains(strtolower($producto->titulo), 'cafe') || str_contains(strtolower($producto->titulo), 'pizza')) {
+            // Si es café o pizza, buscar accesorios e ingredientes
+            $relacionados = Producto::where('id', '!=', $producto->id)
+                ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+                ->where(function($query) use ($producto) {
+                    $query->where('categoria_id', '!=', $producto->categoria_id) // De diferentes categorías
+                           ->orWhere('subcategoria_id', '!=', $producto->subcategoria_id);
+                })
+                ->where(function($query) {
+                    // Buscar productos relacionados con café o accesorios
+                    $query->where('titulo', 'like', '%molinillo%')
+                          ->orWhere('titulo', 'like', '%grano%')
+                          ->orWhere('titulo', 'like', '%taza%')
+                          ->orWhere('titulo', 'like', '%accesorio%');
+                })
+                ->take(6)
+                ->get();
+        }
+        
+        // Si no hay suficientes productos complementarios, usar lógica tradicional
+        if ($relacionados->count() < 3) {
+            $relacionados = Producto::where('categoria_id', $producto->categoria_id)
+                ->where('id', '!=', $producto->id)
+                ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+                ->take(6)
+                ->get();
+        }
+    } else {
+        // Para servicios, usar lógica tradicional
+        $relacionados = Producto::where('categoria_id', $producto->categoria_id)
+            ->where('id', '!=', $producto->id)
+            ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->take(6)
+            ->get();
+    }
 
     return view('productos.detalle', compact('producto', 'cabecera', 'relacionados'));
 }
+
+public function cartaDelDia()
+{
+    try {
+        $negocioId = negocio_actual_id();
+        
+        // Buscar productos marcados como destacados/del día
+        $productos = Producto::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+            ->where(function($query) {
+                $query->where('oferta', 1) // Usamos el campo oferta como "del día"
+                      ->orWhere('descuentoOferta', '>', 0); // O productos con descuento
+            })
+            ->orderBy('fecha', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(12);
+        
+        $categorias = \App\Models\Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+        $marcas = Marca::all();
+        $subcategorias = Subcategoria::all();
+
+        return view('productos.carta-del-dia', compact('productos', 'categorias', 'marcas', 'subcategorias'));
+    } catch (\Exception $e) {
+        // Si hay error, mostrar productos vacíos con mensaje
+        $productos = collect();
+        $categorias = \App\Models\Categoria::all();
+        $marcas = Marca::all();
+        $subcategorias = Subcategoria::all();
+        return view('productos.carta-del-dia', compact('productos', 'categorias', 'marcas', 'subcategorias'))->with('error', 'Error al cargar productos: ' . $e->getMessage());
+    }
+}
+
+    /**
+     * Subcategorías que agrupan los preparados de café (bebidas, café en
+     * grano/molido/pergamino/verde, cápsulas, instantáneo y gourmet).
+     */
+    protected array $subcatPreparadosCafe = [125, 126, 127, 128, 129, 130, 153, 154, 158, 187, 188, 192];
+
+    /**
+     * Subcategorías de acompañamientos de café (chocolates, cacao y
+     * acompañamientos propiamente dichos).
+     */
+    protected array $subcatAcompanamientos = [131, 132, 155, 156, 157, 193];
+
+    public function cartaDelDiaPdf()
+    {
+        try {
+            $negocioId = negocio_actual_id();
+
+            $conNegocio = fn ($query) => $query->whereHas('negocios', fn ($n) => $n->where('negocio_id', $negocioId));
+
+            $preparados = Producto::where($conNegocio)
+                ->whereIn('subcategoria_id', $this->subcatPreparadosCafe)
+                ->orderBy('titulo')
+                ->take(30)
+                ->get();
+
+            $acompanamientos = Producto::where($conNegocio)
+                ->whereIn('subcategoria_id', $this->subcatAcompanamientos)
+                ->orderBy('titulo')
+                ->take(20)
+                ->get();
+
+            $ofertas = Producto::where($conNegocio)
+                ->where(function ($query) {
+                    $query->where('oferta', 1)
+                          ->orWhere('descuentoOferta', '>', 0);
+                })
+                ->orderBy('fecha', 'desc')
+                ->orderBy('id', 'desc')
+                ->take(12)
+                ->get();
+
+            // Evitar repetir un producto en varias secciones
+            $vistos = [];
+            $sinRepetir = function ($coleccion) use (&$vistos) {
+                return $coleccion->reject(function ($p) use (&$vistos) {
+                    if (isset($vistos[$p->id])) return true;
+                    $vistos[$p->id] = true;
+                    return false;
+                })->values();
+            };
+
+            $secciones = [
+                ['titulo' => 'Preparados de Café', 'productos' => $sinRepetir($preparados)],
+                ['titulo' => 'Acompañamientos', 'productos' => $sinRepetir($acompanamientos)],
+                ['titulo' => 'Ofertas del Día', 'productos' => $sinRepetir($ofertas)],
+            ];
+
+            $negocio = Negocio::find($negocioId);
+
+            $rutaImagen = function ($producto) {
+                foreach (array_filter([$producto->portada, ...multimedia_producto($producto)]) as $ruta) {
+                    $abs = Storage::disk('public')->path(ltrim($ruta, '/'));
+                    if (is_file($abs)) {
+                        return $abs;
+                    }
+                }
+                return null;
+            };
+
+            foreach ($secciones as &$seccion) {
+                $seccion['items'] = $seccion['productos']->map(function ($p) use ($rutaImagen) {
+                    return [
+                        'nombre' => $p->titulo,
+                        'descripcion' => Str::limit(strip_tags(html_entity_decode((string) ($p->descripcion ?? ''))), 110),
+                        'precio' => ($p->tipo === 'servicio' && $p->precio == 0) ? null : (float) $p->precio,
+                        'descuento' => max(0, (int) $p->descuentoOferta),
+                        'imagen' => $rutaImagen($p),
+                    ];
+                })->all();
+            }
+            unset($seccion);
+
+            $pdf = Pdf::loadView('productos.carta-del-dia-pdf', [
+                'secciones' => $secciones,
+                'negocio' => $negocio,
+                'fecha' => Str::ucfirst(now()->locale('es')->translatedFormat('l j \d\e F \d\e Y')),
+            ])->setPaper('a4', 'portrait');
+
+            return $pdf->stream('carta-del-dia.pdf');
+        } catch (\Exception $e) {
+            \Log::error('cartaDelDiaPdf: ' . $e->getMessage(), ['tr' => $e->getTraceAsString()]);
+            return redirect()
+                ->route('carta.del.dia')
+                ->with('error', 'No se pudo generar la carta en PDF: ' . $e->getMessage());
+        }
+    }
 
 // public function show($id)
 // {

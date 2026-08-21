@@ -22,30 +22,9 @@
                 <div class="col-6 col-md-4 col-lg-3">
                     <div class="card h-100 shadow-sm">
                         @php
-                            // intenta obtener la primera imagen del campo multimedia
-                            $img = null;
-                            if (!empty($producto->multimedia)) {
-                                $raw = $producto->multimedia;
-                                // Decodificar entidades HTML primero
-                                $raw = html_entity_decode($raw, ENT_QUOTES, 'UTF-8');
-                                $decoded = json_decode($raw, true);
-                                if (!is_array($decoded)) {
-                                    $limpio = stripslashes($raw);
-                                    if ($limpio !== $raw) {
-                                        $decoded = json_decode($limpio, true);
-                                    }
-                                }
-                                if (is_array($decoded) && count($decoded)) {
-                                    $img = $decoded[0];
-                                    if (is_array($img)) $img = $img['foto'] ?? '';
-                                }
-                                elseif (strpos($raw, ',') !== false) {
-                                    $img = explode(',', $raw)[0];
-                                    $img = trim($img, "[]\"'\\ \t\n\r");
-                                }
-                                else $img = $raw;
-                            }
-                        @endphp
+                        // primera imagen limpia del campo multimedia
+                        $img = multimedia_primera_imagen($producto);
+                    @endphp
 
                         @if ($img)
                             <img src="{{ asset('storage/' . trim($img)) }}" class="card-img-top" style="height:170px; object-fit:cover;" alt="{{ $producto->titulo }}">

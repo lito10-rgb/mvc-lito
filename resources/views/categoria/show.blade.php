@@ -9,6 +9,21 @@
         @include('partials.buscador')
     </div>
 
+    {{-- Carta del Día - Solo para Zona Cafetería --}}
+    @if($categoria->ruta === 'zona-cafeteria')
+    <div class="mb-4 p-3 rounded" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); border: 2px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+        <a href="{{ url('/carta-del-dia') }}" class="text-decoration-none">
+            <div class="d-flex align-items-center justify-content-center">
+                <i class="fa-solid fa-calendar-day fa-2x me-3 text-white"></i>
+                <div>
+                    <h5 class="mb-0 text-white fw-bold">Carta del Día</h5>
+                    <small class="text-white opacity-90">Ver productos destacados de hoy</small>
+                </div>
+            </div>
+        </a>
+    </div>
+    @endif
+
     @if($categoria->subcategorias->count() > 0)
         <div class="row">
             @foreach($categoria->subcategorias as $sub)
