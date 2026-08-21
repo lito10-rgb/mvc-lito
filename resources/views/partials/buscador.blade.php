@@ -159,8 +159,15 @@
 })();
 
 /* ── Subcategorías dependientes de categoría ── */
+@php
+    $mapaSubcatCategorias = \Illuminate\Support\Facades\DB::table('categoria_subcategoria')
+        ->get()
+        ->groupBy('subcategoria_id')
+        ->map(fn ($filas) => $filas->pluck('categoria_id')->all())
+        ->all();
+@endphp
 var catsData = @json($categorias->map(function($c) { return ['id' => $c->id, 'nombre' => $c->nombre]; }));
-var subsData = @json($subcategorias->map(function($s) { return ['id' => $s->id, 'id_categoria' => $s->id_categoria, 'subcategoria' => $s->subcategoria]; }));
+var subsData = @json($subcategorias->map(function($s) use ($mapaSubcatCategorias) { return ['id' => $s->id, 'cats' => $mapaSubcatCategorias[$s->id] ?? [(int) $s->id_categoria], 'subcategoria' => $s->subcategoria]; }));
 function filtrarSubcategorias(catNombre) {
     var select = document.getElementById('filtro-subcategoria');
     if (!select) return;
@@ -168,7 +175,7 @@ function filtrarSubcategorias(catNombre) {
     select.innerHTML = '<option value="">Subcategoría</option>';
     var cat = catsData.find(function(c) { return c.nombre === catNombre; });
     var catId = cat ? cat.id : null;
-    subsData.filter(function(s) { return !catId || s.id_categoria === catId; }).forEach(function(s) {
+    subsData.filter(function(s) { return !catId || s.cats.indexOf(catId) !== -1; }).forEach(function(s) {
         var opt = document.createElement('option');
         opt.value = s.subcategoria;
         opt.textContent = s.subcategoria;

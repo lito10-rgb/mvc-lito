@@ -84,8 +84,9 @@ class ProductoController extends Controller
         $cabecera = null;
         $negocios = Negocio::all();
         $productoNegocioIds = Negocio::where('dominio', 'equiposymaquinas.com')->pluck('id')->toArray();
+        $productoCartaIds = [];
 
-        return view('admin.productos.create', compact('categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds'));
+        return view('admin.productos.create', compact('categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds', 'productoCartaIds'));
     }
 
     
@@ -107,14 +108,15 @@ class ProductoController extends Controller
     public function edit(Producto $producto)
     {
         $categorias = Categoria::all();
-        $subcategorias = Subcategoria::where('id_categoria', $producto->categoria_id)->get();
+        $subcategorias = Subcategoria::whereHas('categorias', fn($q) => $q->where('categorias.id', $producto->categoria_id))->get();
         $marcas = Marca::all();
         $proveedores = Proveedor::all();
         $cabecera = null;
         $negocios = Negocio::all();
         $productoNegocioIds = $producto->negocios->pluck('id')->toArray();
+        $productoCartaIds = $producto->cartaNegocios->pluck('id')->toArray();
 
-        return view('admin.productos.edit', compact('producto', 'categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds'));
+        return view('admin.productos.edit', compact('producto', 'categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds', 'productoCartaIds'));
     }
 
     
@@ -128,12 +130,13 @@ class ProductoController extends Controller
     public function duplicar(Producto $producto)
     {
         $categorias = Categoria::all();
-        $subcategorias = Subcategoria::where('id_categoria', $producto->categoria_id)->get();
+        $subcategorias = Subcategoria::whereHas('categorias', fn($q) => $q->where('categorias.id', $producto->categoria_id))->get();
         $marcas = Marca::all();
         $proveedores = Proveedor::all();
         $cabecera = null;
         $negocios = Negocio::all();
         $productoNegocioIds = $producto->negocios->pluck('id')->toArray();
+        $productoCartaIds = $producto->cartaNegocios->pluck('id')->toArray();
 
         $origen = clone $producto;
         $origen->titulo = $producto->titulo . ' (copia)';
@@ -144,7 +147,7 @@ class ProductoController extends Controller
         $origen->vistasGratis = rand(0, 50);
         $origen->ventasGratis = rand(0, 20);
 
-        return view('admin.productos.create', compact('categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds', 'origen'));
+        return view('admin.productos.create', compact('categorias', 'subcategorias', 'marcas', 'proveedores', 'cabecera', 'negocios', 'productoNegocioIds', 'productoCartaIds', 'origen'));
     }
     ////////////lito store
    public function store(Request $request)
@@ -231,6 +234,7 @@ class ProductoController extends Controller
 
     // Negocios
     $producto->negocios()->sync($request->input('negocios', []));
+    $producto->cartaNegocios()->sync($request->input('carta_negocios', []));
 
     // Cabecera
     Cabecera::create([
@@ -383,6 +387,7 @@ public function update(Request $request, Producto $producto)
 
     // Negocios
     $producto->negocios()->sync($request->input('negocios', []));
+    $producto->cartaNegocios()->sync($request->input('carta_negocios', []));
 
     // CABECERA
     Cabecera::updateOrCreate(

@@ -500,15 +500,22 @@
     const errorDiv = document.getElementById('qe-error');
     const submitBtn = document.getElementById('qe-submit');
 
-    // subcategorias data
-    const subcategorias = @json($subcategorias->map(function($s) { return ['id' => $s->id, 'id_categoria' => $s->id_categoria, 'subcategoria' => $s->subcategoria]; }));
+    // subcategorias data (con todas sus categorías, propias y compartidas)
+    @php
+        $mapaSubcatCategorias = \Illuminate\Support\Facades\DB::table('categoria_subcategoria')
+            ->get()
+            ->groupBy('subcategoria_id')
+            ->map(fn ($filas) => $filas->pluck('categoria_id')->all())
+            ->all();
+    @endphp
+    const subcategorias = @json($subcategorias->map(function($s) use ($mapaSubcatCategorias) { return ['id' => $s->id, 'cats' => $mapaSubcatCategorias[$s->id] ?? [(int) $s->id_categoria], 'subcategoria' => $s->subcategoria]; }));
 
     let currentProductId = null;
 
     // filtrar subcategorias por categoria
     function filtrarSubcats(catId) {
         selectSub.innerHTML = '<option value="">Seleccionar</option>';
-        subcategorias.filter(function(s) { return String(s.id_categoria) === String(catId); })
+        subcategorias.filter(function(s) { return !catId || s.cats.map(String).indexOf(String(catId)) !== -1; })
             .forEach(function(s) {
                 var opt = document.createElement('option');
                 opt.value = s.id;
@@ -1031,13 +1038,13 @@
 })();
 
 /* ── Filtro de subcategorías dependiente de categoría ── */
-var subsData = @json($subcategorias->map(function($s) { return ['id' => $s->id, 'id_categoria' => $s->id_categoria, 'subcategoria' => $s->subcategoria]; }));
+var subsData = @json($subcategorias->map(function($s) use ($mapaSubcatCategorias) { return ['id' => $s->id, 'cats' => $mapaSubcatCategorias[$s->id] ?? [(int) $s->id_categoria], 'subcategoria' => $s->subcategoria]; }));
 function filtrarSubcategorias(catId) {
     var select = document.getElementById('filtro-subcategoria');
     if (!select) return;
     var selectedVal = '{{ request('subcategoria_id') }}';
     select.innerHTML = '<option value="">Todas</option>';
-    subsData.filter(function(s) { return !catId || String(s.id_categoria) === String(catId); }).forEach(function(s) {
+    subsData.filter(function(s) { return !catId || s.cats.map(String).indexOf(String(catId)) !== -1; }).forEach(function(s) {
         var opt = document.createElement('option');
         opt.value = s.id;
         opt.textContent = s.subcategoria;

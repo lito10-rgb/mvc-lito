@@ -273,76 +273,77 @@ public function mostrarProducto($ruta)
     return view('productos.detalle', compact('producto', 'cabecera', 'relacionados'));
 }
 
-public function cartaDelDia()
-{
-    try {
-        $negocioId = negocio_actual_id();
-        
-        // Buscar productos marcados como destacados/del día
-        $productos = Producto::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
-            ->where(function($query) {
-                $query->where('oferta', 1) // Usamos el campo oferta como "del día"
-                      ->orWhere('descuentoOferta', '>', 0); // O productos con descuento
+    /**
+     * Secciones principales de la carta por subcategoría (solo se llenan con
+     * productos del negocio actual).
+     */
+    protected array $seccionesCarta = [
+        ['titulo' => 'Bebidas de Café', 'subcategorias' => [192]],
+        ['titulo' => 'Combos Especiales', 'subcategorias' => [186]],
+        ['titulo' => 'Café Tostado Molido', 'subcategorias' => [130, 188]],
+        ['titulo' => 'Regalos de Café', 'subcategorias' => [183]],
+    ];
+
+    /**
+     * Productos de la carta del negocio: los marcados manualmente en el admin
+     * (pivote carta_productos) más los automáticos por subcategoría.
+     */
+    public function productosEnCarta(int $negocioId)
+    {
+        $subcatsCarta = collect($this->seccionesCarta)->pluck('subcategorias')->flatten()->unique()->all();
+
+        return Producto::where(function ($query) use ($negocioId, $subcatsCarta) {
+                $query->where(function ($automatico) use ($negocioId, $subcatsCarta) {
+                    $automatico->whereHas('negocios', fn ($n) => $n->where('negocio_id', $negocioId))
+                        ->whereIn('subcategoria_id', $subcatsCarta);
+                })->orWhere(function ($marcado) use ($negocioId) {
+                    $marcado->whereHas('negocios', fn ($n) => $n->where('negocio_id', $negocioId))
+                        ->whereHas('cartaNegocios', fn ($c) => $c->where('carta_productos.negocio_id', $negocioId));
+                });
             })
-            ->orderBy('fecha', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(12);
-        
-        $categorias = \App\Models\Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
-        $marcas = Marca::all();
-        $subcategorias = Subcategoria::all();
-
-        return view('productos.carta-del-dia', compact('productos', 'categorias', 'marcas', 'subcategorias'));
-    } catch (\Exception $e) {
-        // Si hay error, mostrar productos vacíos con mensaje
-        $productos = collect();
-        $categorias = \App\Models\Categoria::all();
-        $marcas = Marca::all();
-        $subcategorias = Subcategoria::all();
-        return view('productos.carta-del-dia', compact('productos', 'categorias', 'marcas', 'subcategorias'))->with('error', 'Error al cargar productos: ' . $e->getMessage());
+            ->orderBy('titulo')
+            ->orderBy('id')
+            ->get();
     }
-}
 
-    /**
-     * Subcategorías que agrupan los preparados de café (bebidas, café en
-     * grano/molido/pergamino/verde, cápsulas, instantáneo y gourmet).
-     */
-    protected array $subcatPreparadosCafe = [125, 126, 127, 128, 129, 130, 153, 154, 158, 187, 188, 192];
+    public function cartaDelDia()
+    {
+        try {
+            $negocioId = negocio_actual_id();
 
-    /**
-     * Subcategorías de acompañamientos de café (chocolates, cacao y
-     * acompañamientos propiamente dichos).
-     */
-    protected array $subcatAcompanamientos = [131, 132, 155, 156, 157, 193];
+            // Productos de la carta: marcados manualmente + automáticos por subcategoría
+            $todos = $this->productosEnCarta($negocioId);
+
+            $pagina = \Illuminate\Pagination\Paginator::resolveCurrentPage();
+            $productos = new \Illuminate\Pagination\LengthAwarePaginator(
+                $todos->forPage($pagina, 12),
+                $todos->count(),
+                12,
+                $pagina,
+                ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => request()->query()]
+            );
+
+            $categorias = \App\Models\Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+            $marcas = Marca::all();
+            $subcategorias = Subcategoria::all();
+
+            return view('productos.carta-del-dia', compact('productos', 'categorias', 'marcas', 'subcategorias'));
+        } catch (\Exception $e) {
+            // Si hay error, mostrar productos vacíos con mensaje
+            $productos = collect();
+            $categorias = \App\Models\Categoria::all();
+            $marcas = Marca::all();
+            $subcategorias = Subcategoria::all();
+            return view('productos.carta-del-dia', compact('productos', 'categorias', 'marcas', 'subcategorias'))->with('error', 'Error al cargar productos: ' . $e->getMessage());
+        }
+    }
 
     public function cartaDelDiaPdf()
     {
         try {
             $negocioId = negocio_actual_id();
 
-            $conNegocio = fn ($query) => $query->whereHas('negocios', fn ($n) => $n->where('negocio_id', $negocioId));
-
-            $preparados = Producto::where($conNegocio)
-                ->whereIn('subcategoria_id', $this->subcatPreparadosCafe)
-                ->orderBy('titulo')
-                ->take(30)
-                ->get();
-
-            $acompanamientos = Producto::where($conNegocio)
-                ->whereIn('subcategoria_id', $this->subcatAcompanamientos)
-                ->orderBy('titulo')
-                ->take(20)
-                ->get();
-
-            $ofertas = Producto::where($conNegocio)
-                ->where(function ($query) {
-                    $query->where('oferta', 1)
-                          ->orWhere('descuentoOferta', '>', 0);
-                })
-                ->orderBy('fecha', 'desc')
-                ->orderBy('id', 'desc')
-                ->take(12)
-                ->get();
+            $enCarta = $this->productosEnCarta($negocioId);
 
             // Evitar repetir un producto en varias secciones
             $vistos = [];
@@ -354,11 +355,35 @@ public function cartaDelDia()
                 })->values();
             };
 
-            $secciones = [
-                ['titulo' => 'Preparados de Café', 'productos' => $sinRepetir($preparados)],
-                ['titulo' => 'Acompañamientos', 'productos' => $sinRepetir($acompanamientos)],
-                ['titulo' => 'Ofertas del Día', 'productos' => $sinRepetir($ofertas)],
-            ];
+            // Secciones fijas por subcategoría
+            $secciones = [];
+            foreach ($this->seccionesCarta as $definicion) {
+                $grupo = $sinRepetir($enCarta->whereIn('subcategoria_id', $definicion['subcategorias']));
+                if ($grupo->isNotEmpty()) {
+                    $secciones[] = ['titulo' => $definicion['titulo'], 'productos' => $grupo];
+                }
+            }
+
+            // Productos marcados manualmente que no cayeron en las secciones fijas
+            $destacados = $sinRepetir($enCarta);
+            if ($destacados->isNotEmpty()) {
+                $secciones[] = ['titulo' => 'Destacados', 'productos' => $destacados];
+            }
+
+            // Ofertas del día como cierre
+            $ofertas = Producto::whereHas('negocios', fn ($n) => $n->where('negocio_id', $negocioId))
+                ->where(function ($query) {
+                    $query->where('oferta', 1)
+                          ->orWhere('descuentoOferta', '>', 0);
+                })
+                ->orderBy('fecha', 'desc')
+                ->orderBy('id', 'desc')
+                ->take(12)
+                ->get();
+
+            if ($ofertas->isNotEmpty()) {
+                $secciones[] = ['titulo' => 'Ofertas del Día', 'productos' => $sinRepetir($ofertas)];
+            }
 
             $negocio = Negocio::find($negocioId);
 

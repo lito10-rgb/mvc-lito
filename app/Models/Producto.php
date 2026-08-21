@@ -81,6 +81,14 @@ class Producto extends Model
         return $this->belongsToMany(Negocio::class, 'producto_negocio');
     }
 
+    /**
+     * Negocios cuya carta / catálogo incluye este producto.
+     */
+    public function cartaNegocios()
+    {
+        return $this->belongsToMany(Negocio::class, 'carta_productos');
+    }
+
     // Método para obtener titular con encoding correcto
     public function getTitularDecodedAttribute()
     {

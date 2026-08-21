@@ -25,9 +25,13 @@ class Categoria extends Model
         'fecha',
     ];
 
+    /**
+     * Subcategorías de la categoría (propias y compartidas vía pivote).
+     * La columna subcategorias.id_categoria sigue siendo el dueño primario.
+     */
     public function subcategorias()
     {
-        return $this->hasMany(Subcategoria::class, 'id_categoria');
+        return $this->belongsToMany(Subcategoria::class, 'categoria_subcategoria');
     }
 
     public function productos()

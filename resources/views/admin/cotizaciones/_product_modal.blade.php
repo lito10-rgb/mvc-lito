@@ -87,8 +87,16 @@
     const rows = tabla.querySelectorAll('tbody tr');
     const contador = document.getElementById('productoCount');
 
-    // subcategorias por categoria
-    const subcats = @json(\App\Models\Subcategoria::orderBy('subcategoria')->get(['id', 'id_categoria', 'subcategoria']));
+    // subcategorias por categoria (propias y compartidas)
+    @php
+        $mapaSubcatCategorias = \Illuminate\Support\Facades\DB::table('categoria_subcategoria')
+            ->get()
+            ->groupBy('subcategoria_id')
+            ->map(fn ($filas) => $filas->pluck('categoria_id')->all())
+            ->all();
+        $subcatsModal = \App\Models\Subcategoria::orderBy('subcategoria')->get(['id', 'id_categoria', 'subcategoria']);
+    @endphp
+    const subcats = @json($subcatsModal->map(function($s) use ($mapaSubcatCategorias) { return ['id' => $s->id, 'cats' => $mapaSubcatCategorias[$s->id] ?? [(int) $s->id_categoria], 'subcategoria' => $s->subcategoria]; }));
 
     function filtrar() {
         const texto = buscar.value.toLowerCase();

@@ -407,6 +407,23 @@
     </div>
 </div>
 
+<div class="mb-3">
+    <label class="form-label">En Carta / Catálogo de</label>
+    <div class="row">
+        @foreach($negocios as $neg)
+        <div class="col-md-4">
+            <div class="form-check">
+                <input type="checkbox" name="carta_negocios[]" value="{{ $neg->id }}" class="form-check-input"
+                    id="carta_{{ $neg->id }}"
+                    {{ in_array($neg->id, old('carta_negocios', $productoCartaIds ?? [])) ? 'checked' : '' }}>
+                <label class="form-check-label" for="carta_{{ $neg->id }}">{{ $neg->nombre }}</label>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    <small class="text-muted">Los productos marcados aparecen en la Carta del Día (página y PDF) del negocio elegido.</small>
+</div>
+
 <button type="submit" class="btn btn-primary">Guardar</button>
 </form>
 <!-- <script>

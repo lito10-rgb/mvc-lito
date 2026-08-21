@@ -21,6 +21,14 @@ class Negocio extends Model
         return $this->belongsToMany(Producto::class, 'producto_negocio');
     }
 
+    /**
+     * Productos incluidos en la carta / catálogo de este negocio.
+     */
+    public function cartaProductos()
+    {
+        return $this->belongsToMany(Producto::class, 'carta_productos');
+    }
+
     public function categorias()
     {
         return $this->belongsToMany(Categoria::class, 'categoria_negocio');

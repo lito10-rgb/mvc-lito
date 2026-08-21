@@ -30,7 +30,7 @@ class SubcategoriasController extends Controller
 public function porCategoria($id_categoria)
     {
         $negocioId = negocio_actual_id();
-        return Subcategoria::where('id_categoria', $id_categoria)
+        return Subcategoria::whereHas('categorias', fn($q) => $q->where('categorias.id', $id_categoria))
             ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
             ->get();
     }

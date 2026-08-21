@@ -33,6 +33,14 @@ class Subcategoria extends Model
         return $this->belongsTo(Categoria::class, 'id_categoria');
     }
 
+    /**
+     * Todas las categorías que muestran esta subcategoría (propias y compartidas).
+     */
+    public function categorias()
+    {
+        return $this->belongsToMany(Categoria::class, 'categoria_subcategoria');
+    }
+
     public function negocios()
     {
         return $this->belongsToMany(Negocio::class, 'subcategoria_negocio');

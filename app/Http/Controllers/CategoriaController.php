@@ -115,7 +115,7 @@ public function showByRuta($ruta)
      public function subcategorias($id)
     {
         $negocioId = negocio_actual_id();
-        $subcats = Subcategoria::where('id_categoria', $id)
+        $subcats = Subcategoria::whereHas('categorias', fn($q) => $q->where('categorias.id', $id))
             ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
             ->orderBy('subcategoria', 'ASC')
             ->get(['id', 'subcategoria']);
