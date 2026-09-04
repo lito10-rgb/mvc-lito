@@ -173,7 +173,7 @@ document.getElementById('buscarClientes')?.addEventListener('input', function() 
     const q = this.value.trim();
     if (q.length < 2) return;
     searchTimeout = setTimeout(async () => {
-        const res = await fetch(`/mvc-lito/public/admin/usuarios/buscar?q=${encodeURIComponent(q)}`);
+        const res = await fetch("{{ url('/admin/usuarios/buscar') }}?q=${encodeURIComponent(q)}");
         const data = await res.json();
         const list = document.getElementById('clientesList');
         list.innerHTML = data.map(u => `

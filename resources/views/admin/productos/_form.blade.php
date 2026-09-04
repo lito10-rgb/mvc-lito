@@ -584,7 +584,7 @@
         subcategoriaSelect.innerHTML = '<option value="">-- Cargando... --</option>';
 
         if (categoriaId) {
-            fetch(`/mvc-lito/public/subcategoria/${categoriaId}`)
+            fetch("{{ url('/subcategoria') }}/${categoriaId}")
                 .then(response => {
                     if (!response.ok) throw new Error('Error en la respuesta de la red');
                     return response.json();

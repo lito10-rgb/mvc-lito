@@ -5,7 +5,7 @@
     </div>
 
     <nav class="mt-1 pb-3">
-        <a href="/mvc-lito/public/admin/negocios" class="sidebar-link" style="background:#dc3545;color:#fff!important;">
+        <a href="{{ route('admin.negocios.index') }}" class="sidebar-link" style="background:#dc3545;color:#fff!important;">
             <i class="fas fa-store me-2"></i> ⚡ NEGOCIOS (prueba)
         </a>
         <div class="px-3 py-2 text-secondary small text-uppercase fw-bold">Principal</div>
@@ -80,7 +80,7 @@
         </a>
 
         <div class="px-3 py-2 text-secondary small text-uppercase fw-bold mt-2">Sistema</div>
-        <a href="/mvc-lito/public/admin/negocios" class="sidebar-link">
+        <a href="{{ route('admin.negocios.index') }}" class="sidebar-link">
             <i class="fas fa-store me-2"></i> Negocios / Sitios
         </a>
         <a href="{{ route('admin.mi-perfil') }}" class="sidebar-link">
