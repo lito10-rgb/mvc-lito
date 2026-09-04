@@ -115,6 +115,8 @@ class CotizacionController extends Controller
                     'empresa' => $emisor->profile->empresa ?? '',
                     'telefono' => $emisor->profile->telefono ?? '',
                     'direccion' => $emisor->profile->direccion ?? '',
+                    'tipo_documento' => $emisor->profile->tipo_documento ?? '',
+                    'num_documento' => $emisor->profile->num_documento ?? '',
                 ];
             }
         }
@@ -236,6 +238,8 @@ class CotizacionController extends Controller
                     'empresa' => $emisor->profile->empresa ?? '',
                     'telefono' => $emisor->profile->telefono ?? '',
                     'direccion' => $emisor->profile->direccion ?? '',
+                    'tipo_documento' => $emisor->profile->tipo_documento ?? '',
+                    'num_documento' => $emisor->profile->num_documento ?? '',
                 ];
             }
         }
@@ -301,6 +305,72 @@ class CotizacionController extends Controller
     public function print(Cotizacion $cotizacione)
     {
         return view('admin.cotizaciones.print', compact('cotizacione'));
+    }
+
+    public function generarRecibo(Cotizacion $cotizacione)
+    {
+        if (is_null($cotizacione->recibo_numero)) {
+            $proximo = (int) Cotizacion::max('recibo_numero');
+            $cotizacione->update([
+                'recibo_numero' => max($proximo + 1, 1230),
+                'recibo_fecha' => now(),
+            ]);
+        }
+
+        return redirect()->route('admin.cotizaciones.recibo', $cotizacione);
+    }
+
+    public function verRecibo(Cotizacion $cotizacione)
+    {
+        if (is_null($cotizacione->recibo_numero)) {
+            return redirect()->route('admin.cotizaciones.show', $cotizacione)
+                ->with('error', 'Primero genere el recibo para esta cotización.');
+        }
+
+        $cotizacione->load(['logo.negocio', 'emisor.profile']);
+
+        return view('admin.cotizaciones.recibo', compact('cotizacione'));
+    }
+
+    public function editarRecibo(Cotizacion $cotizacione)
+    {
+        if (is_null($cotizacione->recibo_numero)) {
+            return redirect()->route('admin.cotizaciones.show', $cotizacione)
+                ->with('error', 'Primero genere el recibo para esta cotización.');
+        }
+
+        return view('admin.cotizaciones.recibo_edit', compact('cotizacione'));
+    }
+
+    public function actualizarRecibo(Request $request, Cotizacion $cotizacione)
+    {
+        $validated = $request->validate([
+            'recibo_fecha' => 'nullable|date',
+            'recibo_metodo_pago' => 'nullable|string|max:100',
+            'recibo_recibido_por' => 'nullable|string|max:255',
+            'recibo_pagado_por' => 'nullable|string|max:255',
+            'recibo_monto_pagado' => 'nullable|numeric|min:0',
+            'recibo_observaciones' => 'nullable|string',
+        ]);
+
+        $montoPagado = null;
+        if ($validated['recibo_monto_pagado'] !== null && $validated['recibo_monto_pagado'] !== '') {
+            $montoPagado = (float) $validated['recibo_monto_pagado'];
+        }
+
+        $cotizacione->update([
+            'recibo_fecha' => !empty($validated['recibo_fecha'])
+                ? \Carbon\Carbon::parse($validated['recibo_fecha'])
+                : $cotizacione->recibo_fecha,
+            'recibo_metodo_pago' => $validated['recibo_metodo_pago'] ?? null,
+            'recibo_recibido_por' => $validated['recibo_recibido_por'] ?? null,
+            'recibo_pagado_por' => $validated['recibo_pagado_por'] ?? null,
+            'recibo_monto_pagado' => $montoPagado,
+            'recibo_observaciones' => $validated['recibo_observaciones'] ?? null,
+        ]);
+
+        return redirect()->route('admin.cotizaciones.recibo', $cotizacione)
+            ->with('success', 'Recibo actualizado correctamente.');
     }
 
     public function crearCliente(Request $request)

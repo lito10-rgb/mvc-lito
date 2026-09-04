@@ -67,6 +67,12 @@ public function showRegisterForm()
 // Registrar nuevo usuario
 public function register(Request $request)
 {
+    // Honeypot: si el campo oculto "website" viene relleno, es un bot.
+    // Se devuelve "éxito" pero NO se crea nada, para no revelar la trampa.
+    if (!empty($request->website)) {
+        return redirect('/')->with('success', 'Registro exitoso, bienvenido!');
+    }
+
     // Validar campos
     $request->validate([
         'nombre' => 'required|string|max:255',

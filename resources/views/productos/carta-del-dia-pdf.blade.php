@@ -5,68 +5,133 @@
 <title>Carta del Día</title>
 <style>
     @page {
-        margin: 28px 32px 40px 32px;
+        margin: 24px 30px 38px 30px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: "DejaVu Sans", sans-serif;
         font-size: 11px;
         color: #3b2a20;
-        line-height: 1.45;
+        line-height: 1.5;
+        padding: 0 22px;
     }
-    .cabecera { text-align: center; padding-bottom: 14px; border-bottom: 3px solid #6f4e37; margin-bottom: 18px; }
-    .cabecera img.logo { height: 64px; margin-bottom: 8px; }
+
+    /* ── Cabecera ── */
+    .cabecera {
+        text-align: center;
+        padding: 18px 0 16px;
+        border-bottom: 4px solid #6f4e37;
+        margin-bottom: 20px;
+        background: linear-gradient(to bottom, #f7f1ea 0%, #ffffff 100%);
+        border-radius: 8px 8px 0 0;
+    }
+    .cabecera img.logo {
+        height: 100px;
+        margin-bottom: 10px;
+        object-fit: contain;
+    }
     .negocio-nombre {
-        font-size: 26px;
-        letter-spacing: 4px;
+        font-size: 30px;
+        letter-spacing: 5px;
         color: #4b2e2a;
         text-transform: uppercase;
         font-weight: bold;
     }
     .carta-titulo {
-        font-size: 15px;
+        font-size: 17px;
         color: #a47148;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
         text-transform: uppercase;
+        font-weight: bold;
         margin-top: 6px;
     }
-    .fecha { font-size: 10px; color: #8d7b71; margin-top: 4px; }
+    .fecha {
+        font-size: 10px;
+        color: #8d7b71;
+        margin-top: 5px;
+        letter-spacing: 1px;
+    }
 
-    .seccion { margin-bottom: 22px; }
+    /* ── Secciones ── */
+    .seccion { margin-bottom: 24px; }
     .seccion-titulo {
         font-size: 14px;
         color: #ffffff;
         background-color: #6f4e37;
-        padding: 5px 12px;
-        letter-spacing: 2px;
+        padding: 7px 14px;
+        letter-spacing: 3px;
         text-transform: uppercase;
-        border-radius: 3px;
-        margin-bottom: 10px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
-    table.item { width: 100%; border-collapse: collapse; margin-bottom: 9px; page-break-inside: avoid; }
-    table.item td { vertical-align: top; }
-    td.item-img { width: 78px; padding-right: 10px; }
-    td.item-img img { width: 78px; height: 58px; object-fit: cover; border-radius: 3px; }
-    td.item-info { padding-right: 8px; }
-    .item-nombre { font-size: 12px; font-weight: bold; color: #4b2e2a; }
-    .item-desc { font-size: 9.5px; color: #7a6a60; margin-top: 1px; }
-    td.item-precio { width: 90px; text-align: right; white-space: nowrap; }
-    .precio { font-size: 13px; font-weight: bold; color: #6f4e37; }
+
+    table.item {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+        page-break-inside: avoid;
+        border-bottom: 1px solid #f0e6dd;
+        padding-bottom: 6px;
+    }
+    table.item td { vertical-align: middle; }
+    td.item-img { width: 92px; padding-right: 12px; }
+    td.item-img img {
+        width: 92px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    }
+    td.item-info { padding-right: 10px; }
+    .item-nombre {
+        font-size: 12.5px;
+        font-weight: bold;
+        color: #4b2e2a;
+        letter-spacing: 0.3px;
+    }
+    .item-desc {
+        font-size: 9.5px;
+        color: #7a6a60;
+        margin-top: 2px;
+        line-height: 1.4;
+    }
+    td.item-precio { width: 100px; text-align: right; white-space: nowrap; }
+    .precio {
+        font-size: 14px;
+        font-weight: bold;
+        color: #6f4e37;
+        background-color: #f7f1ea;
+        padding: 3px 8px;
+        border-radius: 4px;
+        display: inline-block;
+    }
     .badge-desc {
         display: inline-block;
         background-color: #c1440e;
         color: #fff;
         font-size: 8.5px;
-        padding: 1px 6px;
+        font-weight: bold;
+        padding: 1px 7px;
         border-radius: 8px;
-        margin-top: 2px;
+        margin-top: 3px;
     }
     .consultar { font-size: 10px; font-weight: bold; color: #a47148; }
 
-    .pie-pagina { margin-top: 14px; border-top: 2px solid #6f4e37; padding-top: 8px; text-align: center; font-size: 9px; color: #8d7b71; }
-    .pie-pagina span { margin: 0 8px; }
+    /* ── Pie de página ── */
+    .pie-pagina {
+        margin-top: 16px;
+        border-top: 3px solid #6f4e37;
+        padding-top: 10px;
+        text-align: center;
+        font-size: 9px;
+        color: #8d7b71;
+        letter-spacing: 0.5px;
+    }
+    .pie-pagina span { margin: 0 10px; }
 
-    .sin-productos { font-style: italic; color: #a0938b; font-size: 10px; }
+    .sin-productos { font-style: italic; color: #a0938b; font-size: 10px; text-align: center; padding: 20px 0; }
 </style>
 </head>
 <body>

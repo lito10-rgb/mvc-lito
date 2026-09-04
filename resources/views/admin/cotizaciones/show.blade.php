@@ -13,6 +13,21 @@
             <a href="{{ route('admin.cotizaciones.print', $cotizacione) }}" class="btn btn-outline-dark" target="_blank">
                 <i class="fas fa-print me-1"></i> Imprimir
             </a>
+            @if(is_null($cotizacione->recibo_numero))
+                <form action="{{ route('admin.cotizaciones.generarRecibo', $cotizacione) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Generar el recibo de esta cotización? Se asignará el siguiente número de recibo (empezando en 1230).');">
+                    @csrf
+                    <button type="submit" class="btn btn-info text-white">
+                        <i class="fas fa-receipt me-1"></i> Generar Recibo
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('admin.cotizaciones.recibo', $cotizacione) }}" class="btn btn-info text-white" target="_blank">
+                    <i class="fas fa-receipt me-1"></i> Recibo N.º {{ $cotizacione->recibo_numero }}
+                </a>
+                <a href="{{ route('admin.cotizaciones.recibo.edit', $cotizacione) }}" class="btn btn-outline-info">
+                    <i class="fas fa-edit me-1"></i> Editar Recibo
+                </a>
+            @endif
             <a href="{{ route('admin.cotizaciones.edit', $cotizacione) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-1"></i> Editar
             </a>

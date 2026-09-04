@@ -235,6 +235,7 @@ class ProductoController extends Controller
     // Negocios
     $producto->negocios()->sync($request->input('negocios', []));
     $producto->cartaNegocios()->sync($request->input('carta_negocios', []));
+        DB::table('carta_excluidos')->where('producto_id', $producto->id)->delete();
 
     // Cabecera
     Cabecera::create([
@@ -388,6 +389,7 @@ public function update(Request $request, Producto $producto)
     // Negocios
     $producto->negocios()->sync($request->input('negocios', []));
     $producto->cartaNegocios()->sync($request->input('carta_negocios', []));
+        DB::table('carta_excluidos')->where('producto_id', $producto->id)->delete();
 
     // CABECERA
     Cabecera::updateOrCreate(
@@ -586,6 +588,158 @@ public function update(Request $request, Producto $producto)
         return response()->json([
             'success' => true,
             'message' => "Marca actualizada en {$actualizados} producto(s).",
+        ]);
+    }
+
+    public function bulkUpdateImagen(Request $request)
+    {
+        $portadas = $request->file('portadas');
+        $galerias = $request->file('galerias');
+
+        if ((!is_array($portadas) || !count($portadas)) && (!is_array($galerias) || !count($galerias))) {
+            return response()->json(['success' => false, 'message' => 'No se subió ninguna imagen.'], 422);
+        }
+
+        $actualizados = 0;
+        $errores = [];
+
+        // IDs involucrados (de portadas y/o galerías)
+        $ids = array_unique(array_merge(
+            is_array($portadas) ? array_keys($portadas) : [],
+            is_array($galerias) ? array_keys($galerias) : []
+        ));
+
+        foreach ($ids as $id) {
+            if (!is_numeric($id) || (int) $id === 0) continue;
+
+            $producto = Producto::find($id);
+            if (!$producto) {
+                $errores[] = "El producto #{$id} no existe.";
+                continue;
+            }
+
+            $cambios = [];
+
+            // Portada
+            if (isset($portadas[$id]) && $portadas[$id] && $portadas[$id]->isValid()) {
+                $ruta = $portadas[$id]->store('imagenes/productos', 'public');
+
+                if ($producto->portada && $producto->portada !== 'defaults/default-portada.jpg'
+                    && Storage::disk('public')->exists($producto->portada)) {
+                    Storage::disk('public')->delete($producto->portada);
+                }
+
+                $cambios['portada'] = $ruta;
+            }
+
+            // Galería multimedia (se agregan a las existentes, sin borrar)
+            if (isset($galerias[$id])) {
+                $imagenes = json_decode($producto->multimedia, true) ?? [];
+                $filas = is_array($galerias[$id]) ? $galerias[$id] : [$galerias[$id]];
+                foreach ($filas as $file) {
+                    if ($file && $file->isValid()) {
+                        $imagenes[] = $file->store('imagenes/productos', 'public');
+                    }
+                }
+                if (count($imagenes)) {
+                    $cambios['multimedia'] = json_encode(array_values($imagenes));
+                }
+            }
+
+            if ($cambios) {
+                $producto->update($cambios);
+                $actualizados++;
+            }
+        }
+
+        $mensaje = "Imágenes actualizadas en {$actualizados} producto(s).";
+        if ($errores) {
+            $mensaje .= ' ' . implode(' ', $errores);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $mensaje,
+        ]);
+    }
+
+    public function bulkUpdateCarta(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'Formato inválido.'], 422);
+        }
+        $actualizados = 0;
+        foreach ($ids as $id) {
+            if (!is_numeric($id) || (int) $id === 0) continue;
+            $producto = Producto::find($id);
+            if (!$producto) continue;
+
+            // Marcar en la carta de cada negocio al que ya pertenece el producto
+            foreach ($producto->negocios()->pluck('negocio_id') as $negocioId) {
+                $producto->cartaNegocios()->syncWithoutDetaching([$negocioId]);
+            }
+
+            // Re-activar: anular cualquier exclusión previa de la carta
+            DB::table('carta_excluidos')->where('producto_id', $producto->id)->delete();
+            $actualizados++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Productos agregados a la Carta / Catálogo: {$actualizados}.",
+        ]);
+    }
+
+    public function bulkRemoveCarta(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (!is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'Formato inválido.'], 422);
+        }
+
+        $actualizados = 0;
+        foreach ($ids as $id) {
+            if (!is_numeric($id) || (int) $id === 0) continue;
+            $producto = Producto::find($id);
+            if (!$producto) continue;
+
+            // Quitar de la carta de todos los negocios
+            $producto->cartaNegocios()->detach();
+
+            // Excluir: anula también la inclusión automática por subcategoría
+            foreach ($producto->negocios()->pluck('negocio_id') as $negocioId) {
+                DB::table('carta_excluidos')->updateOrInsert(
+                    ['negocio_id' => $negocioId, 'producto_id' => $producto->id],
+                    ['created_at' => now(), 'updated_at' => now()]
+                );
+            }
+            $actualizados++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Productos quitados de la Carta / Catálogo: {$actualizados}.",
+        ]);
+    }
+
+    public function cartaLista()
+    {
+        $ctrl = app(\App\Http\Controllers\ProductosController::class);
+
+        $map = [];
+        foreach (\App\Models\Negocio::orderBy('id')->get(['id', 'nombre']) as $negocio) {
+            foreach ($ctrl->productosEnCarta((int) $negocio->id) as $p) {
+                if (!isset($map[$p->id])) {
+                    $map[$p->id] = ['id' => $p->id, 'titulo' => $p->titulo, 'negocios' => []];
+                }
+                $map[$p->id]['negocios'][] = $negocio->nombre;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'productos' => array_values($map),
         ]);
     }
 }

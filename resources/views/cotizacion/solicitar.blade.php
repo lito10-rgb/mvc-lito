@@ -16,7 +16,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <h5>{{ $producto->titulo }}</h5>
-            <p class="text-muted">{{ Str::limit($producto->descripcion, 200) }}</p>
+            <p class="text-muted">{{ Str::limit(strip_tags(html_entity_decode($producto->descripcion)), 200) }}</p>
 
             <form method="POST" action="{{ route('cotizacion.store') }}">
                 @csrf

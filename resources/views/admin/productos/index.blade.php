@@ -192,6 +192,15 @@
         <button id="btnBulkPrecio" class="btn btn-warning" disabled>
             <i class="bi bi-currency-dollar"></i> Cambiar Precio
         </button>
+        <button id="btnPonerEnCarta" class="btn btn-success" disabled>
+            <i class="bi bi-calendar-check"></i> Poner En Carta / Catálogo
+        </button>
+        <button id="btnQuitarDeCarta" class="btn btn-danger" disabled>
+            <i class="bi bi-calendar-x"></i> Quitar De Carta / Catálogo
+        </button>
+        <button id="btnVerCarta" class="btn btn-outline-primary" type="button">
+            <i class="bi bi-eye"></i> Productos En Carta
+        </button>
         <button id="btnBulkCostoEnvio" class="btn btn-info text-white" disabled>
             <i class="bi bi-truck"></i> Cambiar Costo Envío
         </button>
@@ -201,6 +210,9 @@
         <button id="btnBulkMarca" class="btn btn-success" disabled>
             <i class="bi bi-tag"></i> Cambiar Marca
         </button>
+        <button id="btnEditarImagenes" class="btn btn-primary" disabled>
+            <i class="bi bi-images"></i> Editar Imágenes
+        </button>
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="route-eliminar" content="{{ route('admin.productos.eliminarMultiple') }}">
@@ -209,6 +221,42 @@
         <meta name="route-bulk-costo-envio" content="{{ route('admin.productos.bulkUpdateCostoEnvio') }}">
         <meta name="route-bulk-entrega" content="{{ route('admin.productos.bulkUpdateEntrega') }}">
         <meta name="route-bulk-marca" content="{{ route('admin.productos.bulkUpdateMarca') }}">
+        <meta name="route-bulk-imagen" content="{{ route('admin.productos.bulkUpdateImagen') }}">
+<meta name="route-bulk-carta" content="{{ route('admin.productos.bulkUpdateCarta') }}">
+        <meta name="route-bulk-remove-carta" content="{{ route('admin.productos.bulkRemoveCarta') }}">
+        <meta name="route-carta-lista" content="{{ route('admin.productos.cartaLista') }}">
+
+        <div class="modal fade" id="cartaModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="bi bi-calendar-check"></i> Productos en la Carta / Catálogo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="cartaLoading" class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+                        <table class="table table-sm table-hover d-none" id="tablaCarta">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px"><input type="checkbox" id="checkAllCartaModal"></th>
+                                    <th>Producto</th>
+                                    <th style="width:30%">Negocios</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cartaTbody"></tbody>
+                        </table>
+                        <div id="cartaVacio" class="alert alert-info d-none mb-0">No hay productos en la Carta / Catálogo.</div>
+                    </div>
+                    <div class="modal-footer">
+                        <span class="me-auto text-muted small" id="cartaSeleccionCount">0 seleccionado(s)</span>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-danger" id="btnQuitarCartaModal" disabled>
+                            <i class="bi bi-calendar-x"></i> Quitar De Carta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
             <div class="d-flex justify-content-center mt-3">
                 {{ $productos->links() }}
@@ -348,6 +396,33 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-success">Actualizar todos</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Bulk Imágenes --}}
+<div class="modal fade" id="bulkImagenModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-images me-2"></i>Editar Imágenes de Productos Seleccionados</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="bulkImagenForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <p class="small text-muted"><strong id="bulkImagenCount">0</strong> producto(s) seleccionado(s). Puede subir una <strong>portada</strong> y varias imágenes de <strong>galería</strong> por producto.</p>
+                    <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+                        <table class="table table-sm table-bordered mb-0 align-middle">
+                            <thead class="table-light"><tr><th>Producto</th><th>Imagen actual</th><th>Portada</th><th>Galería (multimedia)</th></tr></thead>
+                            <tbody id="bulkImagenList"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Subir y actualizar</button>
                 </div>
             </form>
         </div>
@@ -799,6 +874,7 @@
     var checkItems = document.querySelectorAll('.checkItem');
     var btnEliminar = document.getElementById('btnEliminarSeleccionados');
     var btnPrecio = document.getElementById('btnBulkPrecio');
+    var btnPonerEnCarta = document.getElementById('btnPonerEnCarta');
     var btnCostoEnvio = document.getElementById('btnBulkCostoEnvio');
     var btnEntrega = document.getElementById('btnBulkEntrega');
     var btnMarca = document.getElementById('btnBulkMarca');
@@ -806,6 +882,7 @@
     var bulkCostoEnvioModal = document.getElementById('bulkCostoEnvioModal');
     var bulkEntregaModal = document.getElementById('bulkEntregaModal');
     var bulkMarcaModal = document.getElementById('bulkMarcaModal');
+    var bulkImagenModal = document.getElementById('bulkImagenModal');
     var bulkPrecioCount = document.getElementById('bulkPrecioCount');
     var bulkCostoEnvioCount = document.getElementById('bulkCostoEnvioCount');
     var bulkEntregaCount = document.getElementById('bulkEntregaCount');
@@ -814,6 +891,9 @@
     var bulkEntregaList = document.getElementById('bulkEntregaList');
     var bulkMarcaCount = document.getElementById('bulkMarcaCount');
     var bulkMarcaList = document.getElementById('bulkMarcaList');
+    var btnImagen = document.getElementById('btnEditarImagenes');
+    var bulkImagenCount = document.getElementById('bulkImagenCount');
+    var bulkImagenList = document.getElementById('bulkImagenList');
 
     function getSelectedIds() {
         return Array.from(document.querySelectorAll('.checkItem:checked')).map(function(cb) { return cb.value; });
@@ -832,6 +912,7 @@
         btnCostoEnvio.disabled = count === 0;
         btnEntrega.disabled = count === 0;
         btnMarca.disabled = count === 0;
+        btnImagen.disabled = count === 0;
     }
 
     checkAll.addEventListener('change', function() {
@@ -1035,6 +1116,54 @@
         .catch(function() { alert('Error de conexión.'); })
         .finally(function() { btn.disabled = false; btn.textContent = 'Actualizar todos'; });
     });
+
+    btnImagen.addEventListener('click', function() {
+        var rows = getSelectedRows();
+        bulkImagenCount.textContent = rows.length;
+        bulkImagenList.innerHTML = rows.map(function(r) {
+            var id = r.querySelector('.checkItem').value;
+            var title = r.querySelector('.td-titulo').textContent.trim();
+            var rowImg = r.querySelector('img');
+            var imgHtml = rowImg ? '<img src="' + rowImg.getAttribute('src') + '" style="max-height:40px;max-width:60px;object-fit:cover;" class="rounded">' : '<span class="text-muted small">Sin imagen</span>';
+            return '<tr><td class="text-start">' + title + '</td><td>' + imgHtml + '</td>'
+                + '<td><input type="file" name="portadas[' + id + ']" class="form-control form-control-sm" accept="image/*"></td>'
+                + '<td><input type="file" name="galerias[' + id + ']" class="form-control form-control-sm" accept="image/*" multiple></td></tr>';
+        }).join('');
+        new bootstrap.Modal(bulkImagenModal).show();
+    });
+
+    document.getElementById('bulkImagenForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var fd = new FormData();
+        var huboArchivo = false;
+        bulkImagenList.querySelectorAll('input[type="file"]').forEach(function(inp) {
+            if (!(inp.files && inp.files.length)) return;
+            Array.prototype.forEach.call(inp.files, function(file) {
+                fd.append(inp.name, file);
+                huboArchivo = true;
+            });
+        });
+        if (!huboArchivo) { alert('Seleccione al menos una imagen.'); return; }
+        fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+        var btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        fetch(document.querySelector('meta[name="route-bulk-imagen"]').content, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            body: fd
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            if (res.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (res.message || ' desconocido'));
+            }
+        })
+        .catch(function() { alert('Error de conexión.'); })
+        .finally(function() { btn.disabled = false; btn.textContent = 'Subir y actualizar'; });
+    });
 })();
 
 /* ── Filtro de subcategorías dependiente de categoría ── */
@@ -1055,6 +1184,167 @@ function filtrarSubcategorias(catId) {
 document.addEventListener('DOMContentLoaded', function() {
     var catSelect = document.getElementById('filtro-categoria');
     if (catSelect) filtrarSubcategorias(catSelect.value);
+    
+    // Handler para botones Poner / Quitar De Carta
+    var btnPonerEnCarta = document.getElementById('btnPonerEnCarta');
+    var btnQuitarDeCarta = document.getElementById('btnQuitarDeCarta');
+    var checkboxes = document.querySelectorAll('input[name="ids[]"]');
+    var checkAllCarta = document.getElementById('checkAll');
+    
+    function actualizarBotonesCarta() {
+        var count = document.querySelectorAll('input[name="ids[]"]:checked').length;
+        if (btnPonerEnCarta) btnPonerEnCarta.disabled = count === 0;
+        if (btnQuitarDeCarta) btnQuitarDeCarta.disabled = count === 0;
+    }
+    
+    // Inicializar estado
+    actualizarBotonesCarta();
+    
+    // Actualizar al cambiar selecciones (individual y "seleccionar todos")
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', actualizarBotonesCarta);
+    });
+    if (checkAllCarta) checkAllCarta.addEventListener('change', function() {
+        setTimeout(actualizarBotonesCarta, 0);
+    });
+    
+    /* Handler común POST para acciones de carta */
+    function enviarBulkCarta(metaName, mensajeExito, pedirConfirmacion) {
+        var checkedIds = [];
+        document.querySelectorAll('input[name="ids[]"]:checked').forEach(function(input) {
+            checkedIds.push(input.value);
+        });
+        if (checkedIds.length === 0) {
+            alert('Seleccione al menos un producto.');
+            return;
+        }
+        if (pedirConfirmacion && !confirm('¿Quitar ' + checkedIds.length + ' producto(s) de la Carta / Catálogo?')) {
+            return;
+        }
+        fetch(document.querySelector('meta[name="' + metaName + '"]').content, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+            body: JSON.stringify({ ids: checkedIds })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            if (res.success) {
+                alert(res.message || mensajeExito);
+                location.reload();
+            } else {
+                alert('Error: ' + (res.message || 'desconocido'));
+            }
+        })
+        .catch(function() { alert('Error de conexión.'); });
+    }
+    
+    document.getElementById('btnPonerEnCarta')?.addEventListener('click', function() {
+        enviarBulkCarta('route-bulk-carta', 'Productos marcados para la Carta / Catálogo.', false);
+    });
+    
+    document.getElementById('btnQuitarDeCarta')?.addEventListener('click', function() {
+        enviarBulkCarta('route-bulk-remove-carta', 'Productos quitados de la Carta / Catálogo.', true);
+    });
+    
+    /* ── Modal "Productos En Carta" ── */
+    var modalCartaEl = document.getElementById('cartaModal');
+
+    function escaparHtml(t) {
+        return String(t == null ? '' : t).replace(/[&<>"']/g, function(c) {
+            return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+        });
+    }
+
+    function actualizarConteoCarta() {
+        var marcados = document.querySelectorAll('.checkCarta:checked').length;
+        var total = document.querySelectorAll('.checkCarta').length;
+        var btnQ = document.getElementById('btnQuitarCartaModal');
+        if (btnQ) btnQ.disabled = marcados === 0;
+        var cnt = document.getElementById('cartaSeleccionCount');
+        if (cnt) cnt.textContent = marcados + ' seleccionado(s) de ' + total;
+        var all = document.getElementById('checkAllCartaModal');
+        if (all) all.checked = total > 0 && marcados === total;
+    }
+
+    function cargarCartaModal() {
+        var loading = document.getElementById('cartaLoading');
+        var tabla = document.getElementById('tablaCarta');
+        var vacio = document.getElementById('cartaVacio');
+        var tbody = document.getElementById('cartaTbody');
+        if (!loading || !tabla || !vacio || !tbody) return;
+        loading.classList.remove('d-none');
+        tabla.classList.add('d-none');
+        vacio.classList.add('d-none');
+
+        fetch(document.querySelector('meta[name="route-carta-lista"]').content, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            loading.classList.add('d-none');
+            var items = res.productos || [];
+            if (!items.length) { vacio.classList.remove('d-none'); return; }
+            tbody.innerHTML = items.map(function(p) {
+                var badges = (p.negocios || []).map(function(n) {
+                    return '<span class="badge bg-secondary me-1">' + escaparHtml(n) + '</span>';
+                }).join('');
+                return '<tr>' +
+                    '<td><input type="checkbox" class="checkCarta" value="' + p.id + '"></td>' +
+                    '<td>' + escaparHtml(p.titulo) + '</td>' +
+                    '<td>' + badges + '</td></tr>';
+            }).join('');
+            tabla.classList.remove('d-none');
+            actualizarConteoCarta();
+        })
+        .catch(function() {
+            loading.classList.add('d-none');
+            vacio.textContent = 'Error al cargar los productos.';
+            vacio.classList.remove('d-none');
+        });
+    }
+
+    document.getElementById('btnVerCarta')?.addEventListener('click', function() {
+        new bootstrap.Modal(modalCartaEl).show();
+        cargarCartaModal();
+    });
+
+    document.getElementById('checkAllCartaModal')?.addEventListener('change', function() {
+        var marcado = this.checked;
+        document.querySelectorAll('.checkCarta').forEach(function(cb) { cb.checked = marcado; });
+        actualizarConteoCarta();
+    });
+
+    document.getElementById('cartaTbody')?.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('checkCarta')) actualizarConteoCarta();
+    });
+
+    document.getElementById('btnQuitarCartaModal')?.addEventListener('click', function() {
+        var ids = Array.from(document.querySelectorAll('.checkCarta:checked')).map(function(cb) { return cb.value; });
+        if (!ids.length) { alert('Seleccione al menos un producto.'); return; }
+        if (!confirm('¿Quitar ' + ids.length + ' producto(s) de la Carta / Catálogo?')) return;
+
+        var btnQ = this;
+        btnQ.disabled = true;
+        fetch(document.querySelector('meta[name="route-bulk-remove-carta"]').content, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+            body: JSON.stringify({ ids: ids })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            if (res.success) {
+                cargarCartaModal();
+            } else {
+                alert('Error: ' + (res.message || 'desconocido'));
+            }
+        })
+        .catch(function() { alert('Error de conexión.'); })
+        .finally(function() {
+            btnQ.disabled = false;
+            actualizarConteoCarta();
+        });
+    });
 });
 </script>
+
 @endpush

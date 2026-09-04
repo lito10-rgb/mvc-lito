@@ -456,6 +456,30 @@ public function edit($id)
 
         return back();
     }
+
+    public function destroyBulk(Request $request)
+    {
+        $request->validate([
+            'user_ids'   => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $ids = $request->user_ids;
+
+        DB::transaction(function () use ($ids) {
+            DB::table('user_profiles')->whereIn('user_id', $ids)->delete();
+            DB::table('user_scores')->whereIn('user_id', $ids)->delete();
+            DB::table('role_user')->whereIn('user_id', $ids)->delete();
+            DB::table('rubro_user')->whereIn('user_id', $ids)->delete();
+            DB::table('post_user')->whereIn('user_id', $ids)->delete();
+            DB::table('post_platform_user')->whereIn('user_id', $ids)->delete();
+            DB::table('favoritos')->whereIn('user_id', $ids)->delete();
+
+            User::whereIn('id', $ids)->delete();
+        });
+
+        return back()->with('success', count($ids) . ' usuario(s) eliminado(s).');
+    }
     ////asignacion 
 //     public function asignarView()
 // {

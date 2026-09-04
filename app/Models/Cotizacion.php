@@ -32,6 +32,13 @@ class Cotizacion extends Model
         'condicion_id',
         'cliente_id',
         'imagen_referencia',
+        'recibo_numero',
+        'recibo_fecha',
+        'recibo_metodo_pago',
+        'recibo_recibido_por',
+        'recibo_pagado_por',
+        'recibo_monto_pagado',
+        'recibo_observaciones',
     ];
 
     public function getTipoCambioAttribute($value)
@@ -43,11 +50,13 @@ class Cotizacion extends Model
     {
         return [
             'fecha' => 'date:Y-m-d',
+            'recibo_fecha' => 'datetime',
             'cantidad' => 'integer',
             'precio_unitario' => 'decimal:2',
             'subtotal' => 'decimal:2',
             'impuesto' => 'decimal:2',
             'tipo_cambio' => 'decimal:3',
+            'recibo_monto_pagado' => 'decimal:2',
             'descuento_porcentaje' => 'decimal:2',
             'descuento_monto' => 'decimal:2',
             'total' => 'decimal:2',

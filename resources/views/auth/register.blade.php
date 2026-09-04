@@ -18,6 +18,12 @@
     <form method="POST" action="{{ isset($usuario) ? route('register.update', $usuario->id) : url('/register') }}">
         @csrf
 
+        {{-- Honeypot anti-spam (oculto a humanos, los bots lo rellenan) --}}
+        <div style="position:absolute; left:-9999px;" aria-hidden="true">
+            <label for="website">No llenar este campo</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
         {{-- Nombre --}}
         <div class="mb-3">
             <label for="nombre">Nombre</label>

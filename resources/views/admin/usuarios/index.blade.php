@@ -148,6 +148,9 @@
             <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Cambiar negocio a los usuarios seleccionados?')">
                 ✏️ Cambiar
             </button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()">
+                🗑️ Eliminar
+            </button>
         </div>
     </div>
 
@@ -294,6 +297,12 @@ if ($roles->isEmpty()) {
 
 </form>{{-- end bulk-form --}}
 
+<form method="POST" action="{{ route('admin.usuarios.destroy.bulk') }}" id="bulk-delete-form">
+    @csrf
+    @method('DELETE')
+    <div class="d-none" id="bulk-delete-inputs"></div>
+</form>
+
 @section('scripts')
 <script>
 function toggleCheckbox(master) {
@@ -310,6 +319,27 @@ function toggleAll() {
     const master = document.getElementById('check-all');
     master.checked = !master.checked;
     toggleCheckbox(master);
+}
+
+function bulkDelete() {
+    const checked = document.querySelectorAll('.user-check:checked');
+    if (checked.length === 0) {
+        alert('No has seleccionado ningún usuario.');
+        return;
+    }
+    if (!confirm('¿Eliminar ' + checked.length + ' usuario(s) seleccionado(s)? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    const container = document.getElementById('bulk-delete-inputs');
+    container.innerHTML = '';
+    checked.forEach(c => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'user_ids[]';
+        input.value = c.value;
+        container.appendChild(input);
+    });
+    document.getElementById('bulk-delete-form').submit();
 }
 
 document.querySelector('[name="negocio"]')?.addEventListener('change', function() {

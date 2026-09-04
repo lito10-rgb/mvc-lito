@@ -301,6 +301,13 @@ public function mostrarProducto($ruta)
                         ->whereHas('cartaNegocios', fn ($c) => $c->where('carta_productos.negocio_id', $negocioId));
                 });
             })
+            // Exclusiones manuales ("Quitar De Carta") anulan incluso la inclusión automática
+            ->whereNotExists(function ($sub) use ($negocioId) {
+                $sub->selectRaw(1)
+                    ->from('carta_excluidos')
+                    ->whereColumn('carta_excluidos.producto_id', 'productos.id')
+                    ->where('carta_excluidos.negocio_id', $negocioId);
+            })
             ->orderBy('titulo')
             ->orderBy('id')
             ->get();
@@ -370,11 +377,17 @@ public function mostrarProducto($ruta)
                 $secciones[] = ['titulo' => 'Destacados', 'productos' => $destacados];
             }
 
-            // Ofertas del día como cierre
+            // Ofertas del día como cierre (también respetan exclusiones de la carta)
             $ofertas = Producto::whereHas('negocios', fn ($n) => $n->where('negocio_id', $negocioId))
                 ->where(function ($query) {
                     $query->where('oferta', 1)
                           ->orWhere('descuentoOferta', '>', 0);
+                })
+                ->whereNotExists(function ($sub) use ($negocioId) {
+                    $sub->selectRaw(1)
+                        ->from('carta_excluidos')
+                        ->whereColumn('carta_excluidos.producto_id', 'productos.id')
+                        ->where('carta_excluidos.negocio_id', $negocioId);
                 })
                 ->orderBy('fecha', 'desc')
                 ->orderBy('id', 'desc')
@@ -416,7 +429,10 @@ public function mostrarProducto($ruta)
                 'fecha' => Str::ucfirst(now()->locale('es')->translatedFormat('l j \d\e F \d\e Y')),
             ])->setPaper('a4', 'portrait');
 
-            return $pdf->stream('carta-del-dia.pdf');
+            $response = $pdf->stream('carta-del-dia.pdf');
+            $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+
+            return $response;
         } catch (\Exception $e) {
             \Log::error('cartaDelDiaPdf: ' . $e->getMessage(), ['tr' => $e->getTraceAsString()]);
             return redirect()

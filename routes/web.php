@@ -90,6 +90,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::get('usuarios/asignar', [UserAdminController::class, 'asignarView'])->name('usuarios.asignar.view');
     Route::post('usuarios/asignar', [UserAdminController::class, 'asignarStore'])->name('usuarios.asignar.store');
 
+    Route::get('productos/carta-lista', [AdminProductoController::class, 'cartaLista'])->name('productos.cartaLista');
     Route::resource('productos', AdminProductoController::class);
     Route::post('productos/eliminar-multiple', [AdminProductoController::class, 'eliminarMultiple'])->name('productos.eliminarMultiple');
     Route::post('productos/quick-update/{producto}', [AdminProductoController::class, 'quickUpdate'])->name('productos.quickUpdate');
@@ -97,8 +98,11 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::post('productos/bulk-update-precio', [AdminProductoController::class, 'bulkUpdatePrecio'])->name('productos.bulkUpdatePrecio');
     Route::post('productos/bulk-update-costo-envio', [AdminProductoController::class, 'bulkUpdateCostoEnvio'])->name('productos.bulkUpdateCostoEnvio');
     Route::post('productos/bulk-update-entrega', [AdminProductoController::class, 'bulkUpdateEntrega'])->name('productos.bulkUpdateEntrega');
-    Route::post('productos/bulk-update-marca', [AdminProductoController::class, 'bulkUpdateMarca'])->name('productos.bulkUpdateMarca');
-    Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'duplicar'])->name('productos.duplicar');
+Route::post('productos/bulk-update-marca', [AdminProductoController::class, 'bulkUpdateMarca'])->name('productos.bulkUpdateMarca');
+Route::post('productos/bulk-update-imagen', [AdminProductoController::class, 'bulkUpdateImagen'])->name('productos.bulkUpdateImagen');
+Route::post('productos/bulk-update-carta', [AdminProductoController::class, 'bulkUpdateCarta'])->name('productos.bulkUpdateCarta');
+Route::post('productos/bulk-remove-carta', [AdminProductoController::class, 'bulkRemoveCarta'])->name('productos.bulkRemoveCarta');
+Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'duplicar'])->name('productos.duplicar');
 
     Route::resource('categorias', \App\Http\Controllers\Admin\CategoriaController::class);
     Route::resource('subcategorias', \App\Http\Controllers\Admin\SubcategoriaController::class);
@@ -115,6 +119,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
     Route::resource('usuarios', UserAdminController::class);
     Route::put('usuarios/negocio/bulk', [UserAdminController::class, 'negocioBulk'])->name('usuarios.negocio.bulk');
+    Route::delete('usuarios/bulk-destroy', [UserAdminController::class, 'destroyBulk'])->name('usuarios.destroy.bulk');
     Route::get('mi-perfil', [UserAdminController::class, 'miPerfil'])->name('mi-perfil');
     Route::post('mi-perfil', [UserAdminController::class, 'actualizarMiPerfil'])->name('mi-perfil.update');
     Route::resource('rubros', \App\Http\Controllers\Admin\RubroController::class);
@@ -123,6 +128,10 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('cotizaciones', \App\Http\Controllers\Admin\CotizacionController::class);
     Route::post('cotizaciones/crear-cliente', [\App\Http\Controllers\Admin\CotizacionController::class, 'crearCliente'])->name('cotizaciones.crearCliente');
     Route::get('cotizaciones/{cotizacione}/print', [\App\Http\Controllers\Admin\CotizacionController::class, 'print'])->name('cotizaciones.print');
+    Route::post('cotizaciones/{cotizacione}/generar-recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'generarRecibo'])->name('cotizaciones.generarRecibo');
+    Route::get('cotizaciones/{cotizacione}/recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'verRecibo'])->name('cotizaciones.recibo');
+    Route::get('cotizaciones/{cotizacione}/recibo/edit', [\App\Http\Controllers\Admin\CotizacionController::class, 'editarRecibo'])->name('cotizaciones.recibo.edit');
+    Route::put('cotizaciones/{cotizacione}/recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'actualizarRecibo'])->name('cotizaciones.recibo.update');
     Route::resource('visitas-tecnicas', \App\Http\Controllers\Admin\VisitaTecnicaController::class)->only(['index', 'show', 'destroy']);
     Route::resource('suscripciones', \App\Http\Controllers\Admin\SuscripcionController::class)->only(['index', 'destroy']);
     Route::resource('pedidos', \App\Http\Controllers\Admin\PedidoController::class)->only(['index', 'show', 'edit', 'update']);
@@ -182,7 +191,7 @@ Route::post('/boletin/suscribir', [SuscripcionController::class, 'store'])->name
 
 /* Auth (registro/login/logout) */
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,60')->name('register.post');
 Route::get('/register/edit/{id}', [AuthController::class, 'showEditForm'])->name('register.edit');
 Route::post('/register/update/{id}', [AuthController::class, 'updateRegister'])->name('register.update');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

@@ -25,7 +25,7 @@
                         </a>
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title text-theme-accent">{{ $producto->titulo }}</h5>
-                            <p class="card-text" style="color: var(--theme-accent-light);">{{ Str::limit($producto->descripcion, 60) }}</p>
+                            <p class="card-text" style="color: var(--theme-accent-light);">{{ Str::limit(strip_tags(html_entity_decode($producto->descripcion)), 60) }}</p>
                             @if($producto->tipo === 'servicio' && $producto->precio == 0)
                                 <span class="badge" style="background-color: var(--theme-accent); color: #000;">Consultar precio</span>
                             @else
