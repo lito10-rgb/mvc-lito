@@ -18,13 +18,13 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^build/(.*)$ public/build/$1 [END]
 
+    # Serve product images from /public/productos via /storage/productos (must be BEFORE generic storage rule)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^storage/productos/(.*)$ public/productos/$1 [END]
+
     # Serve storage files from the public disk (/storage/app/public)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^storage/(.*)$ storage/app/public/$1 [END]
-
-    # Serve product images from /public/productos via /storage/productos
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^storage/productos/(.*)$ public/productos/$1 [END]
 
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
