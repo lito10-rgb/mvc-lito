@@ -44,6 +44,8 @@ class SubcategoriaController extends Controller
         $request->validate([
             'id_categoria' => 'required|exists:categorias,id',
             'subcategoria' => 'required|string|max:255',
+            'oferta' => 'nullable|integer|min:0|max:100',
+            'finOferta' => 'nullable|date',
         ]);
 
         $subcategoria = Subcategoria::create([
@@ -51,6 +53,8 @@ class SubcategoriaController extends Controller
             'id_categoria' => $request->id_categoria,
             'ruta' => \Str::slug($request->subcategoria),
             'estado' => 1,
+            'oferta' => $request->input('oferta', 0),
+            'finOferta' => $request->filled('finOferta') ? $request->input('finOferta') . ' 23:59:59' : null,
         ]);
 
         $subcategoria->negocios()->sync($request->input('negocios', []));
@@ -72,12 +76,16 @@ class SubcategoriaController extends Controller
         $request->validate([
             'id_categoria' => 'required|exists:categorias,id',
             'subcategoria' => 'required|string|max:255',
+            'oferta' => 'nullable|integer|min:0|max:100',
+            'finOferta' => 'nullable|date',
         ]);
 
         $subcategoria->update([
             'subcategoria' => $request->subcategoria,
             'id_categoria' => $request->id_categoria,
             'ruta' => \Str::slug($request->subcategoria),
+            'oferta' => $request->input('oferta', 0),
+            'finOferta' => $request->filled('finOferta') ? $request->input('finOferta') . ' 23:59:59' : null,
         ]);
 
         $subcategoria->negocios()->sync($request->input('negocios', []));

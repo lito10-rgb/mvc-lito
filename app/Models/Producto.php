@@ -108,4 +108,83 @@ class Producto extends Model
         $detallesRaw = html_entity_decode($detallesRaw, ENT_QUOTES, 'UTF-8');
         return json_decode($detallesRaw, true);
     }
+
+    /**
+     * ¿La oferta sigue vigente? Verifica finOferta (producto, categoría o subcategoría).
+     */
+    public function getOfertaVigenteAttribute()
+    {
+        foreach ([$this->finOferta, $this->categoria?->finOferta, $this->subcategoria?->finOferta] as $fin) {
+            if (!empty($fin) && $fin !== '0000-00-00 00:00:00') {
+                try {
+                    if (\Carbon\Carbon::parse($fin)->isPast()) {
+                        return false;
+                    }
+                } catch (\Throwable $e) {
+                    // fecha inválida se ignora
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Descuento efectivo (%) heredado de la categoría.
+     */
+    public function getDescuentoCategoriaAttribute()
+    {
+        return $this->ofertaVigente ? max(0, (int) ($this->categoria?->oferta ?? 0)) : 0;
+    }
+
+    /**
+     * Descuento efectivo (%) heredado de la subcategoría.
+     */
+    public function getDescuentoSubcategoriaAttribute()
+    {
+        return $this->ofertaVigente ? max(0, (int) ($this->subcategoria?->oferta ?? 0)) : 0;
+    }
+
+    /**
+     * Mayor descuento aplicable: Precio Oferta fijo > oferta individual (%) > subcategoría (%) > categoría (%).
+     */
+    public function getDescuentoEfectivoAttribute()
+    {
+        if (! $this->ofertaVigente) {
+            return 0;
+        }
+        return max(
+            (int) $this->oferta,
+            (int) $this->descuentoOferta,
+            (int) $this->ofertadoPorSubCategoria,
+            (int) $this->ofertadoPorCategoria,
+            $this->descuentoSubcategoria,
+            $this->descuentoCategoria
+        );
+    }
+
+    /**
+     * Precio final: si hay Precio Oferta fijo lo usa; si no, aplica el % de descuento efectivo.
+     */
+    public function getPrecioFinalAttribute()
+    {
+        if (! $this->ofertaVigente) {
+            return (float) $this->precio;
+        }
+        if ((float) $this->precioOferta > 0) {
+            return (float) $this->precioOferta;
+        }
+        $descuento = $this->descuentoEfectivo;
+        if ($descuento > 0) {
+            return round((float) $this->precio * (1 - $descuento / 100), 2);
+        }
+        return (float) $this->precio;
+    }
+
+    /**
+     * Indica si el producto tiene un precio de oferta menor al precio normal.
+     */
+    public function getEnOfertaAttribute()
+    {
+        return $this->precioFinal < (float) $this->precio;
+    }
 }

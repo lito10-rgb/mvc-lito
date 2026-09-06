@@ -32,7 +32,8 @@ class CarritoController extends Controller
         $carrito[$id] = [
             "id"       => $id,
             "titulo"   => $producto->titulo,
-            "precio"   => (float) $producto->precio,
+            "precio"   => $producto->enOferta ? (float) $producto->precioFinal : (float) $producto->precio,
+            "precio_original" => (float) $producto->precio,
             "imagen"   => $producto->portada,
             "ruta"     => $producto->ruta,
             "cantidad" => 1

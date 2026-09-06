@@ -380,8 +380,10 @@ public function mostrarProducto($ruta)
             // Ofertas del día como cierre (también respetan exclusiones de la carta)
             $ofertas = Producto::whereHas('negocios', fn ($n) => $n->where('negocio_id', $negocioId))
                 ->where(function ($query) {
-                    $query->where('oferta', 1)
-                          ->orWhere('descuentoOferta', '>', 0);
+                    $query->where('oferta', '>', 0)
+                          ->orWhere('descuentoOferta', '>', 0)
+                          ->orWhereHas('categoria', fn ($c) => $c->where('oferta', '>', 0))
+                          ->orWhereHas('subcategoria', fn ($s) => $s->where('oferta', '>', 0));
                 })
                 ->whereNotExists(function ($sub) use ($negocioId) {
                     $sub->selectRaw(1)
@@ -416,7 +418,8 @@ public function mostrarProducto($ruta)
                         'nombre' => $p->titulo,
                         'descripcion' => Str::limit(strip_tags(html_entity_decode((string) ($p->descripcion ?? ''))), 110),
                         'precio' => ($p->tipo === 'servicio' && $p->precio == 0) ? null : (float) $p->precio,
-                        'descuento' => max(0, (int) $p->descuentoOferta),
+                        'precio_final' => $p->enOferta ? $p->precioFinal : null,
+                        'descuento' => max(0, $p->descuentoEfectivo),
                         'imagen' => $rutaImagen($p),
                     ];
                 })->all();

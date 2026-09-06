@@ -60,9 +60,9 @@
                         @endif
                         <h3>{{ $p->titulo }}</h3>
                         @if (!$sinPrecio)
-                            @if (!empty($p->precioOferta))
+                            @if (!empty($p->precioOferta) || $p->enOferta)
                                 <div>
-                                    <span class="precio-oferta">S/ {{ number_format($p->precioOferta, 2) }}</span>
+                                    <span class="precio-oferta">S/ {{ number_format($p->precioFinal, 2) }}</span>
                                     <span class="precio-tachado">S/ {{ number_format($p->precio, 2) }}</span>
                                 </div>
                             @else

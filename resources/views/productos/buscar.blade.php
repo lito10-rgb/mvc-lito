@@ -41,6 +41,8 @@
 
                             @if(($producto->tipo ?? '') === 'servicio' && ($producto->precio ?? 0) == 0)
                                 <p class="mb-2 text-theme-accent fw-bold">Consultar precio</p>
+                            @elseif(!empty($producto->enOferta))
+                                <p class="mb-2 text-theme-accent fw-bold"><span class="text-muted text-decoration-line-through me-1">S/ {{ number_format($producto->precio ?? 0, 2) }}</span><span class="text-danger">S/ {{ number_format($producto->precioFinal ?? 0, 2) }}</span></p>
                             @else
                                 <p class="mb-2 text-theme-accent fw-bold">S/ {{ number_format($producto->precio ?? 0, 2) }}</p>
                             @endif

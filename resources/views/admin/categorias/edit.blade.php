@@ -42,6 +42,26 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Oferta (%)</label>
+                    <select name="oferta" class="form-control">
+                        @php $descuentos = [0,5,10,15,20,25,30,50]; @endphp
+                        <option value="0">-- Sin descuento --</option>
+                        @foreach($descuentos as $desc)
+                        <option value="{{ $desc }}" {{ old('oferta', $categoria->oferta ?? 0) == $desc ? 'selected' : '' }}>
+                            {{ $desc }} %
+                        </option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Se aplica automáticamente a todos los productos de esta categoría. Ej: Café Orgánico con 10% mostrará "Ofertas" en todos sus productos.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Fin de Oferta</label>
+                    <input type="date" name="finOferta" class="form-control" value="{{ old('finOferta', isset($categoria->finOferta) && $categoria->finOferta ? \Carbon\Carbon::parse($categoria->finOferta)->format('Y-m-d') : '') }}">
+                    <small class="text-muted">Déjalo vacío para oferta permanente. Al pasar la fecha, la oferta se desactiva sola.</small>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Negocios (donde se publica)</label>
                     <div class="row">
                         @foreach($negocios as $neg)

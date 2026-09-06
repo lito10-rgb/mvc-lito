@@ -19,6 +19,9 @@
                         <p class="card-text" style="color: var(--theme-accent-light);">{{ Str::limit(strip_tags(html_entity_decode($producto->descripcion)), 60) }}</p>
                         @if($producto->tipo === 'servicio' && $producto->precio == 0)
                             <span class="badge" style="background-color: var(--theme-accent); color: #000;">Consultar precio</span>
+                        @elseif($producto->enOferta)
+                            <span class="badge text-decoration-line-through" style="background-color: var(--theme-accent); color: #000;">S/. {{ $producto->precio }}</span>
+                            <span class="badge" style="background-color: #dc3545; color: #fff;">S/. {{ number_format($producto->precioFinal, 2) }} ({{ $producto->descuentoEfectivo }}%)</span>
                         @else
                             <span class="badge" style="background-color: var(--theme-accent); color: #000;">S/. {{ $producto->precio }}</span>
                         @endif

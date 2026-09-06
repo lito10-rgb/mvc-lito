@@ -107,6 +107,11 @@
         border-radius: 4px;
         display: inline-block;
     }
+    .precio-tachado {
+        font-size: 10px;
+        color: #aaa;
+        text-decoration: line-through;
+    }
     .badge-desc {
         display: inline-block;
         background-color: #c1440e;
@@ -167,7 +172,12 @@
                                 @if($item['precio'] === null)
                                     <span class="consultar">Consultar precio</span>
                                 @else
-                                    <span class="precio">S/ {{ number_format($item['precio'], 2) }}</span>
+                                    @if(!empty($item['precio_final']))
+                                        <span class="precio">S/ {{ number_format($item['precio_final'], 2) }}</span>
+                                        <br><span class="precio-tachado">S/ {{ number_format($item['precio'], 2) }}</span>
+                                    @else
+                                        <span class="precio">S/ {{ number_format($item['precio'], 2) }}</span>
+                                    @endif
                                     @if($item['descuento'] > 0)
                                         <br><span class="badge-desc">-{{ $item['descuento'] }}%</span>
                                     @endif

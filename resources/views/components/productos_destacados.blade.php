@@ -26,9 +26,10 @@
             <p class="precio">
                 @if($producto->tipo === 'servicio' && $producto->precio == 0)
                     <span class="text-theme-accent fw-bold">Consultar precio</span>
-                @elseif($producto->precioOferta)
+                @elseif($producto->enOferta)
                     <span class="precio-tachado">S/ {{ number_format($producto->precio, 2) }}</span>
-                    <span class="precio-oferta">S/ {{ number_format($producto->precioOferta, 2) }}</span>
+                    <span class="precio-oferta">S/ {{ number_format($producto->precioFinal, 2) }}</span>
+                    <span class="badge text-bg-danger">{{ $producto->descuentoEfectivo }}%</span>
                 @else
                     <span>S/ {{ number_format($producto->precio, 2) }}</span>
                 @endif

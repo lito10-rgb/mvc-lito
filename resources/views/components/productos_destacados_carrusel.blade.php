@@ -33,8 +33,8 @@
                         </div>
                     </h3>
                     <div class="mt-2">
-                        @if($producto->precioOferta)
-                            <p class="text-red-600 font-bold">S/ {{ number_format($producto->precioOferta, 2) }}</p>
+                        @if($producto->enOferta)
+                            <p class="text-red-600 font-bold">S/ {{ number_format($producto->precioFinal, 2) }}</p>
                             <p class="text-sm line-through text-gray-500">S/ {{ number_format($producto->precio, 2) }}</p>
                         @else
                             <p class="text-gray-800 font-bold">S/ {{ number_format($producto->precio, 2) }}</p>

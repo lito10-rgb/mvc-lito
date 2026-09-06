@@ -205,40 +205,13 @@
     <input type="number" name="ventasGratis" id="ventasGratis" class="form-control" value="{{ old('ventasGratis', $producto->ventasGratis ?? rand(0, 20)) }}">
 </div>
 <!-- <input type="hidden" name="ofertadoPorCategoria" value="0"> -->
-<div class="mb-3">
-    <label for="ofertadoPorCategoria" class="form-label">Oferta por Categoría (%)</label>
-    <select name="ofertadoPorCategoria" id="ofertadoPorCategoria" class="form-select">
-        @php
-            $descuentos = [0,5,10,15,20,25,50,80];
-        @endphp
-        <option value="0">-- Sin descuento --</option>
-        @foreach($descuentos as $desc)
-            <option value="{{ $desc }}" {{ old('ofertadoPorCategoria', $producto->ofertadoPorCategoria ?? '0') == $desc ? 'selected' : '' }}>
-                {{ $desc }} %
-            </option>
-        @endforeach
-    </select>
-</div>
-<!-- <input type="hidden" name="ofertadoPorSubCategoria" value="0"> -->
-<div class="mb-3">
-    <label for="ofertadoPorSubCategoria" class="form-label">Oferta por Subcategoría (%)</label>
-    <select name="ofertadoPorSubCategoria" id="ofertadoPorSubCategoria" class="form-select">
-        <option value="0">-- Sin descuento --</option>
-        @foreach($descuentos as $desc)
-            <option value="{{ $desc }}" {{ old('ofertadoPorSubCategoria', $producto->ofertadoPorSubCategoria ?? '0') == $desc ? 'selected' : '' }}>
-                {{ $desc }} %
-            </option>
-        @endforeach
-    </select>
-</div>
-
-
 <!-- Campo oculto: valor por defecto -->
 <!-- <input type="hidden" name="oferta" value="0"> -->
 
 <div class="mb-3">
-    <label for="oferta" class="form-label">Oferta (%)</label>
+    <label for="oferta" class="form-label">Oferta (%) - Descuento individual</label>
     <select name="oferta" id="oferta" class="form-select">
+        @php $descuentos = [0,5,10,15,20,25,50,80]; @endphp
         <option value="0">-- Sin descuento --</option>
         @foreach($descuentos as $desc)
             <option value="{{ $desc }}" {{ old('oferta', $producto->oferta ?? '0') == $desc ? 'selected' : '' }}>
@@ -246,6 +219,7 @@
             </option>
         @endforeach
     </select>
+    <small class="text-muted">Descuento propio de este producto. Los % de categoría/subcategoría se configuran en sus ediciones y se aplican automáticamente. Se muestra el mayor descuento.</small>
 </div>
 
 <!-- 

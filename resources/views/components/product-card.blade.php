@@ -5,11 +5,7 @@
     @if($producto->tipo === 'servicio' && $producto->precio == 0)
         <p class="fs-5">Precio: <strong class="text-theme-accent">Consultar precio</strong></p>
     @else
-    <p class="fs-5">Precio: <strong>S/ {{ number_format($producto->precio, 2) }}</strong></p>
-    @endif
-
-    @if($producto->precioOferta)
-        <p class="fs-5 text-danger">Oferta: <strong>S/ {{ number_format($producto->precioOferta, 2) }}</strong></p>
+    <p class="fs-5">Precio: @if($producto->enOferta)<span class="text-muted text-decoration-line-through">S/ {{ number_format($producto->precio, 2) }}</span> <strong class="text-danger">S/ {{ number_format($producto->precioFinal, 2) }}</strong> <span class="badge text-bg-danger">{{ $producto->descuentoEfectivo }}% OFF</span>@else<strong>S/ {{ number_format($producto->precio, 2) }}</strong>@endif</p>
     @endif
 
     <div class="d-flex gap-4 mb-2">
