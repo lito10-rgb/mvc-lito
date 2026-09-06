@@ -117,10 +117,23 @@ class Producto extends Model
      */
     public function getOfertaVigenteAttribute()
     {
+        // Fecha de fin: si ya pasó alguna, la oferta caducó.
         foreach ([$this->finOferta, $this->categoria?->finOferta, $this->subcategoria?->finOferta] as $fin) {
             if (!empty($fin) && $fin !== '0000-00-00 00:00:00') {
                 try {
                     if (\Carbon\Carbon::parse($fin)->isPast()) {
+                        return false;
+                    }
+                } catch (\Throwable $e) {
+                    // fecha inválida se ignora
+                }
+            }
+        }
+        // Fecha de inicio: si alguna aún no llegó, la oferta todavía no aplica.
+        foreach ([$this->categoria?->fechaInicioOferta, $this->subcategoria?->fechaInicioOferta] as $inicio) {
+            if (!empty($inicio) && $inicio !== '0000-00-00 00:00:00') {
+                try {
+                    if (\Carbon\Carbon::parse($inicio)->isFuture()) {
                         return false;
                     }
                 } catch (\Throwable $e) {
@@ -210,7 +223,19 @@ class Producto extends Model
         if (! $this->enOferta) {
             return '';
         }
-        return (string) $this->etiquetaOferta;
+        // Etiqueta propia del producto gana.
+        if (!empty($this->etiquetaOferta)) {
+            return (string) $this->etiquetaOferta;
+        }
+        // Hereda de la subcategoría si su descuento está participando.
+        if ($this->descuentoSubcategoria > 0 && ($this->subcategoria->etiquetaOferta ?? '')) {
+            return (string) $this->subcategoria->etiquetaOferta;
+        }
+        // Hereda de la categoría.
+        if ($this->descuentoCategoria > 0 && ($this->categoria->etiquetaOferta ?? '')) {
+            return (string) $this->categoria->etiquetaOferta;
+        }
+        return '';
     }
 
     /**

@@ -45,6 +45,8 @@ class SubcategoriaController extends Controller
             'id_categoria' => 'required|exists:categorias,id',
             'subcategoria' => 'required|string|max:255',
             'oferta' => 'nullable|integer|min:0|max:100',
+            'etiquetaOferta' => 'nullable|string|max:255',
+            'fechaInicioOferta' => 'nullable|date',
             'finOferta' => 'nullable|date',
         ]);
 
@@ -54,6 +56,8 @@ class SubcategoriaController extends Controller
             'ruta' => \Str::slug($request->subcategoria),
             'estado' => 1,
             'oferta' => $request->input('oferta', 0),
+            'etiquetaOferta' => $request->filled('etiquetaOferta') ? $request->input('etiquetaOferta') : null,
+            'fechaInicioOferta' => $request->filled('fechaInicioOferta') ? $request->input('fechaInicioOferta') . ' 00:00:00' : null,
             'finOferta' => $request->filled('finOferta') ? $request->input('finOferta') . ' 23:59:59' : null,
         ]);
 
@@ -77,6 +81,8 @@ class SubcategoriaController extends Controller
             'id_categoria' => 'required|exists:categorias,id',
             'subcategoria' => 'required|string|max:255',
             'oferta' => 'nullable|integer|min:0|max:100',
+            'etiquetaOferta' => 'nullable|string|max:255',
+            'fechaInicioOferta' => 'nullable|date',
             'finOferta' => 'nullable|date',
         ]);
 
@@ -85,6 +91,8 @@ class SubcategoriaController extends Controller
             'id_categoria' => $request->id_categoria,
             'ruta' => \Str::slug($request->subcategoria),
             'oferta' => $request->input('oferta', 0),
+            'etiquetaOferta' => $request->filled('etiquetaOferta') ? $request->input('etiquetaOferta') : null,
+            'fechaInicioOferta' => $request->filled('fechaInicioOferta') ? $request->input('fechaInicioOferta') . ' 00:00:00' : null,
             'finOferta' => $request->filled('finOferta') ? $request->input('finOferta') . ' 23:59:59' : null,
         ]);
 

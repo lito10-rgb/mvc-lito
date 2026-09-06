@@ -45,6 +45,8 @@ class CategoriaController extends Controller
             'ruta' => 'nullable|string|max:255',
             'estado' => 'nullable|integer',
             'oferta' => 'nullable|integer|min:0|max:100',
+            'etiquetaOferta' => 'nullable|string|max:255',
+            'fechaInicioOferta' => 'nullable|date',
             'finOferta' => 'nullable|date',
         ]);
 
@@ -52,6 +54,8 @@ class CategoriaController extends Controller
         $data['estado'] = $data['estado'] ?? 1;
         $data['nombre'] = $data['categoria'];
         $data['oferta'] = $request->input('oferta', 0);
+        $data['etiquetaOferta'] = $request->filled('etiquetaOferta') ? $request->input('etiquetaOferta') : null;
+        $data['fechaInicioOferta'] = $request->filled('fechaInicioOferta') ? $request->input('fechaInicioOferta') . ' 00:00:00' : null;
         $data['finOferta'] = $request->filled('finOferta') ? $request->input('finOferta') . ' 23:59:59' : null;
 
         $categoria = Categoria::create($data);
@@ -75,12 +79,16 @@ class CategoriaController extends Controller
             'ruta' => 'nullable|string|max:255',
             'estado' => 'nullable|integer',
             'oferta' => 'nullable|integer|min:0|max:100',
+            'etiquetaOferta' => 'nullable|string|max:255',
+            'fechaInicioOferta' => 'nullable|date',
             'finOferta' => 'nullable|date',
         ]);
 
         $data['ruta'] = $data['ruta'] ?? Str::slug($data['categoria']);
         $data['nombre'] = $data['categoria'];
         $data['oferta'] = $request->input('oferta', 0);
+        $data['etiquetaOferta'] = $request->filled('etiquetaOferta') ? $request->input('etiquetaOferta') : null;
+        $data['fechaInicioOferta'] = $request->filled('fechaInicioOferta') ? $request->input('fechaInicioOferta') . ' 00:00:00' : null;
         $data['finOferta'] = $request->filled('finOferta') ? $request->input('finOferta') . ' 23:59:59' : null;
 
         $categoria->update($data);

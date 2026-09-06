@@ -22,6 +22,8 @@ class Categoria extends Model
         'descuentoOferta',
         'imgOferta',
         'finOferta',
+        'etiquetaOferta',
+        'fechaInicioOferta',
         'fecha',
     ];
 

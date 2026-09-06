@@ -20,6 +20,8 @@ class Subcategoria extends Model
         'descuentoOferta',
         'imgOferta',
         'finOferta',
+        'etiquetaOferta',
+        'fechaInicioOferta',
         'fecha',
     ];
 
