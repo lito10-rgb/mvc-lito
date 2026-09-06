@@ -221,44 +221,43 @@
 @php
     $catOferta = ($producto->categoria ?? null);
     $subOferta = ($producto->subcategoria ?? null);
+    $descuentosOferta = [0, 5, 10, 15, 20, 25, 50, 80];
 @endphp
 <div class="mb-3">
-    <label class="form-label">Ofertas heredadas de Categoría / Subcategoría</label>
-    <div class="table-responsive">
-        <table class="table table-sm table-bordered align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Nivel</th>
-                    <th>Oferta (%)</th>
-                    <th>Fin de Oferta</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ $catOferta?->nombre ?? 'Sin categoría' }}</td>
-                    <td>{{ $catOferta && $catOferta->oferta > 0 ? $catOferta->oferta . ' %' : '—' }}</td>
-                    <td>{{ $catOferta?->finOferta && $catOferta->finOferta !== '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($catOferta->finOferta)->format('d/m/Y') : 'Permanente' }}</td>
-                    <td>
-                        @if($catOferta)
-                            <a href="{{ route('admin.categorias.edit', $catOferta->id) }}" class="btn btn-outline-primary btn-sm">Editar categoría</a>
-                        @endif
-                    </td>
-                </tr>
-                <tr>
-                    <td>{{ $subOferta?->nombre ?? 'Sin subcategoría' }}</td>
-                    <td>{{ $subOferta && $subOferta->oferta > 0 ? $subOferta->oferta . ' %' : '—' }}</td>
-                    <td>{{ $subOferta?->finOferta && $subOferta->finOferta !== '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($subOferta->finOferta)->format('d/m/Y') : 'Permanente' }}</td>
-                    <td>
-                        @if($subOferta)
-                            <a href="{{ route('admin.subcategorias.edit', $subOferta->id) }}" class="btn btn-outline-primary btn-sm">Editar subcategoría</a>
-                        @endif
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <label class="form-label">Oferta por Categoría (%) / Oferta por Subcategoría (%)</label>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted">{{ $catOferta?->nombre ?? 'Sin categoría' }}</label>
+            <select name="ofertaCategoria" class="form-select">
+                <option value="">-- Heredar ({{ $catOferta && $catOferta->oferta > 0 ? $catOferta->oferta . ' %' : 'sin oferta' }} {!! $catOferta?->finOferta && $catOferta->finOferta !== '0000-00-00 00:00:00' ? '· fin ' . \Carbon\Carbon::parse($catOferta->finOferta)->format('d/m/Y') : '' !!}) --</option>
+                @foreach($descuentosOferta as $desc)
+                    <option value="{{ $desc }}" {{ old('ofertaCategoria', $producto->ofertaCategoria ?? '') !== '' && old('ofertaCategoria', $producto->ofertaCategoria ?? '') == $desc ? 'selected' : '' }}>
+                        {{ $desc === 0 ? '0 % - sin descuento de categoría' : $desc . ' %' }}
+                    </option>
+                @endforeach
+            </select>
+            <small class="text-muted d-block">Vacío = hereda la categoría. Para excluir este producto de la oferta de categoría elige "0 %".</small>
+            @if($catOferta)
+                <a href="{{ route('admin.categorias.edit', $catOferta->id) }}" class="small">Editar la categoría</a>
+            @endif
+        </div>
+        <div class="col-md-6">
+            <label class="form-label small fw-semibold text-muted">{{ $subOferta?->nombre ?? 'Sin subcategoría' }}</label>
+            <select name="ofertaSubcategoria" class="form-select">
+                <option value="">-- Heredar ({{ $subOferta && $subOferta->oferta > 0 ? $subOferta->oferta . ' %' : 'sin oferta' }} {!! $subOferta?->finOferta && $subOferta->finOferta !== '0000-00-00 00:00:00' ? '· fin ' . \Carbon\Carbon::parse($subOferta->finOferta)->format('d/m/Y') : '' !!}) --</option>
+                @foreach($descuentosOferta as $desc)
+                    <option value="{{ $desc }}" {{ old('ofertaSubcategoria', $producto->ofertaSubcategoria ?? '') !== '' && old('ofertaSubcategoria', $producto->ofertaSubcategoria ?? '') == $desc ? 'selected' : '' }}>
+                        {{ $desc === 0 ? '0 % - sin descuento de subcategoría' : $desc . ' %' }}
+                    </option>
+                @endforeach
+            </select>
+            <small class="text-muted d-block">Vacío = hereda la subcategoría. Para excluir este producto elige "0 %".</small>
+            @if($subOferta)
+                <a href="{{ route('admin.subcategorias.edit', $subOferta->id) }}" class="small">Editar la subcategoría</a>
+            @endif
+        </div>
     </div>
-    <small class="text-muted">Estos descuentos se heredan automáticamente. Solo se editan desde su propia opción.</small>
+    <small class="text-muted">Se aplica el descuento que dé el menor precio. El % de la subcategoría/categoría se puede sobrescribir producto por producto.</small>
 </div>
 
 <div class="mb-3">

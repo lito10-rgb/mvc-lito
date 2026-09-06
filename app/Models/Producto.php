@@ -30,6 +30,8 @@ class Producto extends Model
         'ventasGratis',
         'ofertadoPorCategoria',
         'ofertadoPorSubCategoria',
+        'ofertaCategoria',
+        'ofertaSubcategoria',
         'oferta',
         'precioOferta',
         'descuentoOferta',
@@ -130,17 +132,27 @@ class Producto extends Model
 
     /**
      * Descuento efectivo (%) heredado de la categoría.
+     * Si el producto define ofertaCategoria (incluido 0), gana ese valor; si no, hereda de la categoría.
      */
     public function getDescuentoCategoriaAttribute()
     {
+        $override = $this->ofertaCategoria;
+        if ($override !== null && $override !== '') {
+            return $this->ofertaVigente ? max(0, (int) $override) : 0;
+        }
         return $this->ofertaVigente ? max(0, (int) ($this->categoria?->oferta ?? 0)) : 0;
     }
 
     /**
      * Descuento efectivo (%) heredado de la subcategoría.
+     * Si el producto define ofertaSubcategoria (incluido 0), gana ese valor; si no, hereda de la subcategoría.
      */
     public function getDescuentoSubcategoriaAttribute()
     {
+        $override = $this->ofertaSubcategoria;
+        if ($override !== null && $override !== '') {
+            return $this->ofertaVigente ? max(0, (int) $override) : 0;
+        }
         return $this->ofertaVigente ? max(0, (int) ($this->subcategoria?->oferta ?? 0)) : 0;
     }
 

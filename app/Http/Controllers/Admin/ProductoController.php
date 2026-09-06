@@ -168,6 +168,8 @@ class ProductoController extends Controller
         'ventasGratis' => 'nullable|integer|min:0',
         'ofertadoPorCategoria' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
         'ofertadoPorSubCategoria' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
+        'ofertaCategoria' => 'nullable|integer|min:0|max:99',
+        'ofertaSubcategoria' => 'nullable|integer|min:0|max:99',
         'oferta' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
         'precioOferta' => 'nullable|numeric|min:0',
         'descuentoOferta' => 'nullable|numeric|min:0',
@@ -195,6 +197,8 @@ class ProductoController extends Controller
     $data['proveedor_id'] = $request->input('proveedor_id', 1);
     $data['ofertadoPorCategoria'] = $request->input('ofertadoPorCategoria', 0);
     $data['ofertadoPorSubCategoria'] = $request->input('ofertadoPorSubCategoria', 0);
+    $data['ofertaCategoria'] = $request->input('ofertaCategoria', '') !== '' ? $request->input('ofertaCategoria') : null;
+    $data['ofertaSubcategoria'] = $request->input('ofertaSubcategoria', '') !== '' ? $request->input('ofertaSubcategoria') : null;
     $data['oferta'] = $request->input('oferta', 0);
     $data['vistas'] = $request->input('vistas', rand(10, 500));
     $data['ventas'] = $request->input('ventas', rand(1, 100));
@@ -310,6 +314,8 @@ public function update(Request $request, Producto $producto)
         'ventasGratis' => 'nullable|integer|min:0',
         'ofertadoPorCategoria' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
         'ofertadoPorSubCategoria' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
+        'ofertaCategoria' => 'nullable|integer|min:0|max:99',
+        'ofertaSubcategoria' => 'nullable|integer|min:0|max:99',
         'oferta' => 'nullable|numeric|in:0,5,10,15,20,25,50,80',
         'precioOferta' => 'nullable|numeric|min:0',
         'descuentoOferta' => 'nullable|numeric|min:0',
@@ -332,6 +338,8 @@ public function update(Request $request, Producto $producto)
 
     $data['ofertadoPorCategoria'] = $request->input('ofertadoPorCategoria', 0);
     $data['ofertadoPorSubCategoria'] = $request->input('ofertadoPorSubCategoria', 0);
+    $data['ofertaCategoria'] = $request->input('ofertaCategoria', '') !== '' ? $request->input('ofertaCategoria') : null;
+    $data['ofertaSubcategoria'] = $request->input('ofertaSubcategoria', '') !== '' ? $request->input('ofertaSubcategoria') : null;
     $data['oferta'] = $request->input('oferta', 0);
     $data['detalles'] = $request->input('detalles', '');
 
