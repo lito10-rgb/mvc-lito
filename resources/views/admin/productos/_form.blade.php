@@ -218,6 +218,49 @@
     <small class="text-muted">Descuento propio de este producto. Los % de categoría/subcategoría se configuran en sus ediciones y se aplican automáticamente. Gana el descuento que dé el menor precio.</small>
 </div>
 
+@php
+    $catOferta = ($producto->categoria ?? null);
+    $subOferta = ($producto->subcategoria ?? null);
+@endphp
+<div class="mb-3">
+    <label class="form-label">Ofertas heredadas de Categoría / Subcategoría</label>
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Nivel</th>
+                    <th>Oferta (%)</th>
+                    <th>Fin de Oferta</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ $catOferta?->nombre ?? 'Sin categoría' }}</td>
+                    <td>{{ $catOferta && $catOferta->oferta > 0 ? $catOferta->oferta . ' %' : '—' }}</td>
+                    <td>{{ $catOferta?->finOferta && $catOferta->finOferta !== '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($catOferta->finOferta)->format('d/m/Y') : 'Permanente' }}</td>
+                    <td>
+                        @if($catOferta)
+                            <a href="{{ route('admin.categorias.edit', $catOferta->id) }}" class="btn btn-outline-primary btn-sm">Editar categoría</a>
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ $subOferta?->nombre ?? 'Sin subcategoría' }}</td>
+                    <td>{{ $subOferta && $subOferta->oferta > 0 ? $subOferta->oferta . ' %' : '—' }}</td>
+                    <td>{{ $subOferta?->finOferta && $subOferta->finOferta !== '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($subOferta->finOferta)->format('d/m/Y') : 'Permanente' }}</td>
+                    <td>
+                        @if($subOferta)
+                            <a href="{{ route('admin.subcategorias.edit', $subOferta->id) }}" class="btn btn-outline-primary btn-sm">Editar subcategoría</a>
+                        @endif
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <small class="text-muted">Estos descuentos se heredan automáticamente. Solo se editan desde su propia opción.</small>
+</div>
+
 <div class="mb-3">
     <label for="precioOferta" class="form-label">Precio Oferta</label>
     <input type="number" step="0.01" name="precioOferta" id="precioOferta" class="form-control" value="{{ old('precioOferta', $producto->precioOferta ?? 0) }}">
