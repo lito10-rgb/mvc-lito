@@ -177,9 +177,9 @@
                                         <br><span class="precio-tachado">S/ {{ number_format($item['precio'], 2) }}</span>
                                     @else
                                         <span class="precio">S/ {{ number_format($item['precio'], 2) }}</span>
-                                    @endif
-                                    @if($item['descuento'] > 0)
-                                        <br><span class="badge-desc">-{{ $item['descuento'] }}%</span>
+@endif
+                                @if(!empty($item['descuento_etiqueta']))
+                                        <br><span class="badge-desc">-{{ $item['descuento_etiqueta'] }}</span>
                                     @endif
                                 @endif
                             </td>

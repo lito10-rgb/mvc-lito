@@ -420,6 +420,7 @@ public function mostrarProducto($ruta)
                         'precio' => ($p->tipo === 'servicio' && $p->precio == 0) ? null : (float) $p->precio,
                         'precio_final' => $p->enOferta ? $p->precioFinal : null,
                         'descuento' => max(0, $p->descuentoEfectivo),
+                        'descuento_etiqueta' => $p->descuentoEtiqueta,
                         'imagen' => $rutaImagen($p),
                     ];
                 })->all();

@@ -204,10 +204,6 @@
     <label for="ventasGratis" class="form-label">Ventas Gratis</label>
     <input type="number" name="ventasGratis" id="ventasGratis" class="form-control" value="{{ old('ventasGratis', $producto->ventasGratis ?? rand(0, 20)) }}">
 </div>
-<!-- <input type="hidden" name="ofertadoPorCategoria" value="0"> -->
-<!-- Campo oculto: valor por defecto -->
-<!-- <input type="hidden" name="oferta" value="0"> -->
-
 <div class="mb-3">
     <label for="oferta" class="form-label">Oferta (%) - Descuento individual</label>
     <select name="oferta" id="oferta" class="form-select">
@@ -219,30 +215,19 @@
             </option>
         @endforeach
     </select>
-    <small class="text-muted">Descuento propio de este producto. Los % de categoría/subcategoría se configuran en sus ediciones y se aplican automáticamente. Se muestra el mayor descuento.</small>
+    <small class="text-muted">Descuento propio de este producto. Los % de categoría/subcategoría se configuran en sus ediciones y se aplican automáticamente. Gana el descuento que dé el menor precio.</small>
 </div>
-
-<!-- 
-<div class="mb-3">
-    <label for="oferta" class="form-label">Oferta (%)</label>
-    <select name="oferta" id="oferta" class="form-select">
-        <option value="">-- Sin descuento --</option>
-        @foreach($descuentos as $desc)
-            <option value="{{ $desc }}" {{ old('oferta', $producto->oferta ?? '') == $desc ? 'selected' : '' }}>
-                {{ $desc }} %
-            </option>
-        @endforeach
-    </select>
-</div> -->
 
 <div class="mb-3">
     <label for="precioOferta" class="form-label">Precio Oferta</label>
     <input type="number" step="0.01" name="precioOferta" id="precioOferta" class="form-control" value="{{ old('precioOferta', $producto->precioOferta ?? 0) }}">
+    <small class="text-muted">Precio fijo de oferta. Si lo llenas, gana sobre los descuentos por % o monto.</small>
 </div>
 
 <div class="mb-3">
-    <label for="descuentoOferta" class="form-label">Descuento Oferta</label>
-    <input type="number" step="0.01" name="descuentoOferta" id="descuentoOferta" class="form-control" value="{{ old('descuentoOferta', $producto->descuentoOferta ?? 0) }}">
+    <label for="descuentoOferta" class="form-label">Descuento Oferta (S/)</label>
+    <input type="number" step="0.01" min="0" name="descuentoOferta" id="descuentoOferta" class="form-control" value="{{ old('descuentoOferta', $producto->descuentoOferta ?? 0) }}">
+    <small class="text-muted">Monto fijo en soles a restar del precio (ej: 2 = descuenta S/ 2.00). Gana el precio más bajo entre % y monto.</small>
 </div>
 
 <div class="mb-3">

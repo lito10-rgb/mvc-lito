@@ -29,7 +29,7 @@
                 @elseif($producto->enOferta)
                     <span class="precio-tachado">S/ {{ number_format($producto->precio, 2) }}</span>
                     <span class="precio-oferta">S/ {{ number_format($producto->precioFinal, 2) }}</span>
-                    <span class="badge text-bg-danger">{{ $producto->descuentoEfectivo }}%</span>
+                    <span class="badge text-bg-danger">{{ $producto->descuentoEtiqueta }}</span>
                 @else
                     <span>S/ {{ number_format($producto->precio, 2) }}</span>
                 @endif

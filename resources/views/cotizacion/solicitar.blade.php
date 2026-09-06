@@ -21,7 +21,7 @@
             <form method="POST" action="{{ route('cotizacion.store') }}">
                 @csrf
                 <input type="hidden" name="producto" value="{{ $producto->titulo }}">
-                <input type="hidden" name="precio_unitario" value="{{ $producto->precio ?? 0 }}">
+                <input type="hidden" name="precio_unitario" value="{{ $producto->precioFinal ?? $producto->precio ?? 0 }}">
 
                 <div class="row g-3">
                     <div class="col-md-6">

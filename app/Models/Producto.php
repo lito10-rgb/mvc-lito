@@ -145,7 +145,8 @@ class Producto extends Model
     }
 
     /**
-     * Mayor descuento aplicable: Precio Oferta fijo > oferta individual (%) > subcategoría (%) > categoría (%).
+     * Mayor descuento aplicable (%) entre Oferta individual, subcategoría y categoría.
+     * (Los descuentos en soles y el Precio Oferta fijo se evalúan por separado en precioFinal.)
      */
     public function getDescuentoEfectivoAttribute()
     {
@@ -154,7 +155,6 @@ class Producto extends Model
         }
         return max(
             (int) $this->oferta,
-            (int) $this->descuentoOferta,
             (int) $this->ofertadoPorSubCategoria,
             (int) $this->ofertadoPorCategoria,
             $this->descuentoSubcategoria,
@@ -163,21 +163,60 @@ class Producto extends Model
     }
 
     /**
-     * Precio final: si hay Precio Oferta fijo lo usa; si no, aplica el % de descuento efectivo.
+     * Etiqueta legible del descuento ganador: "10%", "S/ 2" o "Precio S/ 15".
+     */
+    public function getDescuentoEtiquetaAttribute()
+    {
+        if (! $this->enOferta) {
+            return '';
+        }
+        $precio = (float) $this->precio;
+        $final = (float) $this->precioFinal;
+        if ($final >= $precio || $final <= 0) {
+            return '';
+        }
+        if ((float) $this->precioOferta > 0 && (float) $this->precioOferta < $precio && $final == (float) $this->precioOferta) {
+            return 'Precio S/ ' . number_format($final, 2);
+        }
+        $descuentoSoles = (float) $this->descuentoOferta;
+        if ($descuentoSoles > 0 && $final == max(0, $precio - $descuentoSoles)) {
+            return 'S/ ' . number_format($descuentoSoles, 2);
+        }
+        $pct = $this->descuentoEfectivo;
+        if ($pct > 0 && $final == round($precio * (1 - $pct / 100), 2)) {
+            return $pct . '%';
+        }
+        return '';
+    }
+
+    /**
+     * Precio final: gana el descuento que resulte en el menor precio.
+     * Opciones: Precio Oferta fijo, descuento en soles (descuentoOferta) o % (descuentoEfectivo).
      */
     public function getPrecioFinalAttribute()
     {
+        $precio = (float) $this->precio;
+
         if (! $this->ofertaVigente) {
-            return (float) $this->precio;
+            return $precio;
         }
+
+        $candidatos = [$precio];
+
         if ((float) $this->precioOferta > 0) {
-            return (float) $this->precioOferta;
+            $candidatos[] = (float) $this->precioOferta;
         }
+
+        if ($precio > 0 && (float) $this->descuentoOferta > 0) {
+            $candidatos[] = max(0, $precio - (float) $this->descuentoOferta);
+        }
+
         $descuento = $this->descuentoEfectivo;
         if ($descuento > 0) {
-            return round((float) $this->precio * (1 - $descuento / 100), 2);
+            $candidatos[] = round($precio * (1 - $descuento / 100), 2);
         }
-        return (float) $this->precio;
+
+        return min($candidatos);
     }
 
     /**
