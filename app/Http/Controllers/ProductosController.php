@@ -421,6 +421,7 @@ public function mostrarProducto($ruta)
                         'precio_final' => $p->enOferta ? $p->precioFinal : null,
                         'descuento' => max(0, $p->descuentoEfectivo),
                         'descuento_etiqueta' => $p->descuentoEtiqueta,
+                        'etiqueta_oferta' => $p->enOferta ? (string) $p->etiquetaOferta : '',
                         'imagen' => $rutaImagen($p),
                     ];
                 })->all();

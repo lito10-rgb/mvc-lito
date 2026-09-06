@@ -181,6 +181,9 @@
                                 @if(!empty($item['descuento_etiqueta']))
                                         <br><span class="badge-desc">-{{ $item['descuento_etiqueta'] }}</span>
                                     @endif
+                                    @if(!empty($item['etiqueta_oferta']))
+                                        <div class="item-desc" style="color:#a83232; font-weight:bold;">{{ $item['etiqueta_oferta'] }}</div>
+                                    @endif
                                 @endif
                             </td>
                         </tr>

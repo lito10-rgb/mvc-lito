@@ -37,6 +37,7 @@ class Producto extends Model
         'descuentoOferta',
         'imgOferta',
         'finOferta',
+        'etiquetaOferta',
         'peso',
         'entrega',
         'categoria_id',
@@ -199,6 +200,17 @@ class Producto extends Model
             return $pct . '%';
         }
         return '';
+    }
+
+    /**
+     * Etiqueta de oferta personalizada, visible solo si hay una oferta vigente real.
+     */
+    public function getEtiquetaOfertaVisibleAttribute()
+    {
+        if (! $this->enOferta) {
+            return '';
+        }
+        return (string) $this->etiquetaOferta;
     }
 
     /**

@@ -261,6 +261,12 @@
 </div>
 
 <div class="mb-3">
+    <label for="etiquetaOferta" class="form-label">Etiqueta de Oferta</label>
+    <input type="text" name="etiquetaOferta" id="etiquetaOferta" class="form-control" maxlength="255" placeholder="Ej: Por día de la juventud" value="{{ old('etiquetaOferta', $producto->etiquetaOferta ?? '') }}">
+    <small class="text-muted">Texto corto que acompaña al descuento en la tienda (ej: "Por día de la juventud"). Se muestra solo mientras el producto tenga una oferta vigente.</small>
+</div>
+
+<div class="mb-3">
     <label for="precioOferta" class="form-label">Precio Oferta</label>
     <input type="number" step="0.01" name="precioOferta" id="precioOferta" class="form-control" value="{{ old('precioOferta', $producto->precioOferta ?? 0) }}">
     <small class="text-muted">Precio fijo de oferta. Si lo llenas, gana sobre los descuentos por % o monto.</small>
