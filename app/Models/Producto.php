@@ -239,6 +239,31 @@ class Producto extends Model
     }
 
     /**
+     * Fecha y hora de vencimiento más próxima (aún futura) entre producto, subcategoría y categoría.
+     */
+    public function getFinOfertaEfectivaAttribute()
+    {
+        if (! $this->enOferta) {
+            return null;
+        }
+        $candidatos = [];
+        foreach ([$this->finOferta, $this->subcategoria?->finOferta, $this->categoria?->finOferta] as $fin) {
+            if (! empty($fin) && $fin !== '0000-00-00 00:00:00') {
+                try {
+                    $candidatos[] = \Carbon\Carbon::parse($fin);
+                } catch (\Throwable $e) {
+                    // fecha inválida se ignora
+                }
+            }
+        }
+        $futuros = array_filter($candidatos, fn ($c) => $c->isFuture());
+        if (empty($futuros)) {
+            return null;
+        }
+        return min($futuros);
+    }
+
+    /**
      * Precio final: gana el descuento que resulte en el menor precio.
      * Opciones: Precio Oferta fijo, descuento en soles (descuentoOferta) o % (descuentoEfectivo).
      */
