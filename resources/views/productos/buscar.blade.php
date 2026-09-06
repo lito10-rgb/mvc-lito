@@ -43,7 +43,7 @@
                                 <p class="mb-2 text-theme-accent fw-bold">Consultar precio</p>
                             @elseif(!empty($producto->enOferta))
                                 <p class="mb-2 text-theme-accent fw-bold"><span class="text-muted text-decoration-line-through me-1">S/ {{ number_format($producto->precio ?? 0, 2) }}</span><span class="text-danger">S/ {{ number_format($producto->precioFinal ?? 0, 2) }}</span></p>
-                                @if(!empty($producto->etiquetaOfertaVisible))<small class="text-muted fst-italic d-block mb-1">{{ $producto->etiquetaOfertaVisible }}</small>@endif
+                                <x-etiqueta-oferta :producto="$producto" />
                             @else
                                 <p class="mb-2 text-theme-accent fw-bold">S/ {{ number_format($producto->precio ?? 0, 2) }}</p>
                             @endif

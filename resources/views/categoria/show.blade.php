@@ -62,7 +62,7 @@
                                 @elseif($producto->enOferta)
                                     <span class="badge text-decoration-line-through" style="background-color: var(--theme-accent); color: #000;">S/. {{ $producto->precio }}</span>
                                     <span class="badge" style="background-color: #dc3545; color: #fff;">S/. {{ number_format($producto->precioFinal, 2) }} ({{ $producto->descuentoEtiqueta }})</span>
-                                    @if($producto->etiquetaOfertaVisible)<small class="text-muted fst-italic d-block mt-1">{{ $producto->etiquetaOfertaVisible }}</small>@endif
+                                    <x-etiqueta-oferta :producto="$producto" />
                                 @else
                                     <span class="badge" style="background-color: var(--theme-accent); color: #000;">S/. {{ $producto->precio }}</span>
                                 @endif
