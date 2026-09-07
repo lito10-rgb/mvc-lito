@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\TarifaEnvio;
 use App\Models\TipoEnvio;
 use App\Models\Categoria;
+use App\Models\Subcategoria;
 use Illuminate\Http\Request;
 
 class TarifaEnvioController extends Controller
@@ -28,6 +29,7 @@ class TarifaEnvioController extends Controller
         $data = $request->validate([
             'tipo_envio_id' => 'required|exists:tipos_envio,id',
             'categoria_id' => 'nullable|exists:categorias,id',
+            'subcategoria_id' => 'nullable|exists:subcategorias,id',
             'minimo' => 'nullable|numeric|min:0',
             'maximo' => 'nullable|numeric|min:0',
             'costo' => 'required|numeric|min:0',
@@ -42,7 +44,8 @@ class TarifaEnvioController extends Controller
     {
         $tipos = TipoEnvio::orderBy('nombre')->get();
         $categorias = Categoria::orderBy('categoria')->get();
-        return view('admin.tarifas-envio.edit', compact('tarifaEnvio', 'tipos', 'categorias'));
+        $subcategorias = Subcategoria::orderBy('subcategoria')->get();
+        return view('admin.tarifas-envio.edit', compact('tarifaEnvio', 'tipos', 'categorias', 'subcategorias'));
     }
 
     public function update(Request $request, TarifaEnvio $tarifaEnvio)
@@ -50,6 +53,7 @@ class TarifaEnvioController extends Controller
         $data = $request->validate([
             'tipo_envio_id' => 'required|exists:tipos_envio,id',
             'categoria_id' => 'nullable|exists:categorias,id',
+            'subcategoria_id' => 'nullable|exists:subcategorias,id',
             'minimo' => 'nullable|numeric|min:0',
             'maximo' => 'nullable|numeric|min:0',
             'costo' => 'required|numeric|min:0',

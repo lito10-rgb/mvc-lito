@@ -663,12 +663,12 @@ public function mercadopagoNotification(Request $request)
         }
         session(['checkout_tipo_envio' => $tipoEnvioId]);
 
-        $productos = Producto::with('categoria')->whereIn('id', $productIds)->get()->keyBy('id');
+        $productos = Producto::with('categoria', 'subcategoria')->whereIn('id', $productIds)->get()->keyBy('id');
 
         // Separar productos con costo_envio específico
         $envioEspecifico = 0.0;
         $idsSinEnvio = [];
-        $subtotalesPorCategoria = [];
+        $gruposPorClave = []; // clave => subtotal
 
         foreach ($carrito as $id => $item) {
             $prod = $productos->get($id);
@@ -677,8 +677,11 @@ public function mercadopagoNotification(Request $request)
                 $envioEspecifico += $prod->costo_envio * $qty;
             } else {
                 $idsSinEnvio[] = $id;
+                // Clave: subcategoria_id si existe, si no categoria_id, si no null (general)
+                $subcatId = $prod->subcategoria_id ?? null;
                 $catId = $prod->categoria_id ?? null;
-                $subtotalesPorCategoria[$catId] = ($subtotalesPorCategoria[$catId] ?? 0) + (($item['precio'] ?? 0) * $qty);
+                $clave = $subcatId ? "sub_{$subcatId}" : ($catId ? "cat_{$catId}" : 'general');
+                $gruposPorClave[$clave] = ($gruposPorClave[$clave] ?? 0) + (($item['precio'] ?? 0) * $qty);
             }
         }
 
@@ -706,31 +709,47 @@ public function mercadopagoNotification(Request $request)
         $tarifas = TarifaEnvio::where('tipo_envio_id', $tipoEnvioId)->where('activo', true)->get();
 
         $envioTotal = $envioEspecifico;
-        $procesados = [];
 
-        // Buscar tarifa aplicable a un subtotal dado
-        $buscarTarifa = function ($subtotal, $categoriaId) use ($tarifas) {
-            $candidatas = $tarifas->where('categoria_id', $categoriaId)->filter(function ($t) use ($subtotal) {
+        // Buscar tarifa aplicable: subcategoría > categoría > general
+        $buscarTarifa = function ($subtotal, ?int $subcatId, ?int $catId) use ($tarifas) {
+            // 1. Buscar tarifa por subcategoría específica
+            if ($subcatId) {
+                $candidatas = $tarifas->where('subcategoria_id', $subcatId)->filter(function ($t) use ($subtotal) {
+                    $min = $t->minimo ?? 0;
+                    $max = $t->maximo;
+                    return $subtotal >= $min && ($max === null || $subtotal <= $max);
+                });
+                if ($candidatas->isNotEmpty()) {
+                    return $candidatas->sortByDesc('minimo')->first();
+                }
+            }
+            // 2. Buscar tarifa por categoría (sin subcategoría)
+            if ($catId) {
+                $candidatas = $tarifas->where('categoria_id', $catId)->whereNull('subcategoria_id')->filter(function ($t) use ($subtotal) {
+                    $min = $t->minimo ?? 0;
+                    $max = $t->maximo;
+                    return $subtotal >= $min && ($max === null || $subtotal <= $max);
+                });
+                if ($candidatas->isNotEmpty()) {
+                    return $candidatas->sortByDesc('minimo')->first();
+                }
+            }
+            // 3. Buscar tarifa general (sin categoría ni subcategoría)
+            $candidatas = $tarifas->where('categoria_id', null)->whereNull('subcategoria_id')->filter(function ($t) use ($subtotal) {
                 $min = $t->minimo ?? 0;
                 $max = $t->maximo;
                 return $subtotal >= $min && ($max === null || $subtotal <= $max);
             });
-            if ($candidatas->isEmpty()) return null;
-            // Elegir la de mayor minimo (más específica)
-            return $candidatas->sortByDesc('minimo')->first();
+            return $candidatas->isNotEmpty() ? $candidatas->sortByDesc('minimo')->first() : null;
         };
 
-        // Sumar por cada categoría presente (con tarifa propia o general)
-        foreach ($subtotalesPorCategoria as $catId => $subtotalCat) {
-            if ($subtotalCat <= 0) continue;
-            $t = $buscarTarifa($subtotalCat, $catId);
-            if ($t) {
-                $envioTotal += $t->costo;
-            } else {
-                // Buscar general (categoria_id null)
-                $t = $buscarTarifa($subtotalCat, null);
-                if ($t) $envioTotal += $t->costo;
-            }
+        // Procesar cada grupo
+        foreach ($gruposPorClave as $clave => $subtotalGrupo) {
+            if ($subtotalGrupo <= 0) continue;
+            $subcatId = str_starts_with($clave, 'sub_') ? (int) substr($clave, 4) : null;
+            $catId = str_starts_with($clave, 'cat_') ? (int) substr($clave, 4) : null;
+            $t = $buscarTarifa($subtotalGrupo, $subcatId, $catId);
+            if ($t) $envioTotal += $t->costo;
         }
 
         return round($envioTotal, 2);

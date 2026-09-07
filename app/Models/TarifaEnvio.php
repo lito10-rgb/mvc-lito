@@ -8,7 +8,7 @@ class TarifaEnvio extends Model
 {
     protected $table = 'tarifas_envio';
 
-    protected $fillable = ['tipo_envio_id', 'categoria_id', 'minimo', 'maximo', 'costo', 'activo'];
+    protected $fillable = ['tipo_envio_id', 'categoria_id', 'subcategoria_id', 'minimo', 'maximo', 'costo', 'activo'];
 
     protected $casts = [
         'minimo' => 'float',
@@ -25,5 +25,10 @@ class TarifaEnvio extends Model
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
+    }
+
+    public function subcategoria()
+    {
+        return $this->belongsTo(Subcategoria::class);
     }
 }

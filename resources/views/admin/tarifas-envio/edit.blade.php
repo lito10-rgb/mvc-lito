@@ -22,12 +22,24 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Categoría (dejar vacío = general)</label>
-                    <select name="categoria_id" class="form-control">
+                    <select name="categoria_id" id="cat-select" class="form-control">
                         <option value="">-- General --</option>
                         @foreach($categorias as $cat)
                         <option value="{{ $cat->id }}" {{ old('categoria_id', $tarifaEnvio->categoria_id) == $cat->id ? 'selected' : '' }}>{{ $cat->categoria }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Subcategoría (opcional, más específico)</label>
+                    <select name="subcategoria_id" id="subcat-select" class="form-control">
+                        <option value="">-- Todas las subcategorías --</option>
+                        @foreach($categorias as $cat)
+                            @foreach($cat->subcategorias as $sub)
+                            <option value="{{ $sub->id }}" data-cat="{{ $cat->id }}" {{ old('subcategoria_id', $tarifaEnvio->subcategoria_id) == $sub->id ? 'selected' : '' }}>{{ $cat->categoria }} → {{ $sub->subcategoria }}</option>
+                            @endforeach
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Si seleccionas subcategoría, la tarifa aplica solo a productos de esa subcategoría.</small>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">

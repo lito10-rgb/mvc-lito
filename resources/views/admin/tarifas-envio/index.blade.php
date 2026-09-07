@@ -26,13 +26,14 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Categoría</th><th>Mín.</th><th>Máx.</th><th>Costo</th><th>Estado</th><th>Acciones</th>
+                            <th>Categoría</th><th>Subcategoría</th><th>Mín.</th><th>Máx.</th><th>Costo</th><th>Estado</th><th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($tipo->tarifas as $tarifa)
                         <tr>
                             <td>{{ $tarifa->categoria ? $tarifa->categoria->categoria : '<em>General</em>' }}</td>
+                            <td>{{ $tarifa->subcategoria ? $tarifa->subcategoria->subcategoria : '—' }}</td>
                             <td>{{ $tarifa->minimo ? number_format($tarifa->minimo, 2) : '0' }}</td>
                             <td>{{ $tarifa->maximo ? number_format($tarifa->maximo, 2) : '∞' }}</td>
                             <td class="fw-bold">S/ {{ number_format($tarifa->costo, 2) }}</td>
