@@ -109,7 +109,7 @@ Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'du
     Route::delete('ofertas/{id}/quitar', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOferta'])->name('ofertas.quitar');
     Route::post('ofertas/quitar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOfertaMultiple'])->name('ofertas.quitar-multiple');
 
-    Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class);
+    Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class)->parameters(['cupones' => 'cupon']);
     Route::post('cupones/{cupon}/toggle', [\App\Http\Controllers\Admin\CuponController::class, 'toggle'])->name('cupones.toggle');
     Route::post('cupones/validar', [\App\Http\Controllers\Admin\CuponController::class, 'validar'])->name('cupones.validar');
 
