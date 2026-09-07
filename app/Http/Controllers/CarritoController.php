@@ -64,7 +64,14 @@ class CarritoController extends Controller
 
         if (isset($carrito[$id])) {
             unset($carrito[$id]);
-            session()->put('carrito', $carrito);
+    session()->put('carrito', $carrito);
+
+        // Guardar última categoría/subcategoría del producto agregado
+        if ($producto->subcategoria) {
+            session(['ultima_ruta_productos' => ['tipo' => 'subcategoria', 'nombre' => $producto->subcategoria->subcategoria]]);
+        } elseif ($producto->categoria) {
+            session(['ultima_ruta_productos' => ['tipo' => 'categoria', 'nombre' => $producto->categoria->categoria]]);
+        }
         }
 
         return redirect()->back()->with('success', 'Producto eliminado.');
