@@ -80,8 +80,15 @@ class OfertasController extends Controller
             'etiquetaOferta' => 'nullable|string|max:255',
         ]);
 
+        $data['precioOferta'] = $data['precioOferta'] ?? 0;
+        $data['descuentoOferta'] = $data['descuentoOferta'] ?? 0;
+        $data['oferta'] = $data['oferta'] ?? 0;
+        $data['etiquetaOferta'] = $data['etiquetaOferta'] ?? null;
+
         if (isset($data['finOferta']) && $data['finOferta']) {
             $data['finOferta'] = $data['finOferta'] . ' 23:59:59';
+        } else {
+            $data['finOferta'] = null;
         }
 
         $producto->update($data);
