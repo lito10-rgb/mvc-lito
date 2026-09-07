@@ -32,10 +32,13 @@ class TarifaEnvioController extends Controller
             'subcategoria_id' => 'nullable|exists:subcategorias,id',
             'minimo' => 'nullable|numeric|min:0',
             'maximo' => 'nullable|numeric|min:0',
-            'costo' => 'required|numeric|min:0',
+            'costo' => 'required_unless:gratis,1|nullable|numeric|min:0',
+            'gratis' => 'nullable|boolean',
             'activo' => 'nullable|boolean',
         ]);
         $data['activo'] = $request->boolean('activo', true);
+        $data['gratis'] = $request->boolean('gratis', false);
+        if ($data['gratis']) $data['costo'] = 0;
         TarifaEnvio::create($data);
         return redirect()->route('admin.tarifas-envio.index')->with('success', 'Tarifa de envío creada');
     }
@@ -56,10 +59,13 @@ class TarifaEnvioController extends Controller
             'subcategoria_id' => 'nullable|exists:subcategorias,id',
             'minimo' => 'nullable|numeric|min:0',
             'maximo' => 'nullable|numeric|min:0',
-            'costo' => 'required|numeric|min:0',
+            'costo' => 'required_unless:gratis,1|nullable|numeric|min:0',
+            'gratis' => 'nullable|boolean',
             'activo' => 'nullable|boolean',
         ]);
         $data['activo'] = $request->boolean('activo', true);
+        $data['gratis'] = $request->boolean('gratis', false);
+        if ($data['gratis']) $data['costo'] = 0;
         $tarifaEnvio->update($data);
         return redirect()->route('admin.tarifas-envio.index')->with('success', 'Tarifa de envío actualizada');
     }

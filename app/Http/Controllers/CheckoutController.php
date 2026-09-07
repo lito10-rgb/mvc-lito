@@ -749,7 +749,7 @@ public function mercadopagoNotification(Request $request)
             $subcatId = str_starts_with($clave, 'sub_') ? (int) substr($clave, 4) : null;
             $catId = str_starts_with($clave, 'cat_') ? (int) substr($clave, 4) : null;
             $t = $buscarTarifa($subtotalGrupo, $subcatId, $catId);
-            if ($t) $envioTotal += $t->costo;
+            if ($t) $envioTotal += $t->gratis ? 0 : $t->costo;
         }
 
         return round($envioTotal, 2);

@@ -53,21 +53,43 @@
                         @error('maximo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Costo de envío</label>
-                    <input type="number" step="0.01" name="costo" class="form-control @error('costo') is-invalid @enderror" value="{{ old('costo', $tarifaEnvio->costo) }}" required>
-                    @error('costo')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Estado</label>
-                    <select name="activo" class="form-control">
-                        <option value="1" {{ old('activo', $tarifaEnvio->activo) ? 'selected' : '' }}>Activo</option>
-                        <option value="0" {{ old('activo') !== null && !old('activo', $tarifaEnvio->activo) ? 'selected' : '' }}>Inactivo</option>
-                    </select>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Costo de envío</label>
+                        <input type="number" step="0.01" name="costo" id="input-costo" class="form-control @error('costo') is-invalid @enderror" value="{{ old('costo', $tarifaEnvio->costo) }}" {{ old('gratis', $tarifaEnvio->gratis) ? 'disabled' : '' }}>
+                        @error('costo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Envío gratuito</label>
+                        <div class="form-check form-switch mt-2">
+                            <input type="checkbox" name="gratis" value="1" id="check-gratis" class="form-check-input" {{ old('gratis', $tarifaEnvio->gratis) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="check-gratis">Marcar si el envío es gratis</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Estado</label>
+                        <select name="activo" class="form-control">
+                            <option value="1" {{ old('activo', $tarifaEnvio->activo) ? 'selected' : '' }}>Activo</option>
+                            <option value="0" {{ old('activo') !== null && !old('activo', $tarifaEnvio->activo) ? 'selected' : '' }}>Inactivo</option>
+                        </select>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i> Guardar</button>
             </form>
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const check = document.getElementById('check-gratis');
+    const input = document.getElementById('input-costo');
+    check.addEventListener('change', function () {
+        input.disabled = this.checked;
+        if (this.checked) input.value = '';
+    });
+});
+</script>
 @endsection

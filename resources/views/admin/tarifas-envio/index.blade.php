@@ -36,7 +36,13 @@
                             <td>{{ $tarifa->subcategoria ? $tarifa->subcategoria->subcategoria : '—' }}</td>
                             <td>{{ $tarifa->minimo ? number_format($tarifa->minimo, 2) : '0' }}</td>
                             <td>{{ $tarifa->maximo ? number_format($tarifa->maximo, 2) : '∞' }}</td>
-                            <td class="fw-bold">S/ {{ number_format($tarifa->costo, 2) }}</td>
+                            <td class="fw-bold">
+                                @if($tarifa->gratis)
+                                    <span class="text-success"><i class="fas fa-gift me-1"></i> Gratis</span>
+                                @else
+                                    S/ {{ number_format($tarifa->costo, 2) }}
+                                @endif
+                            </td>
                             <td>
                                 @if($tarifa->activo)
                                     <span class="badge bg-success">Activo</span>
