@@ -179,6 +179,7 @@ class ProductoController extends Controller
         'peso' => 'nullable|string|max:50',
         'entrega' => 'nullable|string|max:255',
         'costo_envio' => 'nullable|numeric|min:0',
+        'envio_gratis' => 'nullable|boolean',
         'categoria_id' => 'required|exists:categorias,id',
         'subcategoria_id' => 'required|exists:subcategorias,id',
         'marca_id' => 'required|exists:marcas,id',
@@ -201,12 +202,15 @@ class ProductoController extends Controller
     $data['ofertaCategoria'] = $request->input('ofertaCategoria', '') !== '' ? $request->input('ofertaCategoria') : null;
     $data['ofertaSubcategoria'] = $request->input('ofertaSubcategoria', '') !== '' ? $request->input('ofertaSubcategoria') : null;
     $data['oferta'] = $request->input('oferta', 0);
+    $data['precioOferta'] = $request->input('precioOferta', 0) ?? 0;
+    $data['descuentoOferta'] = $request->input('descuentoOferta', 0) ?? 0;
     $data['vistas'] = $request->input('vistas', rand(10, 500));
     $data['ventas'] = $request->input('ventas', rand(1, 100));
     $data['vistasGratis'] = $request->input('vistasGratis', rand(0, 50));
     $data['ventasGratis'] = $request->input('ventasGratis', rand(0, 20));
     $data['detalles'] = $request->input('detalles', '');
     $data['stock'] = $request->input('stock', 0);
+    $data['envio_gratis'] = $request->boolean('envio_gratis');
 
     // Slug
     if (empty($data['ruta'])) {
@@ -326,6 +330,7 @@ public function update(Request $request, Producto $producto)
         'peso' => 'nullable|string|max:50',
         'entrega' => 'nullable|string|max:255',
         'costo_envio' => 'nullable|numeric|min:0',
+        'envio_gratis' => 'nullable|boolean',
         'categoria_id' => 'required|exists:categorias,id',
         'subcategoria_id' => 'required|exists:subcategorias,id',
         'marca_id' => 'required|exists:marcas,id',
@@ -343,7 +348,10 @@ public function update(Request $request, Producto $producto)
     $data['ofertaCategoria'] = $request->input('ofertaCategoria', '') !== '' ? $request->input('ofertaCategoria') : null;
     $data['ofertaSubcategoria'] = $request->input('ofertaSubcategoria', '') !== '' ? $request->input('ofertaSubcategoria') : null;
     $data['oferta'] = $request->input('oferta', 0);
+    $data['precioOferta'] = $request->input('precioOferta', 0) ?? 0;
+    $data['descuentoOferta'] = $request->input('descuentoOferta', 0) ?? 0;
     $data['detalles'] = $request->input('detalles', '');
+    $data['envio_gratis'] = $request->boolean('envio_gratis');
 
     if (empty($data['ruta'])) {
         $data['ruta'] = Str::slug($data['titulo']);
@@ -431,6 +439,7 @@ public function update(Request $request, Producto $producto)
             'stock'           => 'nullable|integer|min:0',
             'entrega'         => 'nullable|numeric|min:0',
             'costo_envio'     => 'nullable|numeric|min:0',
+            'envio_gratis'    => 'nullable|boolean',
             'multimedia'      => 'nullable|array',
             'multimedia.*'    => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'imagenes_actuales' => 'nullable|json',
@@ -441,6 +450,7 @@ public function update(Request $request, Producto $producto)
         $data['stock'] = $request->filled('stock') ? $request->integer('stock') : 0;
         $data['entrega'] = $request->filled('entrega') ? $request->input('entrega') : 2;
         $data['costo_envio'] = $request->filled('costo_envio') ? $request->input('costo_envio') : null;
+        $data['envio_gratis'] = $request->boolean('envio_gratis');
 
         if ($request->hasFile('portada')) {
             if ($producto->portada && \Storage::disk('public')->exists($producto->portada)) {
