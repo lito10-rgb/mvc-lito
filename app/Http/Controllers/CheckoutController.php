@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Http;
 use App\Models\Producto;
+use App\Models\TipoEnvio;
+use App\Models\TarifaEnvio;
 /* PayPal SDK */
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
@@ -68,6 +70,9 @@ class CheckoutController extends Controller
         $envio = $this->calcularEnvio($subtotal);
         $total = round($subtotal + $envio, 2);
 
+        $tipos = TipoEnvio::where('activo', true)->orderBy('orden')->get();
+        $tipoSeleccionado = session('checkout_tipo_envio');
+
         // Determinar composición del carrito (físico, no-físico, mixto)
         $productIds = array_keys($carrito);
         $soloNoFisico = false;
@@ -80,7 +85,7 @@ class CheckoutController extends Controller
             $mixto = $fisicos > 0 && $noFisicos > 0;
         }
 
-        return view('checkout.index', compact('carrito', 'subtotal', 'envio', 'total', 'soloNoFisico', 'mixto'));
+        return view('checkout.index', compact('carrito', 'subtotal', 'envio', 'total', 'soloNoFisico', 'mixto', 'tipos', 'tipoSeleccionado'));
     }
 
     /**
@@ -112,6 +117,10 @@ class CheckoutController extends Controller
         $request->validate($rules);
 
         $metodo = $request->input('metodo');
+        $tipoEnvioId = $request->input('tipo_envio_id');
+        if ($tipoEnvioId) {
+            session(['checkout_tipo_envio' => $tipoEnvioId]);
+        }
 
         $checkoutData = [];
         if ($mixto || !$soloNoFisico) {
@@ -127,7 +136,7 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $this->calcularSubtotal($carrito);
-        $envio = $this->calcularEnvio($subtotal);
+        $envio = $this->calcularEnvio($subtotal, $tipoEnvioId);
         $total = round($subtotal + $envio, 2);
 
         return match ($metodo) {
@@ -641,19 +650,25 @@ public function mercadopagoNotification(Request $request)
         return round($sum, 2);
     }
 
-    protected function calcularEnvio(float $subtotalIgnored = 0): float
+    protected function calcularEnvio(float $subtotalIgnored = 0, int $tipoEnvioId = null): float
     {
         $carrito = session('carrito', []);
         $productIds = array_keys($carrito);
         if (empty($productIds)) return 0.0;
 
-        // Cargar productos con su categoría
+        $tipoEnvioId = $tipoEnvioId ?? session('checkout_tipo_envio');
+        if (!$tipoEnvioId) {
+            $tipo = TipoEnvio::where('activo', true)->orderBy('orden')->first();
+            $tipoEnvioId = $tipo?->id;
+        }
+        session(['checkout_tipo_envio' => $tipoEnvioId]);
+
         $productos = Producto::with('categoria')->whereIn('id', $productIds)->get()->keyBy('id');
 
         // Separar productos con costo_envio específico
         $envioEspecifico = 0.0;
         $idsSinEnvio = [];
-        $subtotalSinEnvio = 0.0;
+        $subtotalesPorCategoria = [];
 
         foreach ($carrito as $id => $item) {
             $prod = $productos->get($id);
@@ -662,60 +677,90 @@ public function mercadopagoNotification(Request $request)
                 $envioEspecifico += $prod->costo_envio * $qty;
             } else {
                 $idsSinEnvio[] = $id;
-                $subtotalSinEnvio += ($item['precio'] ?? 0) * $qty;
+                $catId = $prod->categoria_id ?? null;
+                $subtotalesPorCategoria[$catId] = ($subtotalesPorCategoria[$catId] ?? 0) + (($item['precio'] ?? 0) * $qty);
             }
         }
 
-        // Si todos tienen costo específico, retornar solo eso
-        if (empty($idsSinEnvio)) {
-            return round($envioEspecifico, 2);
-        }
+        if (empty($idsSinEnvio)) return round($envioEspecifico, 2);
 
-        // Aplicar lógica normal sobre productos sin costo_envio específico
-        // No-físicos → envío 0 (no suman al envío normal)
         $fisicos = Producto::whereIn('id', $idsSinEnvio)->where('tipo', 'fisico')->count();
-        if ($fisicos === 0) {
-            return round($envioEspecifico, 2);
-        }
+        if ($fisicos === 0) return round($envioEspecifico, 2);
 
         $negocioId = negocio_actual_id();
         $cafeNombres = ['CAFE ORGANICO', 'CHOCOLATE ORGANICO', 'CAFETERAS Y ACCESORIOS'];
 
+        // Regla especial: muestras café gratis (precio 0) — envío progresivo
         if ($negocioId == 2) {
-            // Muestras de café (fisico + precio 0) — envío progresivo
             $muestraIds = Producto::whereIn('id', $idsSinEnvio)
                 ->where('tipo', 'fisico')->where('precio', 0)
                 ->whereHas('categoria', fn($q) => $q->whereIn('nombre', $cafeNombres))
                 ->pluck('id')->toArray();
-
             if (count($muestraIds) === count($idsSinEnvio)) {
                 $qty = (int) array_sum(array_map(fn($id) => (int)($carrito[$id]['cantidad'] ?? 1), $idsSinEnvio));
-                $envioNormal = 6.0 * (1 + ($qty - 1) * 0.5);
-                return round($envioEspecifico + $envioNormal, 2);
-            }
-
-            // Café en general
-            $enCafe = Producto::whereIn('id', $idsSinEnvio)
-                ->whereHas('categoria', fn($q) => $q->whereIn('nombre', $cafeNombres))
-                ->count();
-            if ($enCafe === count($idsSinEnvio)) {
-                $envioNormal = $subtotalSinEnvio >= 100 ? 5.0 : 15.0;
-                return round($envioEspecifico + $envioNormal, 2);
+                return round($envioEspecifico + 6.0 * (1 + ($qty - 1) * 0.5), 2);
             }
         }
 
-        // Tarifario general sobre el subtotal de productos sin costo_envio
-        $envioNormal = match (true) {
-            $subtotalSinEnvio < 100    => 25.0,
-            $subtotalSinEnvio < 1000   => 25.0,
-            $subtotalSinEnvio < 1500   => 40.0,
-            $subtotalSinEnvio < 3000   => 45.0,
-            $subtotalSinEnvio < 5000   => 95.0,
-            $subtotalSinEnvio < 9000   => 220.0,
-            $subtotalSinEnvio < 15000  => 290.0,
-            default                    => 590.0,
+        // Tarifas activas del tipo de envío seleccionado
+        $tarifas = TarifaEnvio::where('tipo_envio_id', $tipoEnvioId)->where('activo', true)->get();
+
+        $envioTotal = $envioEspecifico;
+        $procesados = [];
+
+        // Buscar tarifa aplicable a un subtotal dado
+        $buscarTarifa = function ($subtotal, $categoriaId) use ($tarifas) {
+            $candidatas = $tarifas->where('categoria_id', $categoriaId)->filter(function ($t) use ($subtotal) {
+                $min = $t->minimo ?? 0;
+                $max = $t->maximo;
+                return $subtotal >= $min && ($max === null || $subtotal <= $max);
+            });
+            if ($candidatas->isEmpty()) return null;
+            // Elegir la de mayor minimo (más específica)
+            return $candidatas->sortByDesc('minimo')->first();
         };
-        return round($envioEspecifico + $envioNormal, 2);
+
+        // Sumar por cada categoría presente (con tarifa propia o general)
+        foreach ($subtotalesPorCategoria as $catId => $subtotalCat) {
+            if ($subtotalCat <= 0) continue;
+            $t = $buscarTarifa($subtotalCat, $catId);
+            if ($t) {
+                $envioTotal += $t->costo;
+            } else {
+                // Buscar general (categoria_id null)
+                $t = $buscarTarifa($subtotalCat, null);
+                if ($t) $envioTotal += $t->costo;
+            }
+        }
+
+        return round($envioTotal, 2);
+    }
+
+    /**
+     * AJAX: recalcular envío al cambiar tipo en el checkout.
+     */
+    public function calcularEnvioAjax(Request $request)
+    {
+        $request->validate(['tipo_envio_id' => 'required|exists:tipos_envio,id']);
+        session(['checkout_tipo_envio' => $request->input('tipo_envio_id')]);
+
+        $carrito = session('carrito', []);
+        $subtotal = $this->calcularSubtotal($carrito);
+        $envio = $this->calcularEnvio($subtotal, $request->input('tipo_envio_id'));
+
+        return response()->json([
+            'envio' => number_format($envio, 2, '.', ''),
+            'total' => number_format($subtotal + $envio, 2, '.', ''),
+        ]);
+    }
+
+    /**
+     * Obtener tipos de envío activos para el selector del checkout.
+     */
+    public function tiposEnvio()
+    {
+        $tipos = TipoEnvio::where('activo', true)->orderBy('orden')->get();
+        return response()->json($tipos);
     }
     ////////////////lito aqui del paypal
     /* Ruta genérica de éxito (usada por simulate y por algunos retornos)

@@ -17,6 +17,12 @@
         <a href="{{ route('admin.pedidos.index') }}" class="sidebar-link">
             <i class="fas fa-shopping-cart me-2"></i> Pedidos
         </a>
+        <a href="{{ route('admin.tipos-envio.index') }}" class="sidebar-link">
+            <i class="fas fa-truck me-2"></i> Tipos de Envío
+        </a>
+        <a href="{{ route('admin.tarifas-envio.index') }}" class="sidebar-link">
+            <i class="fas fa-dollar-sign me-2"></i> Tarifas de Envío
+        </a>
         <a href="{{ route('admin.productos.index') }}" class="sidebar-link">
             <i class="fas fa-boxes-stacked me-2"></i> Productos
         </a>

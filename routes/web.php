@@ -140,6 +140,8 @@ Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'du
     Route::resource('negocios.slides', \App\Http\Controllers\Admin\BannerSlideController::class)->except(['show']);
     Route::resource('logos', \App\Http\Controllers\Admin\EmpresaLogoController::class);
     Route::resource('plantillas', \App\Http\Controllers\Admin\PlantillaCorreoController::class)->except(['show']);
+    Route::resource('tipos-envio', \App\Http\Controllers\Admin\TipoEnvioController::class);
+    Route::resource('tarifas-envio', \App\Http\Controllers\Admin\TarifaEnvioController::class);
     Route::post('cotizaciones/{cotizacione}/enviar-correo', [\App\Http\Controllers\Admin\CotizacionController::class, 'enviarCorreo'])->name('cotizaciones.enviarCorreo');
     Route::get('cotizaciones/{cotizacione}/duplicar', [\App\Http\Controllers\Admin\CotizacionController::class, 'duplicar'])->name('cotizaciones.duplicar');
 
@@ -215,8 +217,10 @@ Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos');
 Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('pedidos.show');
 
 /* Checkout (protegidas por auth) */
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::get('/checkout/envio/tipos', [CheckoutController::class, 'tiposEnvio'])->name('checkout.tipos');
+    Route::post('/checkout/envio', [CheckoutController::class, 'calcularEnvioAjax'])->name('checkout.envio');
 
     // Alias (opcional) para compatibilidad con llamadas a route('checkout')
     Route::get('/checkout-alias', function () {

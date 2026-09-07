@@ -131,12 +131,39 @@
 
                         <div class="d-flex justify-content-between">
                             <div>Subtotal</div>
-                            <div>S/ {{ number_format($subtotal, 2) }}</div>
+                            <div id="subtotal-valor">S/ {{ number_format($subtotal, 2) }}</div>
                         </div>
                         <div class="d-flex justify-content-between">
                             <div>Envío</div>
-                            <div>S/ {{ number_format($envio, 2) }}</div>
+                            <div id="envio-valor">S/ {{ number_format($envio, 2) }}</div>
                         </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fs-5 fw-bold">
+                            <div>Total</div>
+                            <div id="total-valor">S/ {{ number_format($total, 2) }}</div>
+                        </div>
+
+                        {{-- Tipo de envío --}}
+                        @if(!$soloNoFisico && $tipos->isNotEmpty())
+                        <hr>
+                        <h6>Tipo de envío</h6>
+                        <div id="tipos-envio">
+                            @foreach($tipos as $tipo)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_envio_id" id="tipo-{{ $tipo->id }}"
+                                           value="{{ $tipo->id }}"
+                                           {{ ($tipoSeleccionado == $tipo->id) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="tipo-{{ $tipo->id }}">
+                                        {{ $tipo->nombre }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div id="envio-loading" class="text-muted small" style="display:none;">
+                            <i class="fas fa-spinner fa-spin"></i> Actualizando envío…
+                        </div>
+                        @endif
+
                         <hr>
                         <div class="d-flex justify-content-between fs-5 fw-bold">
                             <div>Total</div>
@@ -148,6 +175,7 @@
                         {{-- Formulario para elegir método de pago --}}
                         <form id="checkoutForm" action="{{ route('checkout.pay') }}" method="POST" novalidate>
     @csrf
+    <input type="hidden" name="tipo_envio_id" id="tipo_envio_id" value="{{ $tipoSeleccionado ?? $tipos->first()?->id }}">
 
     <div class="mb-3">
         <label for="metodo" class="form-label">Selecciona método de pago</label>
@@ -207,6 +235,29 @@ document.addEventListener('DOMContentLoaded', function () {
         // deshabilita botones alternativos
         document.getElementById('btnMP').disabled = true;
         document.getElementById('btnPP').disabled = true;
+    });
+
+    // Actualizar envío al cambiar tipo de envío
+    const tiposRadios = document.querySelectorAll('input[name="tipo_envio_id"]');
+    const envioLoading = document.getElementById('envio-loading');
+    tiposRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            const tipoId = this.value;
+            document.getElementById('tipo_envio_id').value = tipoId;
+            if (envioLoading) envioLoading.style.display = 'block';
+            fetch('{{ route("checkout.envio") }}', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+                body: JSON.stringify({tipo_envio_id: tipoId})
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('envio-valor').textContent = 'S/ ' + data.envio;
+                document.getElementById('total-valor').textContent = 'S/ ' + data.total;
+            })
+            .catch(() => {})
+            .finally(() => { if (envioLoading) envioLoading.style.display = 'none'; });
+        });
     });
 });
 </script>
