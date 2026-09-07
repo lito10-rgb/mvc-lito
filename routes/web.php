@@ -104,7 +104,17 @@ Route::post('productos/bulk-update-carta', [AdminProductoController::class, 'bul
 Route::post('productos/bulk-remove-carta', [AdminProductoController::class, 'bulkRemoveCarta'])->name('productos.bulkRemoveCarta');
 Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'duplicar'])->name('productos.duplicar');
 
+    Route::get('ofertas', [\App\Http\Controllers\Admin\OfertasController::class, 'index'])->name('ofertas.index');
+    Route::put('ofertas/{id}', [\App\Http\Controllers\Admin\OfertasController::class, 'update'])->name('ofertas.update');
+    Route::delete('ofertas/{id}/quitar', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOferta'])->name('ofertas.quitar');
+    Route::post('ofertas/quitar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOfertaMultiple'])->name('ofertas.quitar-multiple');
+
+    Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class);
+    Route::post('cupones/{cupon}/toggle', [\App\Http\Controllers\Admin\CuponController::class, 'toggle'])->name('cupones.toggle');
+    Route::post('cupones/validar', [\App\Http\Controllers\Admin\CuponController::class, 'validar'])->name('cupones.validar');
+
     Route::resource('categorias', \App\Http\Controllers\Admin\CategoriaController::class);
+    Route::post('categorias/reorder', [\App\Http\Controllers\Admin\CategoriaController::class, 'reorder'])->name('categorias.reorder');
     Route::resource('subcategorias', \App\Http\Controllers\Admin\SubcategoriaController::class);
     Route::post('subcategorias/eliminar-multiple', [\App\Http\Controllers\Admin\SubcategoriaController::class, 'eliminarMultiple'])->name('subcategorias.eliminarMultiple');
 
@@ -221,6 +231,8 @@ Route::middleware(['auth', 'auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::get('/checkout/envio/tipos', [CheckoutController::class, 'tiposEnvio'])->name('checkout.tipos');
     Route::post('/checkout/envio', [CheckoutController::class, 'calcularEnvioAjax'])->name('checkout.envio');
+    Route::post('/checkout/cupon', [CheckoutController::class, 'aplicarCupon'])->name('checkout.cupon');
+    Route::post('/checkout/cupon-quitar', [CheckoutController::class, 'quitarCupon'])->name('checkout.cupon-quitar');
 
     // Alias (opcional) para compatibilidad con llamadas a route('checkout')
     Route::get('/checkout-alias', function () {

@@ -68,7 +68,9 @@ class CheckoutController extends Controller
 
         $subtotal = $this->calcularSubtotal($carrito);
         $envio = $this->calcularEnvio($subtotal);
-        $total = round($subtotal + $envio, 2);
+        $descuento = (float) session('cupon_descuento', 0);
+        $total = round($subtotal + $envio - $descuento, 2);
+        if ($total < 0) $total = 0;
 
         $tipos = TipoEnvio::where('activo', true)->orderBy('orden')->get();
         $tipoSeleccionado = session('checkout_tipo_envio');
@@ -137,7 +139,9 @@ class CheckoutController extends Controller
 
         $subtotal = $this->calcularSubtotal($carrito);
         $envio = $this->calcularEnvio($subtotal, $tipoEnvioId);
-        $total = round($subtotal + $envio, 2);
+        $descuento = (float) session('cupon_descuento', 0);
+        $total = round($subtotal + $envio - $descuento, 2);
+        if ($total < 0) $total = 0;
 
         return match ($metodo) {
             'simulado' => $this->simulateSuccess('simulado', $total),
@@ -151,7 +155,7 @@ class CheckoutController extends Controller
     {
         $dir = session('checkout_direccion', []);
         $userId = auth()->id() ?: null;
-        Order::create([
+        Order::create(array_merge([
             'user_id' => $userId,
             'amount' => $total,
             'status' => 'approved',
@@ -161,10 +165,30 @@ class CheckoutController extends Controller
             'departamento' => $dir['departamento'] ?? null,
             'telefono' => $dir['telefono'] ?? null,
             'payload' => ['carrito' => session('carrito', [])],
-        ]);
+        ], $this->cuponData()));
+        $this->registrarUsoCupon();
         session()->forget('carrito');
         session()->forget('checkout_direccion');
         return redirect()->route('checkout.success')->with('success', "Pago simulado con {$metodo}. Total: {$total}");
+    }
+
+    protected function cuponData(): array
+    {
+        $cuponId = session('cupon_id');
+        if (!$cuponId) return [];
+        return [
+            'cupon_id'        => $cuponId,
+            'cupon_codigo'    => session('cupon_codigo'),
+            'cupon_descuento' => session('cupon_descuento', 0),
+        ];
+    }
+
+    protected function registrarUsoCupon(): void
+    {
+        $cuponId = session('cupon_id');
+        if (!$cuponId) return;
+        \App\Models\Cupon::where('id', $cuponId)->increment('usos_actuales');
+        session()->forget(['cupon_id', 'cupon_codigo', 'cupon_descuento']);
     }
 
     /**
@@ -182,7 +206,7 @@ class CheckoutController extends Controller
 
     $dir = session('checkout_direccion', []);
     $userId = auth()->id() ?: null;
-    $order = Order::create([
+    $order = Order::create(array_merge([
         'user_id' => $userId,
         'amount' => $total,
         'status' => 'pending',
@@ -192,7 +216,7 @@ class CheckoutController extends Controller
         'departamento' => $dir['departamento'] ?? null,
         'telefono' => $dir['telefono'] ?? null,
         'payload' => ['carrito' => $carrito],
-    ]);
+    ], $this->cuponData()));
     session()->forget('checkout_direccion');
 
     // Validar stock antes de continuar
@@ -673,7 +697,9 @@ public function mercadopagoNotification(Request $request)
         foreach ($carrito as $id => $item) {
             $prod = $productos->get($id);
             $qty = (int) ($item['cantidad'] ?? 1);
-            if ($prod && $prod->costo_envio !== null && $prod->costo_envio > 0) {
+            if ($prod && $prod->envio_gratis) {
+                // Envío gratuito: no genera costo
+            } elseif ($prod && $prod->costo_envio !== null && $prod->costo_envio > 0) {
                 $envioEspecifico += $prod->costo_envio * $qty;
             } else {
                 $idsSinEnvio[] = $id;
@@ -766,10 +792,11 @@ public function mercadopagoNotification(Request $request)
         $carrito = session('carrito', []);
         $subtotal = $this->calcularSubtotal($carrito);
         $envio = $this->calcularEnvio($subtotal, $request->input('tipo_envio_id'));
+        $descuento = (float) session('cupon_descuento', 0);
 
         return response()->json([
             'envio' => number_format($envio, 2, '.', ''),
-            'total' => number_format($subtotal + $envio, 2, '.', ''),
+            'total' => number_format($subtotal + $envio - $descuento, 2, '.', ''),
         ]);
     }
 
@@ -798,14 +825,15 @@ public function mercadopagoNotification(Request $request)
 
         // Guardar order sólo si queremos registrar el intento (opcional)
         try {
-            Order::create([
+            Order::create(array_merge([
                 'user_id'       => $userId,
                 'preference_id' => $preferenceId,
                 'mp_payment_id' => $paymentId,
                 'amount'        => $amount,
                 'status'        => $status,
                 'payload'       => json_encode($request->all(), JSON_UNESCAPED_UNICODE),
-            ]);
+            ], $this->cuponData()));
+            $this->registrarUsoCupon();
         } catch (\Throwable $e) {
             // no rompas la vista por un fallo de guardado, solo loguea
             \Log::warning('Order save en success: '.$e->getMessage());
@@ -931,7 +959,7 @@ public function capturePaypal(Request $request)
         // ]);
 
         $dir = session('checkout_direccion', []);
-        $order = Order::create([
+        $order = Order::create(array_merge([
         'user_id'        => auth()->id(),
         'preference_id'  => $orderId,
         'mp_payment_id'  => $response->result
@@ -947,7 +975,8 @@ public function capturePaypal(Request $request)
         'departamento'   => $dir['departamento'] ?? null,
         'telefono'       => $dir['telefono'] ?? null,
         'payload'        => json_encode($response->result),
-    ]);
+    ], $this->cuponData()));
+    $this->registrarUsoCupon();
     session()->forget('checkout_direccion');
 
 
@@ -1046,5 +1075,55 @@ protected function guardarItemsYDescontarStock($order)
         \Log::info('Pago pending callback', $request->all());
         return view('checkout.pending', ['request' => $request->all()]);
     }
-    ////////////////
+    //    //////////////
+    public function aplicarCupon(Request $request)
+    {
+        $request->validate(['codigo' => 'required|string', 'subtotal' => 'required|numeric']);
+
+        $cupon = \App\Models\Cupon::where('codigo', strtoupper(trim($request->codigo)))->first();
+
+        if (!$cupon) {
+            return response()->json(['valido' => false, 'mensaje' => 'Cupón no encontrado']);
+        }
+
+        if (!$cupon->estaVigente()) {
+            $razon = 'Cupón no vigente';
+            if (!$cupon->activo) $razon = 'Cupón desactivado';
+            elseif ($cupon->fecha_fin && now()->gt($cupon->fecha_fin)) $razon = 'Cupón vencido';
+            elseif ($cupon->max_usos !== null && $cupon->usos_actuales >= $cupon->max_usos) $razon = 'Cupón agotado';
+            return response()->json(['valido' => false, 'mensaje' => $razon]);
+        }
+
+        if ($request->subtotal < $cupon->min_compra) {
+            return response()->json([
+                'valido' => false,
+                'mensaje' => 'Compra mínima S/ ' . number_format($cupon->min_compra, 2),
+            ]);
+        }
+
+        $descuento = $cupon->calcularDescuento((float) $request->subtotal);
+
+        session([
+            'cupon_id' => $cupon->id,
+            'cupon_codigo' => $cupon->codigo,
+            'cupon_descuento' => $descuento,
+        ]);
+
+        return response()->json([
+            'valido' => true,
+            'codigo' => $cupon->codigo,
+            'tipo' => $cupon->tipo,
+            'valor' => $cupon->valor,
+            'descuento' => $descuento,
+            'mensaje' => $cupon->tipo === 'porcentaje'
+                ? $cupon->valor . '% de descuento'
+                : 'S/ ' . number_format($cupon->valor, 2) . ' de descuento',
+        ]);
+    }
+
+    public function quitarCupon()
+    {
+        session()->forget(['cupon_id', 'cupon_codigo', 'cupon_descuento']);
+        return response()->json(['success' => true]);
+    }
 }

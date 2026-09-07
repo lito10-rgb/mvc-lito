@@ -26,6 +26,12 @@
         <a href="{{ route('admin.productos.index') }}" class="sidebar-link">
             <i class="fas fa-boxes-stacked me-2"></i> Productos
         </a>
+        <a href="{{ route('admin.ofertas.index') }}" class="sidebar-link">
+            <i class="fas fa-tags me-2 text-warning"></i> Ofertas
+        </a>
+        <a href="{{ route('admin.cupones.index') }}" class="sidebar-link">
+            <i class="fas fa-ticket me-2 text-success"></i> Cupones
+        </a>
         <a href="{{ route('admin.categorias.index') }}" class="sidebar-link">
             <i class="fas fa-tags me-2"></i> Categorías
         </a>

@@ -18,6 +18,9 @@ class Order extends Model
         'departamento',
         'telefono',
         'payload',
+        'cupon_id',
+        'cupon_codigo',
+        'cupon_descuento',
     ];
 
     protected $casts = [

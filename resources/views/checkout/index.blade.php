@@ -51,6 +51,9 @@
                                         </a>
                                         <div class="small text-muted">
                                             Cantidad: {{ $item['cantidad'] }} &middot; Precio unitario: S/ {{ number_format($item['precio'], 2) }}
+                                            @if(!empty($item['envio_gratis']))
+                                                <span class="badge bg-success ms-1"><i class="fa-solid fa-truck-fast"></i> Envío gratis</span>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -137,10 +140,45 @@
                             <div>Envío</div>
                             <div id="envio-valor">S/ {{ number_format($envio, 2) }}</div>
                         </div>
+                        @if(session('cupon_descuento', 0) > 0)
+                        <div class="d-flex justify-content-between text-success" id="fila-descuento">
+                            <div>
+                                Cupón <strong>{{ session('cupon_codigo', '') }}</strong>
+                                <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" id="btn-quitar-cupon" title="Quitar cupón">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="descuento-valor">-S/ {{ number_format(session('cupon_descuento'), 2) }}</div>
+                        </div>
+                        @else
+                        <div id="fila-descuento" style="display:none;">
+                            <div class="d-flex justify-content-between text-success">
+                                <div>
+                                    Cupón <strong id="cupon-codigo-text"></strong>
+                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" id="btn-quitar-cupon" title="Quitar cupón">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div id="descuento-valor"></div>
+                            </div>
+                        </div>
+                        @endif
                         <hr>
                         <div class="d-flex justify-content-between fs-5 fw-bold">
                             <div>Total</div>
                             <div id="total-valor">S/ {{ number_format($total, 2) }}</div>
+                        </div>
+
+                        {{-- Cupón de descuento --}}
+                        <div class="mt-3 mb-2">
+                            <label class="form-label small fw-bold"><i class="fas fa-ticket me-1"></i>¿Tienes un cupón?</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control" id="input-cupon" placeholder="Código" value="{{ session('cupon_codigo', '') }}" maxlength="50" style="text-transform:uppercase;">
+                                <button class="btn btn-outline-success" type="button" id="btn-aplicar-cupon">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                            <div id="cupon-msg" class="small mt-1" style="display:none;"></div>
                         </div>
 
                         {{-- Tipo de envío --}}
@@ -259,6 +297,91 @@ document.addEventListener('DOMContentLoaded', function () {
             .finally(() => { if (envioLoading) envioLoading.style.display = 'none'; });
         });
     });
+
+    // Cupón de descuento
+    var subtotal = {{ $subtotal }};
+    var cuponCodigo = document.getElementById('input-cupon');
+    var btnAplicar = document.getElementById('btn-aplicar-cupon');
+    var btnQuitar = document.getElementById('btn-quitar-cupon');
+    var cuponMsg = document.getElementById('cupon-msg');
+    var filaDescuento = document.getElementById('fila-descuento');
+
+    function recalcularTotal(descuento) {
+        var envio = parseFloat(document.getElementById('envio-valor').textContent.replace('S/ ', '')) || 0;
+        var total = subtotal + envio - descuento;
+        if (total < 0) total = 0;
+        document.getElementById('total-valor').textContent = 'S/ ' + total.toFixed(2);
+    }
+
+    btnAplicar.addEventListener('click', function () {
+        var codigo = cuponCodigo.value.trim();
+        if (!codigo) return;
+
+        btnAplicar.disabled = true;
+        btnAplicar.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        fetch('{{ route("checkout.cupon") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ codigo: codigo, subtotal: subtotal })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            btnAplicar.disabled = false;
+            btnAplicar.innerHTML = '<i class="fas fa-check"></i>';
+
+            if (data.valido) {
+                cuponMsg.className = 'small mt-1 text-success';
+                cuponMsg.textContent = data.mensaje;
+                cuponMsg.style.display = 'block';
+
+                document.getElementById('cupon-codigo-text').textContent = data.codigo;
+                document.getElementById('descuento-valor').textContent = '-S/ ' + data.descuento.toFixed(2);
+                filaDescuento.style.display = 'block';
+
+                recalcularTotal(data.descuento);
+            } else {
+                cuponMsg.className = 'small mt-1 text-danger';
+                cuponMsg.textContent = data.mensaje;
+                cuponMsg.style.display = 'block';
+            }
+        })
+        .catch(function () {
+            btnAplicar.disabled = false;
+            btnAplicar.innerHTML = '<i class="fas fa-check"></i>';
+            cuponMsg.className = 'small mt-1 text-danger';
+            cuponMsg.textContent = 'Error al validar cupón';
+            cuponMsg.style.display = 'block';
+        });
+    });
+
+    cuponCodigo.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); btnAplicar.click(); }
+    });
+
+    if (btnQuitar) {
+        btnQuitar.addEventListener('click', function () {
+            fetch('{{ route("checkout.cupon-quitar") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (r) { return r.json(); })
+            .then(function () {
+                filaDescuento.style.display = 'none';
+                cuponCodigo.value = '';
+                cuponMsg.style.display = 'none';
+                recalcularTotal(0);
+            });
+        });
+    }
 });
 </script>
 @endpush
