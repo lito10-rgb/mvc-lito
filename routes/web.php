@@ -107,6 +107,8 @@ Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'du
     Route::get('ofertas', [\App\Http\Controllers\Admin\OfertasController::class, 'index'])->name('ofertas.index');
     Route::put('ofertas/{id}', [\App\Http\Controllers\Admin\OfertasController::class, 'update'])->name('ofertas.update');
     Route::delete('ofertas/{id}/quitar', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOferta'])->name('ofertas.quitar');
+    Route::post('ofertas/{id}/restaurar', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerencia'])->name('ofertas.restaurar');
+    Route::post('ofertas/restaurar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerenciaMultiple'])->name('ofertas.restaurar-multiple');
     Route::post('ofertas/quitar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOfertaMultiple'])->name('ofertas.quitar-multiple');
 
     Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class)->parameters(['cupones' => 'cupon']);

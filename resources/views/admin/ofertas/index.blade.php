@@ -54,6 +54,7 @@
                         <option value="producto" {{ request('tipo') == 'producto' ? 'selected' : '' }}>% producto</option>
                         <option value="precio_fijo" {{ request('tipo') == 'precio_fijo' ? 'selected' : '' }}>Precio fijo</option>
                         <option value="descuento_soles" {{ request('tipo') == 'descuento_soles' ? 'selected' : '' }}>Descuento S/</option>
+                        <option value="excluida" {{ request('tipo') == 'excluida' ? 'selected' : '' }}>Excluida herencia</option>
                         <option value="vencida" {{ request('tipo') == 'vencida' ? 'selected' : '' }}>Vencida</option>
                     </select>
                 </div>
@@ -73,9 +74,14 @@
             <input type="checkbox" class="form-check-input" id="select-all">
             <label class="form-check-label" for="select-all">Seleccionar todos</label>
         </div>
-        <button class="btn btn-danger btn-sm" id="btn-quitar-bloque" disabled>
-            <i class="fas fa-ban me-1"></i> Quitar oferta ({!! '<span id="count-selected">0</span>' !!})
-        </button>
+        <div class="d-flex gap-2">
+            <button class="btn btn-warning btn-sm" id="btn-restaurar-bloque" disabled>
+                <i class="fas fa-rotate-left me-1"></i> Restaurar herencia ({!! '<span id="count-restaurar">0</span>' !!})
+            </button>
+            <button class="btn btn-danger btn-sm" id="btn-quitar-bloque" disabled>
+                <i class="fas fa-ban me-1"></i> Quitar oferta ({!! '<span id="count-selected">0</span>' !!})
+            </button>
+        </div>
     </div>
 
     {{-- Tabla --}}
@@ -170,6 +176,11 @@
                             <button class="btn btn-outline-danger btn-sm btn-quitar" title="Quitar oferta" data-id="{{ $producto->id }}">
                                 <i class="fas fa-ban"></i> Quitar
                             </button>
+                            @if($producto->ofertaCategoria === 0 || $producto->ofertaSubcategoria === 0)
+                                <button class="btn btn-outline-warning btn-sm btn-restaurar mt-1" title="Restaurar herencia de categoría/subcategoría" data-id="{{ $producto->id }}">
+                                    <i class="fas fa-rotate-left"></i> Restaurar
+                                </button>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -197,11 +208,15 @@ document.addEventListener('DOMContentLoaded', function () {
     var selectAll = document.getElementById('select-all');
     var btnBloque = document.getElementById('btn-quitar-bloque');
     var countSpan = document.getElementById('count-selected');
+    var btnRestaurarBloque = document.getElementById('btn-restaurar-bloque');
+    var countRestaurar = document.getElementById('count-restaurar');
 
     function updateCount() {
         var checked = tbody.querySelectorAll('.row-check:checked').length;
         countSpan.textContent = checked;
         btnBloque.disabled = checked === 0;
+        countRestaurar.textContent = checked;
+        btnRestaurarBloque.disabled = checked === 0;
     }
 
     selectAll.addEventListener('change', function () {
@@ -234,6 +249,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (row) row.remove();
                 showToast(data.message || 'Oferta removida', 'success');
                 updateCount();
+            });
+        }
+
+        var restaurarBtn = e.target.closest('.btn-restaurar');
+        if (restaurarBtn) {
+            if (!confirm('¿Restaurar herencia de categoría/subcategoría?')) return;
+            var id = restaurarBtn.dataset.id;
+
+            fetch('{{ url("admin/ofertas") }}/' + id + '/restaurar', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                showToast(data.message || 'Herencia restaurada', 'success');
+                location.reload();
             });
         }
     });
@@ -269,6 +303,35 @@ document.addEventListener('DOMContentLoaded', function () {
             showToast(data.message || 'Ofertas removidas', 'success');
             btnBloque.innerHTML = '<i class="fas fa-ban me-1"></i> Quitar oferta (<span id="count-selected">0</span>)';
             countSpan = document.getElementById('count-selected');
+        });
+    });
+
+    btnRestaurarBloque.addEventListener('click', function () {
+        var ids = [];
+        tbody.querySelectorAll('.row-check:checked').forEach(function (cb) {
+            ids.push(cb.value);
+        });
+        if (ids.length === 0) return;
+        if (!confirm('¿Restaurar herencia de ' + ids.length + ' productos?')) return;
+
+        btnRestaurarBloque.disabled = true;
+        btnRestaurarBloque.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+        fetch('{{ route("admin.ofertas.restaurar-multiple") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            selectAll.checked = false;
+            updateCount();
+            showToast(data.message || 'Herencias restauradas', 'success');
+            location.reload();
         });
     });
 
