@@ -75,7 +75,14 @@
         <div class="text-center py-5">
             <i class="fas fa-shopping-cart text-muted" style="font-size: 4rem;"></i>
             <p class="text-muted mt-3">Tu carrito está vacío.</p>
-            <a href="{{ route('productos.index') }}" class="btn btn-primary">Ver productos</a>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{{ url('/productos/buscar?negocio_id=' . negocio_actual_id()) }}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag me-1"></i> Empezar a comprar
+                </a>
+                <a href="{{ url('/') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-home me-1"></i> Volver al inicio
+                </a>
+            </div>
         </div>
     @endif
 </div>
