@@ -9,46 +9,34 @@ use App\Models\Cabecera;
 class GenerarCabeceras extends Command
 {
     protected $signature = 'seo:generar-cabeceras';
-    protected $description = 'Genera registros en cabeceras para productos que no tienen SEO';
+    protected $description = 'Genera registros en cabeceras para productos que no tienen uno';
 
     public function handle()
     {
-        $productos = Producto::whereDoesntHave('cabecera')->get();
-        $count = 0;
+        $productos = Producto::all();
+        $creados = 0;
+        $existente = 0;
 
         foreach ($productos as $producto) {
-            $palabras = $this->extraerPalabrasClave($producto->titulo);
+            $existe = Cabecera::where('ruta', $producto->ruta)->exists();
+            if ($existe) {
+                $existente++;
+                continue;
+            }
 
             Cabecera::create([
-                'ruta' => $producto->ruta,
-                'titulo' => $producto->titulo,
-                'descripcion' => $producto->titulo . ' — ' . ($producto->titular ?? $producto->titulo),
-                'palabras_claves' => implode(', ', $palabras),
-                'portada' => $producto->portada,
-                'fecha' => now(),
+                'ruta'           => $producto->ruta,
+                'titulo'         => $producto->titulo ?? 'Sin título',
+                'descripcion'    => $producto->descripcion ?? $producto->titulo ?? 'Sin descripción',
+                'palabras_claves' => $producto->titulo ?? '',
+                'portada'        => $producto->portada ?: 'defaults/default-portada.jpg',
+                'fecha'          => now(),
             ]);
-            $count++;
+            $creados++;
         }
 
-        $this->info("Se generaron {$count} cabeceras para productos sin SEO.");
-    }
-
-    private function extraerPalabrasClave($titulo)
-    {
-        $palabras = explode(' ', $titulo);
-        $palabras = array_filter($palabras, function ($p) {
-            return mb_strlen($p) > 2;
-        });
-        $palabras = array_map(function ($p) {
-            return trim(strtolower($p), ",.!¡¿?;:-");
-        }, $palabras);
-        $palabras = array_unique($palabras);
-        $palabras = array_slice($palabras, 0, 8);
-
-        if (empty($palabras)) {
-            $palabras = [$titulo];
-        }
-
-        return $palabras;
+        $this->info("Cabeceras existentes: {$existente}");
+        $this->info("Cabeceras creadas: {$creados}");
+        $this->info("Total productos: " . $productos->count());
     }
 }
