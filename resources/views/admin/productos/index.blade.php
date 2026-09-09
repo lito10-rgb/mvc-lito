@@ -116,7 +116,13 @@
                 </td>
 
                 <td class="td-costo-envio" data-field="costo_envio" data-id="{{ $producto->id }}" data-value="{{ $producto->costo_envio ?? '' }}">
-                    {{ $producto->costo_envio !== null ? 'S/. ' . number_format($producto->costo_envio, 2) : '—' }}
+                    @if($producto->envio_gratis)
+                        <span class="badge bg-success"><i class="fa-solid fa-truck-fast"></i> Gratis</span>
+                    @elseif($producto->costo_envio !== null)
+                        S/. {{ number_format($producto->costo_envio, 2) }}
+                    @else
+                        —
+                    @endif
                 </td>
 
                 <td class="td-categoria">{{ $producto->categoria->nombre ?? $producto->categoria->categoria ?? '-' }}</td>
@@ -152,6 +158,7 @@
                             data-stock="{{ $producto->stock ?? 0 }}"
                             data-entrega="{{ $producto->entrega ?? 2 }}"
                             data-costo-envio="{{ $producto->costo_envio ?? '' }}"
+                            data-envio-gratis="{{ $producto->envio_gratis ? '1' : '' }}"
                             title="Edición rápida">
                         <i class="bi bi-lightning-fill"></i>
                     </button>
@@ -535,6 +542,13 @@
                             <label class="form-label">Costo envío (opcional)</label>
                             <input type="number" step="0.01" name="costo_envio" id="qe-costo-envio" class="form-control" min="0" placeholder="Vacío = tarifario">
                         </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="form-check form-switch mt-1">
+                                <input type="checkbox" name="envio_gratis" id="qe-envio-gratis" class="form-check-input" value="1">
+                                <label class="form-check-label" for="qe-envio-gratis"><i class="fa-solid fa-truck-fast"></i> Envío gratis</label>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="qe-error" class="alert alert-danger d-none"></div>
@@ -641,6 +655,8 @@
             if (inputStock) inputStock.value = this.dataset.stock || '0';
             if (inputEntrega) inputEntrega.value = this.dataset.entrega || '2';
             if (inputCostoEnvio) inputCostoEnvio.value = this.dataset.costoEnvio || '';
+            var chkEnvioGratis = document.getElementById('qe-envio-gratis');
+            if (chkEnvioGratis) chkEnvioGratis.checked = this.dataset.envioGratis === '1';
 
             // categoria
             var catId = this.dataset.categoria;

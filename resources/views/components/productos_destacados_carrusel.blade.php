@@ -33,6 +33,9 @@
                         </div>
                     </h3>
                     <div class="mt-2">
+                        @if($producto->envio_gratis)
+                            <span class="inline-block bg-green-500 text-white text-xs px-2 py-1 rounded mb-1"><i class="fa-solid fa-truck-fast me-1"></i>Envío gratis</span>
+                        @endif
                         @if($producto->enOferta)
                             <p class="text-red-600 font-bold">S/ {{ number_format($producto->precioFinal, 2) }}</p>
                             <p class="text-sm line-through text-gray-500">S/ {{ number_format($producto->precio, 2) }}</p>

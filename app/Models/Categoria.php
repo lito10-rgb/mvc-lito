@@ -17,6 +17,7 @@ class Categoria extends Model
         'nombre',
         'ruta',
         'estado',
+        'orden',
         'oferta',
         'precioOferta',
         'descuentoOferta',

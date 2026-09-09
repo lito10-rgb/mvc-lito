@@ -40,6 +40,10 @@
                             <p class="fw-bold fs-5">S/ {{ number_format($producto->precio, 2) }}</p>
                         @endif
 
+                        @if($producto->envio_gratis)
+                            <small class="d-block mb-1"><span class="badge bg-success fs-6"><i class="fa-solid fa-truck-fast me-1"></i>Envío gratuito</span></small>
+                        @endif
+
                         @php($dias = $producto->entrega ?? '2')
                         @if($producto->tipo === 'servicio')
                             <small class="text-info d-block mb-1"><i class="fa-solid fa-gear"></i> Servicio — {{ $dias == 0 ? 'Entrega inmediata' : 'Coordinar en ' . $dias . ' días' }}</small>

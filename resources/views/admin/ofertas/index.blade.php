@@ -5,7 +5,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="fw-bold"><i class="fas fa-tags me-2 text-warning"></i>Gestión de Ofertas</h3>
         <div>
-            <span class="badge bg-warning text-dark fs-6">{{ $productos->total() }} productos con oferta</span>
+            <span class="badge bg-warning text-dark fs-6">{{ $productos->total() }} {{ request('categoria_id') || request('subcategoria_id') ? 'productos' : 'productos con oferta' }}</span>
         </div>
     </div>
 
@@ -31,7 +31,7 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small">Categoría</label>
-                    <select name="categoria_id" class="form-select form-select-sm">
+                    <select name="categoria_id" id="filter-categoria" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">Todas</option>
                         @foreach($categorias as $cat)
                             <option value="{{ $cat->id }}" {{ request('categoria_id') == $cat->id ? 'selected' : '' }}>{{ $cat->categoria }}</option>
@@ -40,7 +40,7 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small">Subcategoría</label>
-                    <select name="subcategoria_id" class="form-select form-select-sm">
+                    <select name="subcategoria_id" id="filter-subcategoria" class="form-select form-select-sm">
                         <option value="">Todas</option>
                         @foreach($subcategorias as $sub)
                             <option value="{{ $sub->id }}" {{ request('subcategoria_id') == $sub->id ? 'selected' : '' }}>{{ $sub->subcategoria }}</option>
@@ -75,6 +75,12 @@
             <label class="form-check-label" for="select-all">Seleccionar todos</label>
         </div>
         <div class="d-flex gap-2">
+            <button class="btn btn-success btn-sm" id="btn-envio-bloque" disabled>
+                <i class="fas fa-truck me-1"></i> Envío gratuito ({!! '<span id="count-envio">0</span>' !!})
+            </button>
+            <button class="btn btn-outline-danger btn-sm" id="btn-quitar-envio-bloque" disabled>
+                <i class="fas fa-truck me-1"></i> Quitar envío ({!! '<span id="count-quitar-envio">0</span>' !!})
+            </button>
             <button class="btn btn-warning btn-sm" id="btn-restaurar-bloque" disabled>
                 <i class="fas fa-rotate-left me-1"></i> Restaurar herencia ({!! '<span id="count-restaurar">0</span>' !!})
             </button>
@@ -93,6 +99,7 @@
                         <th style="width:40px"><input type="checkbox" class="form-check-input check-all" style="display:none;"></th>
                         <th>Producto</th>
                         <th>Categoría</th>
+                        <th>Envío</th>
                         <th>Precio</th>
                         <th>Precio Final</th>
                         <th>Origen</th>
@@ -140,6 +147,12 @@
                         </td>
                         <td><small>{{ $producto->categoria->categoria ?? '-' }}</small></td>
                         <td>
+                            <button class="btn btn-sm btn-envio {{ $producto->envio_gratis ? 'btn-success' : 'btn-outline-secondary' }}" data-id="{{ $producto->id }}" data-gratis="{{ $producto->envio_gratis ? 1 : 0 }}" title="Toggle envío gratuito">
+                                <i class="fas fa-truck {{ $producto->envio_gratis ? 'fa-ban' : '' }}"></i>
+                                {{ $producto->envio_gratis ? 'Gratis' : 'Cobrar' }}
+                            </button>
+                        </td>
+                        <td>
                             @if($final < $precio)
                                 <span class="text-decoration-line-through text-muted">S/ {{ number_format($precio, 2) }}</span>
                             @else
@@ -185,7 +198,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-4">
+                        <td colspan="9" class="text-center text-muted py-4">
                             <i class="fas fa-tags fa-2x mb-2 d-block"></i>
                             No hay productos con ofertas
                         </td>
@@ -217,6 +230,14 @@ document.addEventListener('DOMContentLoaded', function () {
         btnBloque.disabled = checked === 0;
         countRestaurar.textContent = checked;
         btnRestaurarBloque.disabled = checked === 0;
+        var countEnvio = document.getElementById('count-envio');
+        var btnEnvioBloque = document.getElementById('btn-envio-bloque');
+        countEnvio.textContent = checked;
+        btnEnvioBloque.disabled = checked === 0;
+        var countQuitarEnvio = document.getElementById('count-quitar-envio');
+        var btnQuitarEnvioBloque = document.getElementById('btn-quitar-envio-bloque');
+        countQuitarEnvio.textContent = checked;
+        btnQuitarEnvioBloque.disabled = checked === 0;
     }
 
     selectAll.addEventListener('change', function () {
@@ -231,6 +252,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     tbody.addEventListener('click', function (e) {
+        var envioBtn = e.target.closest('.btn-envio');
+        if (envioBtn) {
+            var id = envioBtn.dataset.id;
+            var actual = envioBtn.dataset.gratis === '1';
+
+            fetch('{{ url("admin/ofertas") }}/' + id + '/envio-gratis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ gratis: actual ? 0 : 1 })
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                envioBtn.dataset.gratis = actual ? '0' : '1';
+                envioBtn.className = 'btn btn-sm btn-envio ' + (actual ? 'btn-outline-secondary' : 'btn-success');
+                envioBtn.innerHTML = '<i class="fas fa-truck ' + (actual ? '' : 'fa-ban') + '"></i> ' + (actual ? 'Cobrar' : 'Gratis');
+                showToast(data.message || 'Envío actualizado', 'success');
+            });
+        }
+
         var quitBtn = e.target.closest('.btn-quitar');
         if (quitBtn) {
             if (!confirm('¿Quitar la oferta de este producto?')) return;
@@ -331,6 +375,66 @@ document.addEventListener('DOMContentLoaded', function () {
             selectAll.checked = false;
             updateCount();
             showToast(data.message || 'Herencias restauradas', 'success');
+            location.reload();
+        });
+    });
+
+    document.getElementById('btn-envio-bloque').addEventListener('click', function () {
+        var ids = [];
+        tbody.querySelectorAll('.row-check:checked').forEach(function (cb) {
+            ids.push(cb.value);
+        });
+        if (ids.length === 0) return;
+        if (!confirm('¿Activar envío gratuito para ' + ids.length + ' productos?')) return;
+
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+        fetch('{{ route("admin.ofertas.envio-multiple") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids, gratis: 1 })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            selectAll.checked = false;
+            updateCount();
+            showToast(data.message || 'Envío gratuito activado', 'success');
+            location.reload();
+        });
+    });
+
+    document.getElementById('btn-quitar-envio-bloque').addEventListener('click', function () {
+        var ids = [];
+        tbody.querySelectorAll('.row-check:checked').forEach(function (cb) {
+            ids.push(cb.value);
+        });
+        if (ids.length === 0) return;
+        if (!confirm('¿Quitar envío gratuito de ' + ids.length + ' productos?')) return;
+
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+        fetch('{{ route("admin.ofertas.envio-multiple") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids, gratis: 0 })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            selectAll.checked = false;
+            updateCount();
+            showToast(data.message || 'Envío gratuito removido', 'success');
             location.reload();
         });
     });

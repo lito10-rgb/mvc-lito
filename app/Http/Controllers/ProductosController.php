@@ -185,12 +185,39 @@ public function buscar(Request $request)
     }
 
     // Paginación (puedes ajustar la cantidad)
-    $productos = $query->paginate(8);
-	$categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+    $productos = $query->paginate(8)->appends(['negocio_id' => $negocioId]);
+	$categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->orderBy('orden')->get();
 	$subcategorias = Subcategoria::all();
 	$marcas = Marca::all();
 
 	return view('productos.index', compact('productos', 'categorias', 'subcategorias', 'marcas'));
+}
+
+public function ofertas(Request $request)
+{
+    $negocioId = negocio_actual_id();
+
+    $query = Producto::with(['categoria', 'subcategoria', 'marca'])
+        ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
+        ->where(function ($q) {
+            $q->where('oferta', '>', 0)
+              ->orWhere('precioOferta', '>', 0)
+              ->orWhere('descuentoOferta', '>', 0)
+              ->orWhere('ofertaCategoria', '>', 0)
+              ->orWhere('ofertaSubcategoria', '>', 0)
+              ->orWhere(function ($sub) {
+                  $sub->whereNull('ofertaCategoria')
+                      ->whereHas('categoria', fn($cq) => $cq->where('oferta', '>', 0));
+              })
+              ->orWhere(function ($sub) {
+                  $sub->whereNull('ofertaSubcategoria')
+                      ->whereHas('subcategoria', fn($sq) => $sq->where('oferta', '>', 0));
+              });
+        });
+
+    $productos = $query->orderBy('titulo')->paginate(12)->appends(['negocio_id' => $negocioId]);
+
+    return view('productos.ofertas', compact('productos'));
 }
 
 

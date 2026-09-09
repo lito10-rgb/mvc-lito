@@ -66,6 +66,9 @@
                                 @else
                                     <span class="badge" style="background-color: var(--theme-accent); color: #000;">S/. {{ $producto->precio }}</span>
                                 @endif
+                                @if($producto->envio_gratis)
+                                    <span class="badge bg-success mt-1"><i class="fa-solid fa-truck-fast me-1"></i>Envío gratis</span>
+                                @endif
                                 <div class="mt-auto pt-3">
                                     <a href="{{ route('producto.mostrar', $producto->ruta) }}" class="btn btn-outline-dark btn-sm w-100 mb-2">
                                         <i class="fa-solid fa-eye"></i> Ver detalle

@@ -308,6 +308,14 @@
 </div>
 
 <div class="mb-3">
+    <div class="form-check form-switch">
+        <input type="checkbox" name="envio_gratis" id="envio_gratis" class="form-check-input" value="1" {{ old('envio_gratis', $producto->envio_gratis ?? 0) ? 'checked' : '' }}>
+        <label class="form-check-label" for="envio_gratis"><i class="fa-solid fa-truck-fast me-1"></i> Envío gratuito</label>
+    </div>
+    <small class="text-muted">Si está activo, este producto no genera costo de envío (ignora tarifario).</small>
+</div>
+
+<div class="mb-3">
     <label for="stock" class="form-label">Stock (0 = por encargo)</label>
     <input type="number" name="stock" id="stock" class="form-control" value="{{ old('stock', $producto->stock ?? 0) }}" min="0">
     <small class="text-muted">0 = producto bajo pedido, >0 = disponible en inventario</small>

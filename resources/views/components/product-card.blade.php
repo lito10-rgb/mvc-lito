@@ -14,6 +14,10 @@
         <span class="text-muted small"><i class="fa-solid fa-bag-shopping text-success"></i> <strong>{{ number_format($producto->ventas) }}</strong> ventas</span>
     </div>
 
+    @if($producto->envio_gratis)
+        <p class="small mb-1"><span class="badge bg-success fs-6"><i class="fa-solid fa-truck-fast me-1"></i>Envío gratuito</span></p>
+    @endif
+
     @php($dias = $producto->entrega ?? '2')
     @if($producto->tipo === 'servicio')
         <p class="text-info small mb-1"><i class="fa-solid fa-gear"></i> Servicio disponible — {{ $dias == 0 ? 'Coordinar' : 'Coordinar en ' . $dias . ' días' }}</p>

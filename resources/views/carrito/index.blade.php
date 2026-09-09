@@ -33,6 +33,9 @@
                                 @else
                                     {{ $item['titulo'] }}
                                 @endif
+                                @if(!empty($item['envio_gratis']))
+                                    <span class="badge bg-success ms-1"><i class="fa-solid fa-truck-fast"></i> Envío gratis</span>
+                                @endif
                             </td>
                             <td>S/ {{ number_format($item['precio'], 2) }}</td>
                             <td>

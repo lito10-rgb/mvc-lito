@@ -36,6 +36,10 @@
                 @endif
             </p>
 
+            @if($producto->envio_gratis)
+                <p class="small mb-1"><span class="badge bg-success"><i class="fa-solid fa-truck-fast me-1"></i>Envío gratis</span></p>
+            @endif
+
             @php($dias = $producto->entrega ?? '2')
             @if($producto->tipo === 'servicio')
                 <p class="small text-info mb-2"><i class="fa-solid fa-gear"></i> Servicio — {{ $dias == 0 ? 'Entrega inmediata' : $dias . ' días' }}</p>

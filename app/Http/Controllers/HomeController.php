@@ -16,6 +16,7 @@ class HomeController extends Controller
 
         $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
             ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+            ->orderBy('orden')
             ->get();
 
         $productos = Producto::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))

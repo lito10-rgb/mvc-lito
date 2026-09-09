@@ -36,11 +36,19 @@ class CarritoController extends Controller
             "precio_original" => (float) $producto->precio,
             "imagen"   => $producto->portada,
             "ruta"     => $producto->ruta,
-            "cantidad" => 1
+            "cantidad" => 1,
+            "envio_gratis" => (bool) $producto->envio_gratis,
         ];
     }
 
     session()->put('carrito', $carrito);
+
+    // Guardar última categoría/subcategoría del producto agregado
+    if ($producto->subcategoria) {
+        session(['ultima_ruta_productos' => ['tipo' => 'subcategoria', 'nombre' => $producto->subcategoria->subcategoria]]);
+    } elseif ($producto->categoria) {
+        session(['ultima_ruta_productos' => ['tipo' => 'categoria', 'nombre' => $producto->categoria->categoria]]);
+    }
 
     // Si la petición es AJAX / Fetch, devolver JSON con el nuevo count
     if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
@@ -64,14 +72,7 @@ class CarritoController extends Controller
 
         if (isset($carrito[$id])) {
             unset($carrito[$id]);
-    session()->put('carrito', $carrito);
-
-        // Guardar última categoría/subcategoría del producto agregado
-        if ($producto->subcategoria) {
-            session(['ultima_ruta_productos' => ['tipo' => 'subcategoria', 'nombre' => $producto->subcategoria->subcategoria]]);
-        } elseif ($producto->categoria) {
-            session(['ultima_ruta_productos' => ['tipo' => 'categoria', 'nombre' => $producto->categoria->categoria]]);
-        }
+            session()->put('carrito', $carrito);
         }
 
         return redirect()->back()->with('success', 'Producto eliminado.');

@@ -21,6 +21,7 @@ public function index()
     $negocioId = negocio_actual_id();
     $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
         ->with(['subcategorias' => fn($q) => $q->whereHas('negocios', fn($q2) => $q2->where('negocio_id', $negocioId))])
+        ->orderBy('orden')
         ->get();
     return view('categoria.index', compact('categorias'));
 }
@@ -34,9 +35,9 @@ public function show($id)
     // Cargar productos con paginación
     $productos = \App\Models\Producto::where('categoria_id', $id)
         ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
-        ->paginate(12);
+        ->paginate(12)->appends(['negocio_id' => $negocioId]);
     
-    $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+    $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->orderBy('orden')->get();
     $marcas = Marca::all();
     $subcategorias = Subcategoria::all();
     return view('categoria.show', compact('categoria', 'categorias', 'subcategorias', 'marcas', 'productos'));
@@ -57,9 +58,9 @@ public function showByRuta($ruta)
     // Cargar productos con paginación
     $productos = \App\Models\Producto::where('categoria_id', $categoria->id)
         ->whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))
-        ->paginate(12);
+        ->paginate(12)->appends(['negocio_id' => $negocioId]);
     
-    $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->get();
+    $categorias = Categoria::whereHas('negocios', fn($q) => $q->where('negocio_id', $negocioId))->orderBy('orden')->get();
     $marcas = Marca::all();
     $subcategorias = Subcategoria::all();
     return view('categoria.show', compact('categoria', 'categorias', 'subcategorias', 'marcas', 'productos'));

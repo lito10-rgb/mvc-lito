@@ -47,6 +47,7 @@ class Producto extends Model
         'fecha',
         'stock',
         'costo_envio',
+        'envio_gratis',
     ];
 
      // `id``tipo``ruta``estado``titulo``titular``descripcion``multimedia``detalles``precio``portada``vistas``ventas``vistasGratis``ventasGratis``ofertadoPorCategoria``ofertadoPorSubCategoria``oferta``precioOferta``descuentoOferta``imgOferta``finOferta``peso``entrega``categoria_id``subcategoria_id``marca_id``proveedor_id``fecha`

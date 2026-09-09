@@ -41,6 +41,7 @@ Route::get('/', [HomeController::class, 'menu'])->name('home');
 /* Productos */
 Route::get('/productos', [ProductosController::class, 'index'])->name('productos.index');
 Route::get('/productos/buscar', [ProductosController::class, 'buscar'])->name('productos.buscar');
+Route::get('/ofertas', [ProductosController::class, 'ofertas'])->name('productos.ofertas');
 Route::get('/productos/autocomplete', [ProductosController::class, 'autocomplete'])->name('productos.autocomplete');
 Route::get('/producto/{ruta}', [ProductosController::class, 'mostrarProducto'])->name('producto.mostrar');
 
@@ -110,6 +111,8 @@ Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'du
     Route::post('ofertas/{id}/restaurar', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerencia'])->name('ofertas.restaurar');
     Route::post('ofertas/restaurar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerenciaMultiple'])->name('ofertas.restaurar-multiple');
     Route::post('ofertas/quitar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOfertaMultiple'])->name('ofertas.quitar-multiple');
+    Route::post('ofertas/{id}/envio-gratis', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvio'])->name('ofertas.envio');
+    Route::post('ofertas/envio-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvioMultiple'])->name('ofertas.envio-multiple');
 
     Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class)->parameters(['cupones' => 'cupon']);
     Route::post('cupones/{cupon}/toggle', [\App\Http\Controllers\Admin\CuponController::class, 'toggle'])->name('cupones.toggle');

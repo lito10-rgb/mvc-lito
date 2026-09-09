@@ -24,7 +24,7 @@ class CategoriaController extends Controller
             });
         }
 
-        $categorias = $query->paginate(10);
+        $categorias = $query->orderBy('orden')->paginate(10)->withQueryString();
         $negocios = Negocio::orderBy('nombre')->get();
 
         return view('admin.categorias.index', compact('categorias', 'negocios'));
@@ -101,5 +101,14 @@ class CategoriaController extends Controller
     {
         $categoria->delete();
         return redirect()->route('admin.categorias.index')->with('success', 'Categoría eliminada');
+    }
+
+    public function reorder(Request $request)
+    {
+        $order = $request->input('order', []);
+        foreach ($order as $item) {
+            Categoria::where('id', $item['id'])->update(['orden' => $item['orden']]);
+        }
+        return response()->json(['success' => true]);
     }
 }
