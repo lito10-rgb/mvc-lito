@@ -131,6 +131,7 @@ jobs:
             node_modules/**
             tests/**
             .env.example
+            storage/app/public/**
 
       - name: Upload root + .env backup
         run: |
