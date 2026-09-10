@@ -6,6 +6,17 @@ use Illuminate\Support\Facades\Session;
 if (!function_exists('negocio_actual_id')) {
     function negocio_actual_id(): int
     {
+        $host = Request::getHost();
+        $dominios = config('negocio.dominios', []);
+        $hostId = $dominios[$host] ?? null;
+
+        if (app()->environment('production')) {
+            if ($hostId) {
+                return (int) $hostId;
+            }
+            return $hostId ?? config('negocio.default', 1);
+        }
+
         if (Session::has('negocio_id')) {
             return (int) Session::get('negocio_id');
         }
@@ -16,9 +27,7 @@ if (!function_exists('negocio_actual_id')) {
             return $id;
         }
 
-        $host = Request::getHost();
-        $dominios = config('negocio.dominios', []);
-        return $dominios[$host] ?? config('negocio.default', 1);
+        return $hostId ?? config('negocio.default', 1);
     }
 }
 

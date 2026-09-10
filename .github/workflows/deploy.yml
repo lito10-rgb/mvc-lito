@@ -113,7 +113,7 @@ jobs:
       - name: Clear cache (pre-deploy)
         run: |
           sleep 3
-          curl -s https://equiposymaquinas.com/public/clear-cache.php
+          curl -s "${{ secrets.APP_URL }}/public/clear-cache.php"
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -142,6 +142,6 @@ jobs:
       - name: Clear cache (post-deploy)
         run: |
           sleep 5
-          curl -s https://equiposymaquinas.com/public/clear-cache.php
+          curl -s "${{ secrets.APP_URL }}/public/clear-cache.php"
           echo ""
-          curl -s -o /dev/null -w "Site: %{http_code}\n" https://equiposymaquinas.com
+          curl -s -o /dev/null -w "Site: %{http_code}\n" "${{ secrets.APP_URL }}"
