@@ -114,15 +114,31 @@ class Producto extends Model
     }
 
     /**
-     * ¿La oferta sigue vigente? Verifica finOferta (producto, categoría o subcategoría).
+     * ¿La oferta sigue vigente? Solo importan las fechas de las fuentes que
+     * realmente participan: la propia (precioOferta/descuentoOferta/oferta) y
+     * las categorías/subcategorías de las que se hereda descuento. Así, una
+     * categoría con finOferta vencida no anula la oferta propia del producto.
      */
     public function getOfertaVigenteAttribute()
     {
-        // Fecha de fin: si ya pasó alguna, la oferta caducó.
-        foreach ([$this->finOferta, $this->categoria?->finOferta, $this->subcategoria?->finOferta] as $fin) {
-            if (!empty($fin) && $fin !== '0000-00-00 00:00:00') {
+        $tieneOfertaPropia = (float) $this->precioOferta > 0
+            || (float) $this->descuentoOferta > 0
+            || (int) $this->oferta > 0;
+
+        $fin = [];
+        if ($tieneOfertaPropia) {
+            $fin[] = $this->finOferta;
+        }
+        if ($this->categoriaParticipaEnOferta()) {
+            $fin[] = $this->categoria?->finOferta;
+        }
+        if ($this->subcategoriaParticipaEnOferta()) {
+            $fin[] = $this->subcategoria?->finOferta;
+        }
+        foreach ($fin as $f) {
+            if (!empty($f) && $f !== '0000-00-00 00:00:00') {
                 try {
-                    if (\Carbon\Carbon::parse($fin)->isPast()) {
+                    if (\Carbon\Carbon::parse($f)->isPast()) {
                         return false;
                     }
                 } catch (\Throwable $e) {
@@ -130,11 +146,19 @@ class Producto extends Model
                 }
             }
         }
-        // Fecha de inicio: si alguna aún no llegó, la oferta todavía no aplica.
-        foreach ([$this->categoria?->fechaInicioOferta, $this->subcategoria?->fechaInicioOferta] as $inicio) {
-            if (!empty($inicio) && $inicio !== '0000-00-00 00:00:00') {
+
+        // Fecha de inicio: solo importa si la fuente hereda descuento.
+        $inicio = [];
+        if ($this->categoriaParticipaEnOferta()) {
+            $inicio[] = $this->categoria?->fechaInicioOferta;
+        }
+        if ($this->subcategoriaParticipaEnOferta()) {
+            $inicio[] = $this->subcategoria?->fechaInicioOferta;
+        }
+        foreach ($inicio as $i) {
+            if (!empty($i) && $i !== '0000-00-00 00:00:00') {
                 try {
-                    if (\Carbon\Carbon::parse($inicio)->isFuture()) {
+                    if (\Carbon\Carbon::parse($i)->isFuture()) {
                         return false;
                     }
                 } catch (\Throwable $e) {
@@ -143,6 +167,30 @@ class Producto extends Model
             }
         }
         return true;
+    }
+
+    /**
+     * La categoría participa (hereda descuento) respetando el override del producto.
+     */
+    protected function categoriaParticipaEnOferta()
+    {
+        $override = $this->ofertaCategoria;
+        if ($override !== null && $override !== '') {
+            return (float) $override > 0;
+        }
+        return (float) ($this->categoria?->oferta ?? 0) > 0;
+    }
+
+    /**
+     * La subcategoría participa (hereda descuento) respetando el override del producto.
+     */
+    protected function subcategoriaParticipaEnOferta()
+    {
+        $override = $this->ofertaSubcategoria;
+        if ($override !== null && $override !== '') {
+            return (float) $override > 0;
+        }
+        return (float) ($this->subcategoria?->oferta ?? 0) > 0;
     }
 
     /**
