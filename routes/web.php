@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\ProductosController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\SubcategoriasController;
@@ -44,6 +45,9 @@ Route::get('/productos/buscar', [ProductosController::class, 'buscar'])->name('p
 Route::get('/ofertas', [ProductosController::class, 'ofertas'])->name('productos.ofertas');
 Route::get('/productos/autocomplete', [ProductosController::class, 'autocomplete'])->name('productos.autocomplete');
 Route::get('/producto/{ruta}', [ProductosController::class, 'mostrarProducto'])->name('producto.mostrar');
+Route::post('/producto/{ruta}/comentar', [ComentarioController::class, 'store'])
+    ->middleware('auth')
+    ->name('producto.comentar');
 
 /* Categorías / Subcategorías */
 Route::prefix('categoria')->name('categoria.')->group(function () {
@@ -114,9 +118,11 @@ Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'du
     Route::post('ofertas/{id}/envio-gratis', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvio'])->name('ofertas.envio');
     Route::post('ofertas/envio-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvioMultiple'])->name('ofertas.envio-multiple');
 
+    Route::get('cupones/clientes', [\App\Http\Controllers\Admin\CuponController::class, 'clientes'])->name('cupones.clientes');
     Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class)->parameters(['cupones' => 'cupon']);
     Route::post('cupones/{cupon}/toggle', [\App\Http\Controllers\Admin\CuponController::class, 'toggle'])->name('cupones.toggle');
     Route::post('cupones/validar', [\App\Http\Controllers\Admin\CuponController::class, 'validar'])->name('cupones.validar');
+    Route::post('cupones/{cupon}/enviar', [\App\Http\Controllers\Admin\CuponController::class, 'enviar'])->name('cupones.enviar');
 
     Route::resource('categorias', \App\Http\Controllers\Admin\CategoriaController::class);
     Route::post('categorias/reorder', [\App\Http\Controllers\Admin\CategoriaController::class, 'reorder'])->name('categorias.reorder');

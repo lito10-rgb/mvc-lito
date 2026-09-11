@@ -254,6 +254,8 @@ public function mostrarProducto($ruta)
         ->with(['categoria', 'subcategoria', 'marca', 'proveedor'])
         ->firstOrFail();
 
+    $producto->increment('vistas');
+
     $cabecera = Cabecera::where('ruta', $ruta)->first();
 
     // Productos relacionados inteligentes: si es delivery, mostrar accesorios; si es venta, mostrar complementos

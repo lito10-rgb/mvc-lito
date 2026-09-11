@@ -10,6 +10,8 @@ class Comentario extends Model
     /** @use HasFactory<\Database\Factories\ComentarioFactory> */
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = ['id_usuario', 'id_producto', 'calificacion', 'comentario'];
 
     public function usuario()

@@ -43,6 +43,13 @@ Thumbs.db
 *-sdo*
 /sdo
 /prueba
+/query
+/start
+/temp_checkedids.txt
+/respaldos
+/importar_baristas.csv
+/solo_productos_*.sql
+/database/cafe_local_backup.sql
 ''
 null)
 pruebaenv
