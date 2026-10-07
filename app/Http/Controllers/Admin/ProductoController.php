@@ -159,6 +159,7 @@ class ProductoController extends Controller
         'descripcion' => 'nullable|string',
         'multimedia' => 'nullable|array',
         'multimedia.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:5120',
+        'imagenes_actuales' => 'nullable|json',
         'detalles' => 'nullable|string',
         'precio' => 'required|numeric|min:0',
         'portada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5120',
@@ -190,7 +191,7 @@ class ProductoController extends Controller
         'palabras_claves' => 'required|string|max:255',
     ]);
 
-    $data = $request->except(['multimedia', 'palabras_claves', 'titulo_seo', 'descripcion_seo']);
+    $data = $request->except(['multimedia', 'imagenes_actuales', 'remove_portada', 'portada_actual', 'palabras_claves', 'titulo_seo', 'descripcion_seo']);
 
     // Valores por defecto
     $data['categoria_id'] = $request->input('categoria_id', 1);
@@ -218,17 +219,22 @@ class ProductoController extends Controller
     }
 
     // Multimedia
-    $imagenes = [];
+    $imagenesActuales = json_decode($request->input('imagenes_actuales'), true) ?? [];
+    $imagenes = array_filter(array_map(fn($img) => is_array($img) ? ($img['foto'] ?? '') : $img, $imagenesActuales));
     if ($request->hasFile('multimedia')) {
         foreach ($request->file('multimedia') as $file) {
             $imagenes[] = $file->store('imagenes/productos', 'public');
         }
     }
-    $data['multimedia'] = json_encode($imagenes);
+    $data['multimedia'] = json_encode(array_values($imagenes));
 
     // Portada
-    if ($request->hasFile('portada')) {
+    if ($request->input('remove_portada') == "1") {
+        $data['portada'] = 'defaults/default-portada.jpg';
+    } elseif ($request->hasFile('portada')) {
         $data['portada'] = $request->file('portada')->store('imagenes/productos', 'public');
+    } elseif ($portadaActual = $request->input('portada_actual')) {
+        $data['portada'] = $portadaActual;
     } else {
         $data['portada'] = 'defaults/default-portada.jpg';
     }

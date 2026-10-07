@@ -57,12 +57,16 @@
                             <td>{{ $cotizacione->cliente }}</td>
                         </tr>
                         <tr>
+                            <th class="ps-0">Empresa</th>
+                            <td>{{ $cotizacione->clienteUser?->profile?->empresa ?? ($cotizacione->cliente ? '—' : '—') }}</td>
+                        </tr>
+                        <tr>
                             <th class="ps-0">Teléfono</th>
                             <td>{{ $cotizacione->telefono ?? '—' }}</td>
                         </tr>
                         <tr>
                             <th class="ps-0">Correo</th>
-                            <td>{{ $cotizacione->cliente?->email ?? $cotizacione->correo ?? '—' }}</td>
+                            <td>{{ $cotizacione->clienteUser?->email ?? $cotizacione->correo ?? '—' }}</td>
                         </tr>
                     </table>
                 </div>
@@ -215,7 +219,7 @@
                         <div class="col-md-6">
                             <label class="form-label">Para <span class="text-danger">*</span></label>
                             <input type="email" name="para" class="form-control"
-                                   value="{{ $cotizacione->cliente?->email ?? $cotizacione->correo }}" required>
+                                   value="{{ $cotizacione->clienteUser?->email ?? $cotizacione->correo }}" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">CC (copia)</label>

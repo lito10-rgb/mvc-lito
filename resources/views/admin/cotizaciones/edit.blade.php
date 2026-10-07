@@ -27,14 +27,16 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Cliente</label>
-                        <div class="input-group">
-                            <input type="text" name="cliente" class="form-control @error('cliente') is-invalid @enderror"
-                                   value="{{ old('cliente', $cotizacione->cliente) }}" required>
+                        <div class="input-group position-relative">
+                            <input type="text" name="cliente" id="clienteAutocompleta" class="form-control @error('cliente') is-invalid @enderror"
+                                   value="{{ old('cliente', $cotizacione->cliente) }}" required autocomplete="off">
                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#clienteModal">
                                 <i class="fas fa-search"></i>
                             </button>
+                            <div id="clienteSugerencias" class="list-group position-absolute d-none" style="z-index:1050;width:100%;max-height:260px;overflow-y:auto;top:100%;left:0;"></div>
                             @error('cliente') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+                        <small class="text-muted">Escribe el nombre o la empresa del cliente y elige de la lista.</small>
                     </div>
 
                     <div class="col-md-2">
@@ -48,7 +50,7 @@
                         <label class="form-label">Correo</label>
                         <input type="hidden" name="cliente_id" value="{{ old('cliente_id', $cotizacione->cliente_id) }}">
                         <input type="email" name="correo" class="form-control @error('correo') is-invalid @enderror"
-                               value="{{ old('correo', $cotizacione->cliente?->email ?? $cotizacione->correo) }}">
+                               value="{{ old('correo', $cotizacione->clienteUser?->email ?? $cotizacione->correo) }}">
                         @error('correo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -370,5 +372,63 @@ function actualizarLogoPreview(sel) {
         ? `<img src="${selected.url}" alt="" style="max-height:40px;">`
         : '';
 }
+
+// Autocompletado de cliente por nombre, apellidos, email o empresa
+@php
+    $clientesAutocompleta = $usuarios->map(function ($u) {
+        return [
+            'id' => $u->id,
+            'nombre' => trim(($u->nombre ?? '') . ' ' . ($u->apellidos ?? '')),
+            'email' => $u->email ?? '',
+            'telefono' => $u->profile->telefono ?? '',
+            'empresa' => $u->profile->empresa ?? '',
+        ];
+    })->values();
+@endphp
+var clientesAutocompleta = @json($clientesAutocompleta);
+
+(function() {
+    const input = document.getElementById('clienteAutocompleta');
+    if (!input) return;
+    const caja = document.getElementById('clienteSugerencias');
+
+    input.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        caja.innerHTML = '';
+        if (q.length < 2) { caja.classList.add('d-none'); return; }
+
+        const filtrados = clientesAutocompleta.filter(function(c) {
+            const nombre = (c.nombre || '').toLowerCase();
+            const empresa = (c.empresa || '').toLowerCase();
+            const email = (c.email || '').toLowerCase();
+            return nombre.includes(q) || empresa.includes(q) || email.includes(q);
+        }).slice(0, 15);
+
+        if (!filtrados.length) { caja.classList.add('d-none'); return; }
+
+        filtrados.forEach(function(c) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'list-group-item list-group-item-action';
+            item.innerHTML = c.nombre + (c.empresa ? ' <span class="badge bg-secondary">' + c.empresa + '</span>' : '');
+            item.addEventListener('click', function() {
+                input.value = c.nombre;
+                const correoInput = document.querySelector('[name="correo"]');
+                if (correoInput && c.email) correoInput.value = c.email;
+                const telInput = document.querySelector('[name="telefono"]');
+                if (telInput && c.telefono) telInput.value = c.telefono;
+                const idInput = document.querySelector('[name="cliente_id"]');
+                if (idInput) idInput.value = c.id;
+                caja.classList.add('d-none');
+            });
+            caja.appendChild(item);
+        });
+        caja.classList.remove('d-none');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !caja.contains(e.target)) caja.classList.add('d-none');
+    });
+})();
 </script>
 @endpush

@@ -414,7 +414,7 @@
             {{ $user->exists ? 'Actualizar Usuario' : 'Crear Usuario' }}
         </button>
 
-        <a href="{{ route('admin.usuarios.index') }}"
+        <a href="{{ (url()->previous() && url()->previous() !== url()->current()) ? url()->previous() : route('admin.usuarios.index') }}"
            class="btn btn-secondary ms-2">
             Volver
         </a>

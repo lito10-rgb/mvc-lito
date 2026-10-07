@@ -1,0 +1,8 @@
+﻿open ftp://TU_FTP_USER:TU_FTP_PASS@ftp.cafe-peruano.com
+mirror -R --parallel=5 --delete 
+  --exclude .git/ --exclude node_modules/ --exclude vendor/ 
+  --exclude .env --exclude *.log --exclude backups/ --exclude deploy_* 
+  C:/xampp/htdocs/mvc-lito/public/ /public_html/public/
+mirror -R --parallel=5 
+  C:/xampp/htdocs/mvc-lito/storage/app/public/ /public_html/storage/app/public/
+bye

@@ -16,11 +16,10 @@ class AdminMiddleware
         }
 
         $user = Auth::user();
-        $isAdmin = $user->roles->contains(function ($role) {
-            return strtolower($role->nombre) === 'admin' || strtolower($role->name) === 'admin';
-        });
 
-        if (!$isAdmin) {
+        $acceso = $user->esAdmin() || $user->permisosEfectivos()->isNotEmpty();
+
+        if (!$acceso) {
             return redirect()->route('admin.login')->withErrors(['email' => 'No tienes permisos de administrador.']);
         }
 

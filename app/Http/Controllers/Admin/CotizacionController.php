@@ -34,7 +34,9 @@ class CotizacionController extends Controller
 
         $cotizaciones = $query->paginate(10)->withQueryString();
 
-        return view('admin.cotizaciones.index', compact('cotizaciones'));
+        $paises = \App\Models\Pais::pluck('nombre', 'id');
+
+        return view('admin.cotizaciones.index', compact('cotizaciones', 'paises'));
     }
 
     public function create()
@@ -50,8 +52,17 @@ class CotizacionController extends Controller
         $logos = EmpresaLogo::orderBy('por_defecto', 'desc')->orderBy('nombre')->get();
         $condiciones = CondicionesComerciale::where('activo', true)->orderBy('titulo')->get();
         $ultimoTipoCambio = Cotizacion::whereNotNull('tipo_cambio')->latest()->value('tipo_cambio');
+
+        // Prellenado desde Tareas -> Buscar clientes (?cliente=&correo=&producto_id=&producto_nombre=)
+        $pref = [
+            'cliente'        => request()->query('cliente'),
+            'correo'         => request()->query('correo'),
+            'producto_id'    => request()->query('producto_id'),
+            'producto_nombre'=> request()->query('producto_nombre'),
+        ];
+
         return view('admin.cotizaciones.create', compact(
-            'productos', 'categorias', 'usuarios', 'roles', 'rubros', 'emisores', 'logos', 'condiciones', 'ultimoTipoCambio'
+            'productos', 'categorias', 'usuarios', 'roles', 'rubros', 'emisores', 'logos', 'condiciones', 'ultimoTipoCambio', 'pref'
         ));
     }
 
@@ -434,7 +445,7 @@ class CotizacionController extends Controller
             $vars = [
                 '{cliente}' => $cotizacione->cliente,
                 '{telefono}' => $cotizacione->telefono ?? '',
-                '{correo}' => $cotizacione->cliente?->email ?? $cotizacione->correo ?? '',
+                '{correo}' => $cotizacione->clienteUser?->email ?? $cotizacione->correo ?? '',
                 '{total}' => 'S/ ' . number_format($cotizacione->total, 2),
                 '{fecha}' => $cotizacione->fecha->format('d/m/Y'),
                 '{id}' => $cotizacione->id,

@@ -14,7 +14,7 @@
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-md-4">
-                        <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar por nombre o email...">
+                        <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar por nombre, email o empresa...">
                     </div>
                     <div class="col-md-2">
                         <select id="filtroRol" class="form-select">
@@ -91,7 +91,8 @@
                                 data-rubros="{{ $u->rubros->pluck('nombre')->join(',') }}"
                                 data-puntuacion="{{ $u->scores->puntuacion ?? 0 }}"
                                 data-empresa="{{ $u->profile->empresa ?? '' }}"
-                                data-documento="{{ $u->profile->tipo_documento ?? '' }}">
+                                data-documento="{{ $u->profile->tipo_documento ?? '' }}"
+                                data-telefono="{{ $u->profile->telefono ?? '' }}">
                                 <td>{{ $u->id }}</td>
                                 <td>{{ $u->nombre }} {{ $u->apellidos }}</td>
                                 <td>{{ $u->email }}</td>
@@ -201,8 +202,8 @@
         rows.forEach(function(row) {
             const nombreCompleto = (row.dataset.nombre + ' ' + row.dataset.apellidos).toLowerCase();
 
-            // texto
-            if (texto && !nombreCompleto.includes(texto) && !row.dataset.email.toLowerCase().includes(texto)) {
+            // texto (nombre, email o empresa)
+            if (texto && !nombreCompleto.includes(texto) && !row.dataset.email.toLowerCase().includes(texto) && !(row.dataset.empresa || '').toLowerCase().includes(texto)) {
                 row.style.display = 'none'; return;
             }
 
@@ -290,6 +291,8 @@
         if (correoInput) correoInput.value = row.dataset.email || '';
         const idInput = document.querySelector('[name="cliente_id"]');
         if (idInput) idInput.value = row.dataset.id || '';
+        const telefonoInput = document.querySelector('[name="telefono"]');
+        if (telefonoInput && row.dataset.telefono) telefonoInput.value = row.dataset.telefono;
     }
 
     document.querySelectorAll('.seleccionar-cliente').forEach(function(btn) {

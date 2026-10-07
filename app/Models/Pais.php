@@ -10,4 +10,9 @@ class Pais extends Model
     public $timestamps = false;
 
     protected $fillable = ['nombre'];
+
+    public function departamentos()
+    {
+        return $this->hasMany(Departamento::class);
+    }
 }

@@ -68,9 +68,11 @@
     <div class="info-grid">
         <div class="info-box">
             <h3>Cliente</h3>
+            @php $empresa = $cotizacione->clienteUser?->profile?->empresa ?? ''; @endphp
+            @if($empresa)<p style="font-size:13px;color:#374151;"><strong>{{ $empresa }}</strong></p>@endif
             <p><strong>{{ $cotizacione->cliente }}</strong></p>
             @if($cotizacione->telefono)<p>Tel: {{ $cotizacione->telefono }}</p>@endif
-            @php $email = $cotizacione->cliente?->email ?? $cotizacione->correo; @endphp
+            @php $email = $cotizacione->clienteUser?->email ?? $cotizacione->correo; @endphp
             @if($email)<p>Email: {{ $email }}</p>@endif
         </div>
         <div class="info-box">

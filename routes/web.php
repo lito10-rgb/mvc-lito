@@ -90,94 +90,158 @@ Route::get('/producto/vista-rapida/{id}', [AdminProductoController::class, 'vist
 Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
-    })->name('dashboard');
+    })->name('dashboard')->middleware('permiso:dashboard.ver');
 
-    Route::get('usuarios/asignar', [UserAdminController::class, 'asignarView'])->name('usuarios.asignar.view');
-    Route::post('usuarios/asignar', [UserAdminController::class, 'asignarStore'])->name('usuarios.asignar.store');
+    Route::get('usuarios/asignar', [UserAdminController::class, 'asignarView'])->name('usuarios.asignar.view')->middleware('permiso:usuarios.gestionar');
+    Route::post('usuarios/asignar', [UserAdminController::class, 'asignarStore'])->name('usuarios.asignar.store')->middleware('permiso:usuarios.gestionar');
 
-    Route::get('productos/carta-lista', [AdminProductoController::class, 'cartaLista'])->name('productos.cartaLista');
-    Route::resource('productos', AdminProductoController::class);
-    Route::post('productos/eliminar-multiple', [AdminProductoController::class, 'eliminarMultiple'])->name('productos.eliminarMultiple');
-    Route::post('productos/quick-update/{producto}', [AdminProductoController::class, 'quickUpdate'])->name('productos.quickUpdate');
-    Route::post('productos/inline-update/{id}', [AdminProductoController::class, 'inlineUpdate'])->name('productos.inlineUpdate');
-    Route::post('productos/bulk-update-precio', [AdminProductoController::class, 'bulkUpdatePrecio'])->name('productos.bulkUpdatePrecio');
-    Route::post('productos/bulk-update-costo-envio', [AdminProductoController::class, 'bulkUpdateCostoEnvio'])->name('productos.bulkUpdateCostoEnvio');
-    Route::post('productos/bulk-update-entrega', [AdminProductoController::class, 'bulkUpdateEntrega'])->name('productos.bulkUpdateEntrega');
-Route::post('productos/bulk-update-marca', [AdminProductoController::class, 'bulkUpdateMarca'])->name('productos.bulkUpdateMarca');
-Route::post('productos/bulk-update-imagen', [AdminProductoController::class, 'bulkUpdateImagen'])->name('productos.bulkUpdateImagen');
-Route::post('productos/bulk-update-carta', [AdminProductoController::class, 'bulkUpdateCarta'])->name('productos.bulkUpdateCarta');
-Route::post('productos/bulk-remove-carta', [AdminProductoController::class, 'bulkRemoveCarta'])->name('productos.bulkRemoveCarta');
-Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'duplicar'])->name('productos.duplicar');
+    Route::get('permisos', [\App\Http\Controllers\Admin\PermisoController::class, 'index'])->name('permisos.index')->middleware('permiso:permisos.gestionar');
+    Route::get('permisos/buscar-usuarios', [\App\Http\Controllers\Admin\PermisoController::class, 'buscarUsuarios'])->name('permisos.buscarUsuarios')->middleware('permiso:permisos.gestionar');
+    Route::get('permisos/rol/{role}/editar', [\App\Http\Controllers\Admin\PermisoController::class, 'editarRol'])->name('permisos.rol.editar')->middleware('permiso:permisos.gestionar');
+    Route::put('permisos/rol/{role}', [\App\Http\Controllers\Admin\PermisoController::class, 'guardarRol'])->name('permisos.rol.guardar')->middleware('permiso:permisos.gestionar');
+    Route::get('permisos/usuario/{user}/editar', [\App\Http\Controllers\Admin\PermisoController::class, 'editarUsuario'])->name('permisos.usuario.editar')->middleware('permiso:permisos.gestionar');
+    Route::put('permisos/usuario/{user}', [\App\Http\Controllers\Admin\PermisoController::class, 'guardarUsuario'])->name('permisos.usuario.guardar')->middleware('permiso:permisos.gestionar');
 
-    Route::get('ofertas', [\App\Http\Controllers\Admin\OfertasController::class, 'index'])->name('ofertas.index');
-    Route::put('ofertas/{id}', [\App\Http\Controllers\Admin\OfertasController::class, 'update'])->name('ofertas.update');
-    Route::delete('ofertas/{id}/quitar', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOferta'])->name('ofertas.quitar');
-    Route::post('ofertas/{id}/restaurar', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerencia'])->name('ofertas.restaurar');
-    Route::post('ofertas/restaurar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerenciaMultiple'])->name('ofertas.restaurar-multiple');
-    Route::post('ofertas/quitar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOfertaMultiple'])->name('ofertas.quitar-multiple');
-    Route::post('ofertas/{id}/envio-gratis', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvio'])->name('ofertas.envio');
-    Route::post('ofertas/envio-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvioMultiple'])->name('ofertas.envio-multiple');
+    Route::get('productos/carta-lista', [AdminProductoController::class, 'cartaLista'])->name('productos.cartaLista')->middleware('permiso:productos.ver');
+    Route::resource('productos', AdminProductoController::class)->middleware('permiso:productos.ver');
+    Route::post('productos/eliminar-multiple', [AdminProductoController::class, 'eliminarMultiple'])->name('productos.eliminarMultiple')->middleware('permiso:productos.eliminar');
+    Route::post('productos/quick-update/{producto}', [AdminProductoController::class, 'quickUpdate'])->name('productos.quickUpdate')->middleware('permiso:productos.editar');
+    Route::post('productos/inline-update/{id}', [AdminProductoController::class, 'inlineUpdate'])->name('productos.inlineUpdate')->middleware('permiso:productos.editar');
+    Route::post('productos/bulk-update-precio', [AdminProductoController::class, 'bulkUpdatePrecio'])->name('productos.bulkUpdatePrecio')->middleware('permiso:productos.editar');
+    Route::post('productos/bulk-update-costo-envio', [AdminProductoController::class, 'bulkUpdateCostoEnvio'])->name('productos.bulkUpdateCostoEnvio')->middleware('permiso:productos.editar');
+    Route::post('productos/bulk-update-entrega', [AdminProductoController::class, 'bulkUpdateEntrega'])->name('productos.bulkUpdateEntrega')->middleware('permiso:productos.editar');
+Route::post('productos/bulk-update-marca', [AdminProductoController::class, 'bulkUpdateMarca'])->name('productos.bulkUpdateMarca')->middleware('permiso:productos.editar');
+Route::post('productos/bulk-update-imagen', [AdminProductoController::class, 'bulkUpdateImagen'])->name('productos.bulkUpdateImagen')->middleware('permiso:productos.editar');
+Route::post('productos/bulk-update-carta', [AdminProductoController::class, 'bulkUpdateCarta'])->name('productos.bulkUpdateCarta')->middleware('permiso:productos.editar');
+Route::post('productos/bulk-remove-carta', [AdminProductoController::class, 'bulkRemoveCarta'])->name('productos.bulkRemoveCarta')->middleware('permiso:productos.editar');
+Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'duplicar'])->name('productos.duplicar')->middleware('permiso:productos.crear');
 
-    Route::get('cupones/clientes', [\App\Http\Controllers\Admin\CuponController::class, 'clientes'])->name('cupones.clientes');
-    Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class)->parameters(['cupones' => 'cupon']);
-    Route::post('cupones/{cupon}/toggle', [\App\Http\Controllers\Admin\CuponController::class, 'toggle'])->name('cupones.toggle');
-    Route::post('cupones/validar', [\App\Http\Controllers\Admin\CuponController::class, 'validar'])->name('cupones.validar');
-    Route::post('cupones/{cupon}/enviar', [\App\Http\Controllers\Admin\CuponController::class, 'enviar'])->name('cupones.enviar');
+    Route::get('ofertas', [\App\Http\Controllers\Admin\OfertasController::class, 'index'])->name('ofertas.index')->middleware('permiso:ofertas.gestionar');
+    Route::put('ofertas/{id}', [\App\Http\Controllers\Admin\OfertasController::class, 'update'])->name('ofertas.update')->middleware('permiso:ofertas.gestionar');
+    Route::delete('ofertas/{id}/quitar', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOferta'])->name('ofertas.quitar')->middleware('permiso:ofertas.gestionar');
+    Route::post('ofertas/{id}/restaurar', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerencia'])->name('ofertas.restaurar')->middleware('permiso:ofertas.gestionar');
+    Route::post('ofertas/restaurar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'restaurarHerenciaMultiple'])->name('ofertas.restaurar-multiple')->middleware('permiso:ofertas.gestionar');
+    Route::post('ofertas/quitar-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'quitarOfertaMultiple'])->name('ofertas.quitar-multiple')->middleware('permiso:ofertas.gestionar');
+    Route::post('ofertas/{id}/envio-gratis', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvio'])->name('ofertas.envio')->middleware('permiso:ofertas.gestionar');
+    Route::post('ofertas/envio-multiple', [\App\Http\Controllers\Admin\OfertasController::class, 'toggleEnvioMultiple'])->name('ofertas.envio-multiple')->middleware('permiso:ofertas.gestionar');
 
-    Route::resource('categorias', \App\Http\Controllers\Admin\CategoriaController::class);
-    Route::post('categorias/reorder', [\App\Http\Controllers\Admin\CategoriaController::class, 'reorder'])->name('categorias.reorder');
-    Route::resource('subcategorias', \App\Http\Controllers\Admin\SubcategoriaController::class);
-    Route::post('subcategorias/eliminar-multiple', [\App\Http\Controllers\Admin\SubcategoriaController::class, 'eliminarMultiple'])->name('subcategorias.eliminarMultiple');
+    Route::get('cupones/clientes', [\App\Http\Controllers\Admin\CuponController::class, 'clientes'])->name('cupones.clientes')->middleware('permiso:cupones.gestionar');
+    Route::resource('cupones', \App\Http\Controllers\Admin\CuponController::class)->parameters(['cupones' => 'cupon'])->middleware('permiso:cupones.gestionar');
+    Route::post('cupones/{cupon}/toggle', [\App\Http\Controllers\Admin\CuponController::class, 'toggle'])->name('cupones.toggle')->middleware('permiso:cupones.gestionar');
+    Route::post('cupones/validar', [\App\Http\Controllers\Admin\CuponController::class, 'validar'])->name('cupones.validar')->middleware('permiso:cupones.gestionar');
+    Route::post('cupones/{cupon}/enviar', [\App\Http\Controllers\Admin\CuponController::class, 'enviar'])->name('cupones.enviar')->middleware('permiso:cupones.gestionar');
 
-    Route::resource('proveedores', AdminProveedorController::class)->parameters(['proveedores' => 'proveedor']);
-    Route::post('proveedores/eliminar-multiple', [AdminProveedorController::class, 'eliminarMultiple'])->name('proveedores.eliminarMultiple');
+    Route::resource('categorias', \App\Http\Controllers\Admin\CategoriaController::class)->middleware('permiso:categorias.gestionar');
+    Route::post('categorias/reorder', [\App\Http\Controllers\Admin\CategoriaController::class, 'reorder'])->name('categorias.reorder')->middleware('permiso:categorias.gestionar');
+    Route::resource('subcategorias', \App\Http\Controllers\Admin\SubcategoriaController::class)->middleware('permiso:subcategorias.gestionar');
+    Route::post('subcategorias/eliminar-multiple', [\App\Http\Controllers\Admin\SubcategoriaController::class, 'eliminarMultiple'])->name('subcategorias.eliminarMultiple')->middleware('permiso:subcategorias.gestionar');
 
-    Route::resource('marcas', AdminMarcaController::class);
-    Route::post('marcas/eliminar-multiple', [AdminMarcaController::class, 'eliminarMultiple'])->name('marcas.eliminarMultiple');
+    Route::resource('proveedores', AdminProveedorController::class)->parameters(['proveedores' => 'proveedor'])->middleware('permiso:proveedores.gestionar');
+    Route::post('proveedores/eliminar-multiple', [AdminProveedorController::class, 'eliminarMultiple'])->name('proveedores.eliminarMultiple')->middleware('permiso:proveedores.gestionar');
 
-    Route::get('catalogos', [\App\Http\Controllers\Admin\CatalogoController::class, 'index'])->name('catalogos.index');
-    Route::get('catalogos/print', [\App\Http\Controllers\Admin\CatalogoController::class, 'print'])->name('catalogos.print');
+    // ===== Tareas / Captura (proveedores y productos) =====
+    Route::get('tareas', [\App\Http\Controllers\Admin\TareaController::class, 'index'])->name('tareas.index')->middleware('permiso:proveedores.gestionar');
+    Route::get('tareas/productos-cotizados', [\App\Http\Controllers\Admin\TareaController::class, 'productosCotizados'])->name('tareas.productosCotizados')->middleware('permiso:proveedores.gestionar');
+    Route::post('tareas/productos-hermano', [\App\Http\Controllers\Admin\TareaController::class, 'guardarHermano'])->name('tareas.productosHermano')->middleware('permiso:productos.crear');
+    Route::get('tareas/outlook', [\App\Http\Controllers\Admin\TareaController::class, 'outlook'])->name('tareas.outlook')->middleware('permiso:proveedores.gestionar');
+    Route::get('tareas/outlook/correo/{idx}', [\App\Http\Controllers\Admin\TareaController::class, 'correoDetalle'])->whereNumber('idx')->name('tareas.outlook.correo')->middleware('permiso:proveedores.gestionar');
+    Route::post('tareas/outlook/inscribir', [\App\Http\Controllers\Admin\TareaController::class, 'inscribirProveedor'])->name('tareas.outlook.inscribir')->middleware('permiso:proveedores.gestionar');
+    Route::get('tareas/outlook/escribir/{idx}', [\App\Http\Controllers\Admin\TareaController::class, 'escribirCorreo'])->whereNumber('idx')->name('tareas.outlook.escribir')->middleware('permiso:proveedores.gestionar');
+    Route::post('tareas/outlook/enviar', [\App\Http\Controllers\Admin\TareaController::class, 'enviarCorreo'])->name('tareas.outlook.enviar')->middleware('permiso:proveedores.gestionar');
 
-    Route::resource('usuarios', UserAdminController::class);
-    Route::put('usuarios/negocio/bulk', [UserAdminController::class, 'negocioBulk'])->name('usuarios.negocio.bulk');
-    Route::delete('usuarios/bulk-destroy', [UserAdminController::class, 'destroyBulk'])->name('usuarios.destroy.bulk');
+    Route::post('tareas/proveedor-web', [\App\Http\Controllers\Admin\TareaController::class, 'inscribirProveedorWeb'])->name('tareas.proveedorWeb')->middleware('permiso:proveedores.gestionar');
+    Route::post('tareas/outlook/capturar', [\App\Http\Controllers\Admin\TareaController::class, 'capturarProductos'])->name('tareas.outlook.capturar')->middleware('permiso:productos.crear');
+    Route::get('tareas/subcategorias/{categoria}', [\App\Http\Controllers\Admin\TareaController::class, 'subcategoriasDe'])->name('tareas.subcategorias')->middleware('permiso:proveedores.gestionar');
+    Route::get('tareas/categorias-json', [\App\Http\Controllers\Admin\TareaController::class, 'categoriasJson'])->name('tareas.categoriasJson')->middleware('permiso:proveedores.gestionar');
+    Route::get('tareas/productos/{subcategoria}', [\App\Http\Controllers\Admin\TareaController::class, 'productosDe'])->name('tareas.productos')->middleware('permiso:proveedores.gestionar');
+    Route::get('tareas/ultimo-cotizado', [\App\Http\Controllers\Admin\TareaController::class, 'ultimoCotizado'])->name('tareas.ultimoCotizado')->middleware('permiso:proveedores.gestionar');
+    Route::get('tareas/clientes', [\App\Http\Controllers\Admin\TareaController::class, 'clientes'])->name('tareas.clientes')->middleware('permiso:cotizaciones.gestionar');
+
+    Route::resource('marcas', AdminMarcaController::class)->middleware('permiso:marcas.gestionar');
+    Route::post('marcas/eliminar-multiple', [AdminMarcaController::class, 'eliminarMultiple'])->name('marcas.eliminarMultiple')->middleware('permiso:marcas.gestionar');
+
+    Route::get('catalogos', [\App\Http\Controllers\Admin\CatalogoController::class, 'index'])->name('catalogos.index')->middleware('permiso:catalogos.ver');
+    Route::get('catalogos/print', [\App\Http\Controllers\Admin\CatalogoController::class, 'print'])->name('catalogos.print')->middleware('permiso:catalogos.ver');
+    Route::get('ficha-tecnica/cafe', [\App\Http\Controllers\Admin\FichaTecnicaController::class, 'cafe'])->name('ficha-tecnica.cafe')->middleware('permiso:catalogos.ver');
+
+    Route::resource('usuarios', UserAdminController::class)->middleware('permiso:usuarios.ver');
+    Route::put('usuarios/negocio/bulk', [UserAdminController::class, 'negocioBulk'])->name('usuarios.negocio.bulk')->middleware('permiso:usuarios.gestionar');
+    Route::post('usuarios/bulk-correo', [\App\Http\Controllers\Admin\UsuarioCorreoController::class, 'enviar'])->name('usuarios.bulk-correo')->middleware('permiso:usuarios.gestionar');
+    Route::get('usuarios/bulk-correo/modal', [\App\Http\Controllers\Admin\UsuarioCorreoController::class, 'modal'])->name('usuarios.bulk-correo.modal')->middleware('permiso:usuarios.gestionar');
+    Route::get('usuarios/cambio-password/modal', [\App\Http\Controllers\Admin\UsuarioCorreoController::class, 'cambioPasswordModal'])->name('usuarios.cambio-password.modal')->middleware('permiso:usuarios.gestionar');
+    Route::post('usuarios/cambio-password', [\App\Http\Controllers\Admin\UsuarioCorreoController::class, 'enviarAvisoPassword'])->name('usuarios.cambio-password')->middleware('permiso:usuarios.gestionar');
+    Route::delete('usuarios/bulk-destroy', [UserAdminController::class, 'destroyBulk'])->name('usuarios.destroy.bulk')->middleware('permiso:usuarios.gestionar');
+
+    // Email Logs
+    Route::get('email-logs', [\App\Http\Controllers\Admin\EmailLogController::class, 'index'])->name('email-logs.index')->middleware('permiso:usuarios.gestionar');
+    Route::get('email-logs/export', [\App\Http\Controllers\Admin\EmailLogController::class, 'export'])->name('email-logs.export')->middleware('permiso:usuarios.gestionar');
+    Route::get('email-logs/export-campaigns', [\App\Http\Controllers\Admin\EmailLogController::class, 'exportCampaigns'])->name('email-logs.export-campaigns')->middleware('permiso:usuarios.gestionar');
     Route::get('mi-perfil', [UserAdminController::class, 'miPerfil'])->name('mi-perfil');
     Route::post('mi-perfil', [UserAdminController::class, 'actualizarMiPerfil'])->name('mi-perfil.update');
-    Route::resource('rubros', \App\Http\Controllers\Admin\RubroController::class);
-    Route::post('rubros/eliminar-multiple', [\App\Http\Controllers\Admin\RubroController::class, 'eliminarMultiple'])->name('rubros.eliminarMultiple');
-    Route::resource('posts', \App\Http\Controllers\Admin\PostController::class);
-    Route::resource('cotizaciones', \App\Http\Controllers\Admin\CotizacionController::class);
-    Route::post('cotizaciones/crear-cliente', [\App\Http\Controllers\Admin\CotizacionController::class, 'crearCliente'])->name('cotizaciones.crearCliente');
-    Route::get('cotizaciones/{cotizacione}/print', [\App\Http\Controllers\Admin\CotizacionController::class, 'print'])->name('cotizaciones.print');
-    Route::post('cotizaciones/{cotizacione}/generar-recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'generarRecibo'])->name('cotizaciones.generarRecibo');
-    Route::get('cotizaciones/{cotizacione}/recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'verRecibo'])->name('cotizaciones.recibo');
-    Route::get('cotizaciones/{cotizacione}/recibo/edit', [\App\Http\Controllers\Admin\CotizacionController::class, 'editarRecibo'])->name('cotizaciones.recibo.edit');
-    Route::put('cotizaciones/{cotizacione}/recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'actualizarRecibo'])->name('cotizaciones.recibo.update');
-    Route::resource('visitas-tecnicas', \App\Http\Controllers\Admin\VisitaTecnicaController::class)->only(['index', 'show', 'destroy']);
-    Route::resource('suscripciones', \App\Http\Controllers\Admin\SuscripcionController::class)->only(['index', 'destroy']);
-    Route::resource('pedidos', \App\Http\Controllers\Admin\PedidoController::class)->only(['index', 'show', 'edit', 'update']);
-    Route::resource('condiciones', \App\Http\Controllers\Admin\CondicionesComercialeController::class)->parameters(['condiciones' => 'condicionesComerciale']);
-    Route::resource('negocios', \App\Http\Controllers\Admin\NegocioController::class)->only(['index', 'edit', 'update']);
-    Route::resource('negocios.slides', \App\Http\Controllers\Admin\BannerSlideController::class)->except(['show']);
-    Route::resource('logos', \App\Http\Controllers\Admin\EmpresaLogoController::class);
-    Route::resource('plantillas', \App\Http\Controllers\Admin\PlantillaCorreoController::class)->except(['show']);
-    Route::resource('tipos-envio', \App\Http\Controllers\Admin\TipoEnvioController::class);
-    Route::resource('tarifas-envio', \App\Http\Controllers\Admin\TarifaEnvioController::class);
-    Route::post('cotizaciones/{cotizacione}/enviar-correo', [\App\Http\Controllers\Admin\CotizacionController::class, 'enviarCorreo'])->name('cotizaciones.enviarCorreo');
-    Route::get('cotizaciones/{cotizacione}/duplicar', [\App\Http\Controllers\Admin\CotizacionController::class, 'duplicar'])->name('cotizaciones.duplicar');
+    Route::resource('rubros', \App\Http\Controllers\Admin\RubroController::class)->middleware('permiso:rubros.gestionar');
+    Route::post('rubros/eliminar-multiple', [\App\Http\Controllers\Admin\RubroController::class, 'eliminarMultiple'])->name('rubros.eliminarMultiple')->middleware('permiso:rubros.gestionar');
 
-    Route::resource('concursos', \App\Http\Controllers\Admin\ConcursoController::class)->except(['edit', 'update']);
-    Route::post('concursos/{concurso}/activar', [\App\Http\Controllers\Admin\ConcursoController::class, 'activar'])->name('concursos.activar');
-    Route::post('concursos/{concurso}/finalizar', [\App\Http\Controllers\Admin\ConcursoController::class, 'finalizar'])->name('concursos.finalizar');
-    Route::post('concursos/{concurso}/generar-participantes', [\App\Http\Controllers\Admin\ConcursoController::class, 'generarParticipantes'])->name('concursos.generarParticipantes');
-    Route::post('concursos/{concurso}/enviar-correos', [\App\Http\Controllers\Admin\ConcursoController::class, 'enviarCorreos'])->name('concursos.enviarCorreos');
-    Route::post('concursos/{concurso}/reenviar-correos', [\App\Http\Controllers\Admin\ConcursoController::class, 'reenviarCorreos'])->name('concursos.reenviarCorreos');
-    Route::post('concursos/{concurso}/declarar-ganador/{participante}', [\App\Http\Controllers\Admin\ConcursoController::class, 'declararGanador'])->name('concursos.declararGanador');
-    Route::post('concursos/{concurso}/sorteo-automatico', [\App\Http\Controllers\Admin\ConcursoController::class, 'sorteoAutomatico'])->name('concursos.sorteoAutomatico');
-    Route::get('concursos/sorteo/vivo', [\App\Http\Controllers\Admin\ConcursoController::class, 'sorteo'])->name('concursos.sorteo');
-    Route::post('concursos/sorteo/validar', [\App\Http\Controllers\Admin\ConcursoController::class, 'validarCodigo'])->name('concursos.validarCodigo');
+    // ===== Ubigeo (Países / Departamentos / Provincias / Distritos) =====
+    Route::middleware('permiso:ubigeo.gestionar')->group(function () {
+        Route::get('ubigeo/paises', [\App\Http\Controllers\Admin\UbigeoController::class, 'paises'])->name('ubigeo.paises');
+        Route::post('ubigeo/paises', [\App\Http\Controllers\Admin\UbigeoController::class, 'paisesStore'])->name('ubigeo.paises.store');
+        Route::put('ubigeo/paises/{pais}', [\App\Http\Controllers\Admin\UbigeoController::class, 'paisesUpdate'])->name('ubigeo.paises.update');
+        Route::delete('ubigeo/paises/{pais}', [\App\Http\Controllers\Admin\UbigeoController::class, 'paisesDestroy'])->name('ubigeo.paises.destroy');
 
-    Route::prefix('exim')->name('exim.')->group(function () {
+        Route::get('ubigeo/departamentos', [\App\Http\Controllers\Admin\UbigeoController::class, 'departamentos'])->name('ubigeo.departamentos');
+        Route::post('ubigeo/departamentos', [\App\Http\Controllers\Admin\UbigeoController::class, 'departamentosStore'])->name('ubigeo.departamentos.store');
+        Route::put('ubigeo/departamentos/{departamento}', [\App\Http\Controllers\Admin\UbigeoController::class, 'departamentosUpdate'])->name('ubigeo.departamentos.update');
+        Route::delete('ubigeo/departamentos/{departamento}', [\App\Http\Controllers\Admin\UbigeoController::class, 'departamentosDestroy'])->name('ubigeo.departamentos.destroy');
+
+        Route::get('ubigeo/provincias', [\App\Http\Controllers\Admin\UbigeoController::class, 'provincias'])->name('ubigeo.provincias');
+        Route::post('ubigeo/provincias', [\App\Http\Controllers\Admin\UbigeoController::class, 'provinciasStore'])->name('ubigeo.provincias.store');
+        Route::put('ubigeo/provincias/{provincia}', [\App\Http\Controllers\Admin\UbigeoController::class, 'provinciasUpdate'])->name('ubigeo.provincias.update');
+        Route::delete('ubigeo/provincias/{provincia}', [\App\Http\Controllers\Admin\UbigeoController::class, 'provinciasDestroy'])->name('ubigeo.provincias.destroy');
+
+        Route::get('ubigeo/distritos', [\App\Http\Controllers\Admin\UbigeoController::class, 'distritos'])->name('ubigeo.distritos');
+        Route::post('ubigeo/distritos', [\App\Http\Controllers\Admin\UbigeoController::class, 'distritosStore'])->name('ubigeo.distritos.store');
+        Route::put('ubigeo/distritos/{distrito}', [\App\Http\Controllers\Admin\UbigeoController::class, 'distritosUpdate'])->name('ubigeo.distritos.update');
+        Route::delete('ubigeo/distritos/{distrito}', [\App\Http\Controllers\Admin\UbigeoController::class, 'distritosDestroy'])->name('ubigeo.distritos.destroy');
+
+        // AJAX para cascadas
+        Route::get('ubigeo/ajax/departamentos/{pais}', [\App\Http\Controllers\Admin\UbigeoController::class, 'ajaxDepartamentos'])->name('ubigeo.departamentos.ajax');
+        Route::get('ubigeo/ajax/provincias/{departamento}', [\App\Http\Controllers\Admin\UbigeoController::class, 'ajaxProvincias'])->name('ubigeo.provincias.ajax');
+        Route::get('ubigeo/ajax/distritos/{provincia}', [\App\Http\Controllers\Admin\UbigeoController::class, 'ajaxDistritos'])->name('ubigeo.distritos.ajax');
+    });
+
+    Route::resource('posts', \App\Http\Controllers\Admin\PostController::class)->middleware('permiso:posts.gestionar');
+    Route::resource('cotizaciones', \App\Http\Controllers\Admin\CotizacionController::class)->middleware('permiso:cotizaciones.gestionar');
+    Route::post('cotizaciones/crear-cliente', [\App\Http\Controllers\Admin\CotizacionController::class, 'crearCliente'])->name('cotizaciones.crearCliente')->middleware('permiso:cotizaciones.gestionar');
+    Route::get('cotizaciones/{cotizacione}/print', [\App\Http\Controllers\Admin\CotizacionController::class, 'print'])->name('cotizaciones.print')->middleware('permiso:cotizaciones.gestionar');
+    Route::post('cotizaciones/{cotizacione}/generar-recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'generarRecibo'])->name('cotizaciones.generarRecibo')->middleware('permiso:cotizaciones.gestionar');
+    Route::get('cotizaciones/{cotizacione}/recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'verRecibo'])->name('cotizaciones.recibo')->middleware('permiso:cotizaciones.gestionar');
+    Route::get('cotizaciones/{cotizacione}/recibo/edit', [\App\Http\Controllers\Admin\CotizacionController::class, 'editarRecibo'])->name('cotizaciones.recibo.edit')->middleware('permiso:cotizaciones.gestionar');
+    Route::put('cotizaciones/{cotizacione}/recibo', [\App\Http\Controllers\Admin\CotizacionController::class, 'actualizarRecibo'])->name('cotizaciones.recibo.update')->middleware('permiso:cotizaciones.gestionar');
+    Route::resource('visitas-tecnicas', \App\Http\Controllers\Admin\VisitaTecnicaController::class)->only(['index', 'show', 'destroy'])->middleware('permiso:visitas.gestionar');
+    Route::resource('suscripciones', \App\Http\Controllers\Admin\SuscripcionController::class)->only(['index', 'destroy'])->middleware('permiso:suscripciones.gestionar');
+    Route::resource('pedidos', \App\Http\Controllers\Admin\PedidoController::class)->only(['index', 'show', 'edit', 'update'])->middleware('permiso:pedidos.gestionar');
+    Route::resource('condiciones', \App\Http\Controllers\Admin\CondicionesComercialeController::class)->parameters(['condiciones' => 'condicionesComerciale'])->middleware('permiso:condiciones.gestionar');
+    Route::resource('negocios', \App\Http\Controllers\Admin\NegocioController::class)->only(['index', 'edit', 'update'])->middleware('permiso:negocios.gestionar');
+    Route::resource('negocios.slides', \App\Http\Controllers\Admin\BannerSlideController::class)->except(['show'])->middleware('permiso:negocios.gestionar');
+    Route::resource('logos', \App\Http\Controllers\Admin\EmpresaLogoController::class)->middleware('permiso:logos.gestionar');
+    Route::resource('plantillas', \App\Http\Controllers\Admin\PlantillaCorreoController::class)->except(['show'])->middleware('permiso:plantillas.gestionar');
+    Route::resource('tipos-envio', \App\Http\Controllers\Admin\TipoEnvioController::class)->middleware('permiso:envios.gestionar');
+    Route::resource('tarifas-envio', \App\Http\Controllers\Admin\TarifaEnvioController::class)->middleware('permiso:envios.gestionar');
+    Route::post('cotizaciones/{cotizacione}/enviar-correo', [\App\Http\Controllers\Admin\CotizacionController::class, 'enviarCorreo'])->name('cotizaciones.enviarCorreo')->middleware('permiso:cotizaciones.gestionar');
+    Route::get('cotizaciones/{cotizacione}/duplicar', [\App\Http\Controllers\Admin\CotizacionController::class, 'duplicar'])->name('cotizaciones.duplicar')->middleware('permiso:cotizaciones.gestionar');
+
+    Route::resource('concursos', \App\Http\Controllers\Admin\ConcursoController::class)->except(['edit', 'update'])->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/{concurso}/activar', [\App\Http\Controllers\Admin\ConcursoController::class, 'activar'])->name('concursos.activar')->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/{concurso}/finalizar', [\App\Http\Controllers\Admin\ConcursoController::class, 'finalizar'])->name('concursos.finalizar')->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/{concurso}/generar-participantes', [\App\Http\Controllers\Admin\ConcursoController::class, 'generarParticipantes'])->name('concursos.generarParticipantes')->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/{concurso}/enviar-correos', [\App\Http\Controllers\Admin\ConcursoController::class, 'enviarCorreos'])->name('concursos.enviarCorreos')->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/{concurso}/reenviar-correos', [\App\Http\Controllers\Admin\ConcursoController::class, 'reenviarCorreos'])->name('concursos.reenviarCorreos')->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/{concurso}/declarar-ganador/{participante}', [\App\Http\Controllers\Admin\ConcursoController::class, 'declararGanador'])->name('concursos.declararGanador')->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/{concurso}/sorteo-automatico', [\App\Http\Controllers\Admin\ConcursoController::class, 'sorteoAutomatico'])->name('concursos.sorteoAutomatico')->middleware('permiso:concursos.gestionar');
+    Route::get('concursos/sorteo/vivo', [\App\Http\Controllers\Admin\ConcursoController::class, 'sorteo'])->name('concursos.sorteo')->middleware('permiso:concursos.gestionar');
+    Route::post('concursos/sorteo/validar', [\App\Http\Controllers\Admin\ConcursoController::class, 'validarCodigo'])->name('concursos.validarCodigo')->middleware('permiso:concursos.gestionar');
+
+    Route::prefix('exim')->name('exim.')->middleware('permiso:exim.gestionar')->group(function () {
         Route::get('dashboard', [\App\Http\Controllers\Admin\Exim\DashboardController::class, 'index'])->name('dashboard');
         Route::resource('monedas', \App\Http\Controllers\Admin\Exim\MonedaController::class);
         Route::resource('incoterms', \App\Http\Controllers\Admin\Exim\IncotermController::class);
@@ -336,5 +400,7 @@ Route::get('/{ruta}', function ($ruta) {
 
     abort(404);
 })->where('ruta', '^[a-zA-Z0-9\-]+$');
+
+
 
 

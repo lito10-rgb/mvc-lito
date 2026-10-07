@@ -60,13 +60,19 @@
                         @endif
                         <h3>{{ $p->titulo }}</h3>
                         @if (!$sinPrecio)
+                            @php
+                                $simbolo = $moneda === 'USD' ? '$' : 'S/';
+                                $factor = $moneda === 'USD' && $tipoCambio > 0 ? 1 / $tipoCambio : 1;
+                                $precioMostrar = $p->precio * $factor;
+                                $precioFinalMostrar = $p->precioFinal * $factor;
+                            @endphp
                             @if (!empty($p->precioOferta) || $p->enOferta)
                                 <div>
-                                    <span class="precio-oferta">S/ {{ number_format($p->precioFinal, 2) }}</span>
-                                    <span class="precio-tachado">S/ {{ number_format($p->precio, 2) }}</span>
+                                    <span class="precio-oferta">{{ $simbolo }} {{ number_format($precioFinalMostrar, 2) }}</span>
+                                    <span class="precio-tachado">{{ $simbolo }} {{ number_format($precioMostrar, 2) }}</span>
                                 </div>
                             @else
-                                <div class="precio">S/ {{ number_format($p->precio, 2) }}</div>
+                                <div class="precio">{{ $simbolo }} {{ number_format($precioMostrar, 2) }}</div>
                             @endif
                         @endif
                         @php
@@ -100,8 +106,24 @@
         Generado el {{ now()->format('d/m/Y H:i') }} — {{ $negNombre }}
     </div>
 
-    <script>
-        window.onload = function () { window.print(); };
-    </script>
+    @if (!empty($preview))
+        <div class="preview-bar" style="position:fixed;bottom:0;left:0;right:0;background:#103067;color:#fff;padding:12px 20px;display:flex;justify-content:center;gap:12px;align-items:center;z-index:999;">
+            <span style="font-weight:600;">Vista previa del catálogo</span>
+            <button onclick="window.print()" style="padding:8px 18px;border:0;border-radius:6px;background:#c5a200;color:#103067;font-weight:700;cursor:pointer;">
+                Imprimir / Guardar PDF
+            </button>
+            <button onclick="history.back()" style="padding:8px 18px;border:1px solid #fff;border-radius:6px;background:transparent;color:#fff;cursor:pointer;">
+                Volver
+            </button>
+        </div>
+        <style>
+            @media print { .preview-bar { display: none !important; } }
+            body { padding-bottom: 80px; }
+        </style>
+    @else
+        <script>
+            window.onload = function () { window.print(); };
+        </script>
+    @endif
 </body>
 </html>

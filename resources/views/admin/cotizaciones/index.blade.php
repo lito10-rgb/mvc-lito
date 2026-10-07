@@ -59,11 +59,20 @@
                         <tr>
                             <td>{{ $c->id }}</td>
                             <td>{{ $c->fecha->format('d/m/Y') }}</td>
-                            <td>{{ $c->cliente }}</td>
-                            <td>
-                                {{ count($c->items) }} item(s)
-                                <small class="text-muted d-block">{{ $c->producto }}</small>
-                            </td>
+<td>
+                            <a href="{{ route('admin.cotizaciones.show', $c) }}" class="text-primary">
+                                <strong>{{ $c->cliente }}</strong><br>
+                                <small>
+                                    Tel: {{ $c->telefono ?? '—' }} | 
+                                    Email: {{ $c->correo ?? ($c->clienteUser?->email ?? '—') }} | 
+                                    Páis: {{ $paises[$c->clienteUser?->profile?->pais] ?? '—' }}
+                                </small>
+                            </a>
+                        </td>
+                        <td>
+                            {{ count($c->items) }} item(s)
+                            <small class="text-muted d-block">{{ $c->producto }}</small>
+                        </td>
                             <td>S/ {{ number_format($c->total, 2) }}</td>
                             <td>
                                 @php

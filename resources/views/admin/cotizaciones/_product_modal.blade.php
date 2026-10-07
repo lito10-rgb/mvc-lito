@@ -124,13 +124,18 @@
     function actualizarSubcategorias() {
         const catId = filtroCat.value;
         filtroSub.innerHTML = '<option value="">Todas las subcategorías</option>';
-        subcats.filter(function(s) { return !catId || String(s.id_categoria) === catId; })
+        subcats.filter(function(s) {
+            if (!catId) return true;
+            const cats = Array.isArray(s.cats) ? s.cats : (s.id_categoria ? [s.id_categoria] : []);
+            return cats.map(String).includes(String(catId));
+        })
                .forEach(function(s) {
                    const opt = document.createElement('option');
                    opt.value = s.id;
                    opt.textContent = s.subcategoria;
                    filtroSub.appendChild(opt);
                });
+        filtroSub.value = '';
         filtrar();
     }
 

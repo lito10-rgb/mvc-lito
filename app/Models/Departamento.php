@@ -10,4 +10,14 @@ class Departamento extends Model
     public $timestamps = false;
 
     protected $fillable = ['pais_id', 'nombre'];
+
+    public function pais()
+    {
+        return $this->belongsTo(Pais::class);
+    }
+
+    public function provincias()
+    {
+        return $this->hasMany(Provincia::class);
+    }
 }

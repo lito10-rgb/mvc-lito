@@ -93,7 +93,7 @@ class Cotizacion extends Model
         return $this->belongsTo(CondicionesComerciale::class, 'condicion_id');
     }
 
-    public function cliente()
+    public function clienteUser()
     {
         return $this->belongsTo(User::class, 'cliente_id');
     }

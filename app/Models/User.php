@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Permiso;
 use App\Models\Role;
 use App\Models\Rubro;
 
@@ -72,6 +73,40 @@ class User extends Authenticatable
             'role_id'
         );
 
+    }
+
+    public function permisos()
+    {
+        return $this->belongsToMany(Permiso::class, 'permiso_user');
+    }
+
+    public function esAdmin(): bool
+    {
+        $nombres = $this->roles()
+            ->pluck('roles.nombre')
+            ->map(fn($n) => strtolower($n ?? ''));
+
+        return $nombres->contains('admin') || $nombres->contains('superadmin');
+    }
+
+    public function permisosEfectivos()
+    {
+        if ($this->esAdmin()) {
+            return Permiso::all();
+        }
+
+        $permisoIds = $this->roles()
+            ->join('permiso_role', 'permiso_role.role_id', '=', 'roles.id')
+            ->pluck('permiso_role.permiso_id')
+            ->merge($this->permisos()->pluck('permiso_user.permiso_id'))
+            ->unique();
+
+        return Permiso::whereIn('id', $permisoIds)->get();
+    }
+
+    public function puede(string $clave): bool
+    {
+        return $this->permisosEfectivos()->contains(fn($permiso) => $permiso->clave === $clave);
     }
 
 

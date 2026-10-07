@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Rubro;
 use App\Models\Role;
+use App\Models\Permiso;
 
 class UserAdminController extends Controller
 {
@@ -38,7 +39,7 @@ class UserAdminController extends Controller
     // }
     public function index(Request $request)
 {
-    $users = User::with(['profile', 'scores', 'roles', 'rubros'])
+    $users = User::with(['profile', 'scores', 'roles', 'rubros', 'permisos'])
 
         // 🔍 nombre o apellidos
         ->when($request->nombre, function ($q) use ($request) {
@@ -78,13 +79,43 @@ class UserAdminController extends Controller
             });
         })
 
-        // ⭐ mejor cliente por score
+        // ⭐ mejor cliente por score (desc)
         ->when($request->orden == 'score', function ($q) {
             $q->orderByDesc(
-                UserScore::select('score')
+                UserScore::select('puntuacion')
                     ->whereColumn('user_scores.user_id', 'users.id')
                     ->limit(1)
             );
+        })
+
+        // 🔼 ultimos usuarios inscrito (desc)
+        ->when($request->orden == 'ultimos_inscritos', function ($q) {
+            $q->orderBy('fecha', 'desc');
+        })
+
+        // 🔽 ultimos usuarios inscrito (asc)
+        ->when($request->orden == 'ultimos_inscritos_asc', function ($q) {
+            $q->orderBy('fecha', 'asc');
+        })
+
+        // 🔼 nombre A-Z (asc)
+        ->when($request->orden == 'nombre_asc', function ($q) {
+            $q->orderBy('nombre', 'asc');
+        })
+
+        // 🔽 nombre Z-A (desc)
+        ->when($request->orden == 'nombre_desc', function ($q) {
+            $q->orderBy('nombre', 'desc');
+        })
+
+        // 🔼 email A-Z (asc)
+        ->when($request->orden == 'email_asc', function ($q) {
+            $q->orderBy('email', 'asc');
+        })
+
+        // 🔽 email Z-A (desc)
+        ->when($request->orden == 'email_desc', function ($q) {
+            $q->orderBy('email', 'desc');
         })
 
         // 🏪 negocio (origen del usuario)
@@ -106,17 +137,27 @@ class UserAdminController extends Controller
     $roles  = Role::orderBy('nombre')->get();
     $rubros = Rubro::orderBy('nombre')->get();
 
-    $dominios = User::whereNotNull('negocio')
+$dominios = User::whereNotNull('negocio')
         ->where('negocio', '!=', '')
         ->distinct()
         ->orderBy('negocio')
         ->pluck('negocio');
 
+    $modulos = Permiso::orderBy('modulo')->get()
+        ->groupBy(fn($p) => $p->modulo)
+        ->map(function ($grupo) {
+            return $grupo->sortBy('etiqueta');
+        });
+
+    $paises = Pais::pluck('nombre', 'id');
+
     return view('admin.usuarios.index', compact(
         'users',
         'roles',
         'rubros',
-        'dominios'
+        'dominios',
+        'modulos',
+        'paises'
     ));
 }
 
@@ -128,6 +169,8 @@ class UserAdminController extends Controller
 public function create()
 {
     $user   = new User();
+    $user->setRelation('roles', collect());
+    $user->setRelation('rubros', collect());
     $roles  = Role::orderBy('nombre')->get();
     $rubros = Rubro::orderBy('nombre')->get();
     $paises = Pais::orderBy('nombre')->get();
@@ -303,6 +346,8 @@ public function edit($id)
     if (!$user->scores) {
         $user->scores = new UserScore();
     }
+
+    $user->load(['roles', 'rubros']);
 
     // 👉 PAISES (para el combo)
     $paises = Pais::orderBy('nombre')->get();
@@ -567,7 +612,7 @@ public function negocioBulk(Request $request)
         if (!$user->profile) $user->profile = new UserProfile();
         if (!$user->scores) $user->scores = new UserScore();
 
-        $paises = Pais::orderBy('nombre')->get();
+$paises = Pais::pluck('nombre', 'id');
         $estados = $user->profile->pais
             ? Departamento::where('pais_id', $user->profile->pais)->orderBy('nombre')->get()
             : collect();

@@ -12,9 +12,20 @@
                 Nueva Cotización
             @endif
         </h3>
-        <a href="{{ route('admin.cotizaciones.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Volver
-        </a>
+        <div class="d-flex gap-2">
+        @if(request('cliente_id'))
+            <a href="{{ route('admin.usuarios.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Volver a Usuarios
+            </a>
+            <a href="{{ route('admin.cotizaciones.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-file-invoice-dollar me-1"></i> Cotizaciones
+            </a>
+        @else
+            <a href="{{ route('admin.cotizaciones.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Volver
+            </a>
+        @endif
+    </div>
     </div>
 
     @if(isset($origen))
@@ -40,28 +51,30 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Cliente</label>
-                        <div class="input-group">
-                            <input type="text" name="cliente" class="form-control @error('cliente') is-invalid @enderror"
-                                   value="{{ old('cliente', isset($origen) ? $origen->cliente : '') }}" required>
+                        <div class="input-group position-relative">
+                            <input type="text" name="cliente" id="clienteAutocompleta" class="form-control @error('cliente') is-invalid @enderror"
+                                   value="{{ old('cliente', request('cliente') ?: (isset($origen) ? $origen->cliente : '')) }}" required autocomplete="off">
                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#clienteModal">
                                 <i class="fas fa-search"></i>
                             </button>
+                            <div id="clienteSugerencias" class="list-group position-absolute d-none" style="z-index:1050;width:100%;max-height:260px;overflow-y:auto;top:100%;left:0;"></div>
                             @error('cliente') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+                        <small class="text-muted">Escribe el nombre o la empresa del cliente y elige de la lista.</small>
                     </div>
 
                     <div class="col-md-2">
                         <label class="form-label">Teléfono</label>
                         <input type="text" name="telefono" class="form-control @error('telefono') is-invalid @enderror"
-                               value="{{ old('telefono', isset($origen) ? $origen->telefono : '') }}">
+                               value="{{ old('telefono', request('telefono') ?: (isset($origen) ? $origen->telefono : '')) }}">
                         @error('telefono') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-2">
                         <label class="form-label">Correo</label>
-                        <input type="hidden" name="cliente_id" value="{{ old('cliente_id', isset($origen) ? $origen->cliente_id : '') }}">
+                        <input type="hidden" name="cliente_id" value="{{ old('cliente_id', request('cliente_id') ?: (isset($origen) ? $origen->cliente_id : '')) }}">
                         <input type="email" name="correo" class="form-control @error('correo') is-invalid @enderror"
-                               value="{{ old('correo', isset($origen) ? ($origen->cliente?->email ?? $origen->correo) : '') }}">
+                               value="{{ old('correo', request('correo') ?: (isset($origen) ? ($origen->clienteUser?->email ?? $origen->correo) : '')) }}">
                         @error('correo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
@@ -140,7 +153,42 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if(isset($origen))
+                            @if(request('producto_id'))
+                                @php $productoPre = \App\Models\Producto::find(request('producto_id')); @endphp
+                                @if($productoPre)
+                            <tr class="fila-producto">
+                                <td class="text-center align-middle">
+                                    <img class="producto-thumb" src="{{ $productoPre->portada ? asset('storage/' . $productoPre->portada) : '' }}"
+                                         alt="" style="max-width:40px;max-height:40px;{{ $productoPre->portada ? '' : 'display:none;' }}border-radius:4px;">
+                                </td>
+                                <td>
+                                    <input type="hidden" name="productos[0][producto_id]" class="producto-id" value="{{ $productoPre->id }}">
+                                    <div class="input-group">
+                                        <input type="text" name="productos[0][producto]" class="form-control form-control-sm"
+                                               value="{{ request('producto_nombre', $productoPre->titulo) }}" required>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="abrirModalProducto(this)">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td><textarea name="productos[0][descripcion]" class="form-control form-control-sm" rows="1"></textarea></td>
+                                <td><input type="number" name="productos[0][cantidad]" class="form-control form-control-sm cantidad" value="1" min="1" required></td>
+                                <td><input type="number" step="0.01" name="productos[0][precio_unitario]" class="form-control form-control-sm precio-unitario" value="{{ $productoPre->precio }}" min="0" required></td>
+                                <td>
+                                    <select name="productos[0][moneda]" class="form-select form-select-sm moneda">
+                                        <option value="PEN">S/.</option>
+                                        <option value="USD">$</option>
+                                    </select>
+                                </td>
+                                <td class="subtotal-cell text-end fw-bold">{{ number_format((float)$productoPre->precio, 2) }}</td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); calcularTotales();">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                                @endif
+                            @elseif(isset($origen))
                                 @foreach($origen->items as $i => $item)
                             <tr class="fila-producto">
                                 <td class="text-center align-middle">
@@ -415,5 +463,63 @@ document.addEventListener('productoSeleccionado', function(e) {
         bootstrap.Modal.getInstance(document.getElementById('productoModal')).hide();
     }
 });
+
+// Autocompletado de cliente por nombre, apellidos, email o empresa
+@php
+    $clientesAutocompleta = $usuarios->map(function ($u) {
+        return [
+            'id' => $u->id,
+            'nombre' => trim(($u->nombre ?? '') . ' ' . ($u->apellidos ?? '')),
+            'email' => $u->email ?? '',
+            'telefono' => $u->profile->telefono ?? '',
+            'empresa' => $u->profile->empresa ?? '',
+        ];
+    })->values();
+@endphp
+var clientesAutocompleta = @json($clientesAutocompleta);
+
+(function() {
+    const input = document.getElementById('clienteAutocompleta');
+    if (!input) return;
+    const caja = document.getElementById('clienteSugerencias');
+
+    input.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        caja.innerHTML = '';
+        if (q.length < 2) { caja.classList.add('d-none'); return; }
+
+        const filtrados = clientesAutocompleta.filter(function(c) {
+            const nombre = (c.nombre || '').toLowerCase();
+            const empresa = (c.empresa || '').toLowerCase();
+            const email = (c.email || '').toLowerCase();
+            return nombre.includes(q) || empresa.includes(q) || email.includes(q);
+        }).slice(0, 15);
+
+        if (!filtrados.length) { caja.classList.add('d-none'); return; }
+
+        filtrados.forEach(function(c) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'list-group-item list-group-item-action';
+            item.innerHTML = c.nombre + (c.empresa ? ' <span class="badge bg-secondary">' + c.empresa + '</span>' : '');
+            item.addEventListener('click', function() {
+                input.value = c.nombre;
+                const correoInput = document.querySelector('[name="correo"]');
+                if (correoInput && c.email) correoInput.value = c.email;
+                const telInput = document.querySelector('[name="telefono"]');
+                if (telInput && c.telefono) telInput.value = c.telefono;
+                const idInput = document.querySelector('[name="cliente_id"]');
+                if (idInput) idInput.value = c.id;
+                caja.classList.add('d-none');
+            });
+            caja.appendChild(item);
+        });
+        caja.classList.remove('d-none');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !caja.contains(e.target)) caja.classList.add('d-none');
+    });
+})();
 </script>
 @endpush

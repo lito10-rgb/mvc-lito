@@ -184,6 +184,7 @@
 
     <!-- Campo oculto para indicar eliminación -->
     <input type="hidden" name="remove_portada" id="remove_portada" value="0">
+    <input type="hidden" name="portada_actual" id="portada_actual" value="{{ $producto->portada ?? '' }}">
 </div>
 <div class="mb-3">
     <label for="vistas" class="form-label">Vistas</label>

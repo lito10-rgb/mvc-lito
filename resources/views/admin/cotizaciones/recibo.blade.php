@@ -125,7 +125,7 @@
             <h3>Recibido de (Cliente)</h3>
             <p><strong>{{ $cotizacione->recibo_pagado_por ?: $cotizacione->cliente }}</strong></p>
             @if($cotizacione->telefono)<p>Tel: {{ $cotizacione->telefono }}</p>@endif
-            @php $email = $cotizacione->cliente?->email ?? $cotizacione->correo; @endphp
+            @php $email = $cotizacione->clienteUser?->email ?? $cotizacione->correo; @endphp
             @if($email)<p>Email: {{ $email }}</p>@endif
         </div>
         <div class="info-box">
@@ -216,7 +216,7 @@
     </div>
 
     <div class="footer">
-        Documento generado el {{ now()->format('d/m/Y H:i') }} &mdash; {{ $cotizacione->emisor_data['empresa'] ?? ($cotizacione->emisor_data['nombre'] ?? 'Sistema de Cotizaciones') }}
+        Documento generado el {{ now()->format('d/m/Y H:i') }} &mdash; Internacional Company Peru SRL | RUC: 20489555922 | Todos los derechos reservados.
     </div>
 </body>
 </html>
