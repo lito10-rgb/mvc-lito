@@ -149,6 +149,12 @@ class DbSyncController extends Controller
             $remotePdo = $this->getRemotePdo($config);
             $localPdo = DB::connection()->getPdo();
 
+            // Durante la sincronización se desactivan las FK en la conexión remota
+            // para poder insertar/actualizar tablas relacionadas (ej: cotizaciones
+            // antes que users) sin errores de orden. Al final quedan referencias
+            // consistentes porque la BD local es la fuente de verdad completa.
+            $remotePdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+
             $tablas = $this->getTablasComunes($localPdo, $remotePdo, $config);
 
             foreach ($tablas as $tabla) {
