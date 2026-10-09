@@ -176,6 +176,20 @@ Route::get('productos/{producto}/duplicar', [AdminProductoController::class, 'du
     Route::get('email-logs', [\App\Http\Controllers\Admin\EmailLogController::class, 'index'])->name('email-logs.index')->middleware('permiso:usuarios.gestionar');
     Route::get('email-logs/export', [\App\Http\Controllers\Admin\EmailLogController::class, 'export'])->name('email-logs.export')->middleware('permiso:usuarios.gestionar');
     Route::get('email-logs/export-campaigns', [\App\Http\Controllers\Admin\EmailLogController::class, 'exportCampaigns'])->name('email-logs.export-campaigns')->middleware('permiso:usuarios.gestionar');
+
+    // DB Sync
+    Route::middleware('permiso:usuarios.gestionar')->group(function () {
+        Route::get('db-sync', [\App\Http\Controllers\Admin\DbSyncController::class, 'index'])->name('db-sync.index');
+        Route::get('db-sync/create', [\App\Http\Controllers\Admin\DbSyncController::class, 'create'])->name('db-sync.create');
+        Route::post('db-sync', [\App\Http\Controllers\Admin\DbSyncController::class, 'store'])->name('db-sync.store');
+        Route::get('db-sync/{dbSyncConfig}/edit', [\App\Http\Controllers\Admin\DbSyncController::class, 'edit'])->name('db-sync.edit');
+        Route::put('db-sync/{dbSyncConfig}', [\App\Http\Controllers\Admin\DbSyncController::class, 'update'])->name('db-sync.update');
+        Route::delete('db-sync/{dbSyncConfig}', [\App\Http\Controllers\Admin\DbSyncController::class, 'destroy'])->name('db-sync.destroy');
+        Route::post('db-sync/{dbSyncConfig}/test', [\App\Http\Controllers\Admin\DbSyncController::class, 'testConnection'])->name('db-sync.test');
+        Route::post('db-sync/{dbSyncConfig}/sync', [\App\Http\Controllers\Admin\DbSyncController::class, 'sync'])->name('db-sync.sync');
+        Route::get('db-sync/{dbSyncConfig}/logs', [\App\Http\Controllers\Admin\DbSyncController::class, 'logs'])->name('db-sync.logs');
+        Route::get('db-sync/{dbSyncConfig}/download-diff', [\App\Http\Controllers\Admin\DbSyncController::class, 'downloadDiff'])->name('db-sync.download-diff');
+    });
     Route::get('mi-perfil', [UserAdminController::class, 'miPerfil'])->name('mi-perfil');
     Route::post('mi-perfil', [UserAdminController::class, 'actualizarMiPerfil'])->name('mi-perfil.update');
     Route::resource('rubros', \App\Http\Controllers\Admin\RubroController::class)->middleware('permiso:rubros.gestionar');

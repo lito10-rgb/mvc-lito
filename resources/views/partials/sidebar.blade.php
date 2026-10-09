@@ -174,6 +174,11 @@
             <i class="fas fa-store me-2"></i> Negocios / Sitios
         </a>
         @endif
+        @if(auth()->user()->puede('usuarios.gestionar'))
+        <a href="{{ route('admin.db-sync.index') }}" class="sidebar-link">
+            <i class="fas fa-database me-2"></i> Sync BD Remota
+        </a>
+        @endif
         <a href="{{ route('admin.mi-perfil') }}" class="sidebar-link">
             <i class="fas fa-user-pen me-2"></i> Modificar Perfil
         </a>
