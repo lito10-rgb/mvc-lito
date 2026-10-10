@@ -8,15 +8,27 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('categorias', function (Blueprint $table) {
-            $table->string('etiquetaOferta', 255)->nullable()->after('finOferta');
-            $table->date('fechaInicioOferta')->nullable()->after('etiquetaOferta');
-        });
+        if (!Schema::hasColumn('categorias', 'etiquetaOferta')) {
+            Schema::table('categorias', function (Blueprint $table) {
+                $table->string('etiquetaOferta', 255)->nullable()->after('finOferta');
+            });
+        }
+        if (!Schema::hasColumn('categorias', 'fechaInicioOferta')) {
+            Schema::table('categorias', function (Blueprint $table) {
+                $table->date('fechaInicioOferta')->nullable()->after('etiquetaOferta');
+            });
+        }
 
-        Schema::table('subcategorias', function (Blueprint $table) {
-            $table->string('etiquetaOferta', 255)->nullable()->after('finOferta');
-            $table->date('fechaInicioOferta')->nullable()->after('etiquetaOferta');
-        });
+        if (!Schema::hasColumn('subcategorias', 'etiquetaOferta')) {
+            Schema::table('subcategorias', function (Blueprint $table) {
+                $table->string('etiquetaOferta', 255)->nullable()->after('finOferta');
+            });
+        }
+        if (!Schema::hasColumn('subcategorias', 'fechaInicioOferta')) {
+            Schema::table('subcategorias', function (Blueprint $table) {
+                $table->date('fechaInicioOferta')->nullable()->after('etiquetaOferta');
+            });
+        }
     }
 
     public function down()

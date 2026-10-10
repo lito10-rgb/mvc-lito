@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('tarifas_envio', function (Blueprint $table) {
-            $table->boolean('gratis')->default(false)->after('costo');
-        });
+        if (!Schema::hasColumn('tarifas_envio', 'gratis')) {
+            Schema::table('tarifas_envio', function (Blueprint $table) {
+                $table->boolean('gratis')->default(false)->after('costo');
+            });
+        }
     }
 
     public function down(): void

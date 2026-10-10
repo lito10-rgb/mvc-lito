@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('email_campaigns')) {
+            return;
+        }
+
         Schema::create('email_campaigns', function (Blueprint $table) {
             $table->id();
             $table->string('nombre'); // ej. "Aviso contraseña Oct 2026"

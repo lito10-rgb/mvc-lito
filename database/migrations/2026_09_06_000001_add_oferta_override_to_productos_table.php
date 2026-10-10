@@ -8,10 +8,16 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('productos', function (Blueprint $table) {
-            $table->integer('ofertaCategoria')->nullable()->after('ofertadoPorSubCategoria');
-            $table->integer('ofertaSubcategoria')->nullable()->after('ofertaCategoria');
-        });
+        if (!Schema::hasColumn('productos', 'ofertaCategoria')) {
+            Schema::table('productos', function (Blueprint $table) {
+                $table->integer('ofertaCategoria')->nullable()->after('ofertadoPorSubCategoria');
+            });
+        }
+        if (!Schema::hasColumn('productos', 'ofertaSubcategoria')) {
+            Schema::table('productos', function (Blueprint $table) {
+                $table->integer('ofertaSubcategoria')->nullable()->after('ofertaCategoria');
+            });
+        }
     }
 
     public function down()

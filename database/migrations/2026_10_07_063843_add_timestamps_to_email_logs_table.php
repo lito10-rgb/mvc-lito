@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('email_logs', function (Blueprint $table) {
-            $table->timestamps();
-        });
+        if (!Schema::hasColumn('email_logs', 'created_at')) {
+            Schema::table('email_logs', function (Blueprint $table) {
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('email_logs', function (Blueprint $table) {
-            $table->dropTimestamps();
-        });
+        if (Schema::hasColumn('email_logs', 'created_at')) {
+            Schema::table('email_logs', function (Blueprint $table) {
+                $table->dropTimestamps();
+            });
+        }
     }
 };

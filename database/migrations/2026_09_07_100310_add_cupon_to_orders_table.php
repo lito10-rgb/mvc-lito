@@ -11,11 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('cupon_id')->nullable()->after('telefono');
-            $table->string('cupon_codigo', 50)->nullable()->after('cupon_id');
-            $table->decimal('cupon_descuento', 10, 2)->nullable()->after('cupon_codigo');
-        });
+        if (!Schema::hasColumn('orders', 'cupon_id')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->unsignedBigInteger('cupon_id')->nullable()->after('telefono');
+            });
+        }
+        if (!Schema::hasColumn('orders', 'cupon_codigo')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->string('cupon_codigo', 50)->nullable()->after('cupon_id');
+            });
+        }
+        if (!Schema::hasColumn('orders', 'cupon_descuento')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->decimal('cupon_descuento', 10, 2)->nullable()->after('cupon_codigo');
+            });
+        }
     }
 
     /**

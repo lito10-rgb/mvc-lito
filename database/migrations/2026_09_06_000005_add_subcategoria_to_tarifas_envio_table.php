@@ -8,10 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('tarifas_envio', function (Blueprint $table) {
-            $table->unsignedBigInteger('subcategoria_id')->nullable()->after('categoria_id');
-            $table->foreign('subcategoria_id')->references('id')->on('subcategorias')->nullOnDelete();
-        });
+        if (!Schema::hasColumn('tarifas_envio', 'subcategoria_id')) {
+            Schema::table('tarifas_envio', function (Blueprint $table) {
+                $table->unsignedBigInteger('subcategoria_id')->nullable()->after('categoria_id');
+                $table->foreign('subcategoria_id')->references('id')->on('subcategorias')->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void

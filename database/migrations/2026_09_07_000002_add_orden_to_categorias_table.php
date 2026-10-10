@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('categorias', function (Blueprint $table) {
-            $table->unsignedInteger('orden')->default(0)->after('estado');
-        });
+        if (!Schema::hasColumn('categorias', 'orden')) {
+            Schema::table('categorias', function (Blueprint $table) {
+                $table->unsignedInteger('orden')->default(0)->after('estado');
+            });
+        }
     }
 
     public function down(): void
